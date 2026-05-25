@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets"
+    id="http://digitalproserver.com/latinatv"
+    version="1.0.0"
+    viewmodes="maximized">
+    <tizen:application id="DigitalPS.latinatv" package="DigitalPS" required_version="2.3"/>
+    <content src="index.html"/>
+    <icon src="favicon.svg"/>
+    <name>Latina TV</name>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+    <tizen:profile name="tv-samsung"/>
+    <access origin="*" subdomains="true"/>
+</widget>

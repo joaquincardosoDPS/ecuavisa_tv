@@ -1,0 +1,323 @@
+/* ── EventView — TV version ── */
+
+.container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  outline: none;
+}
+
+.scrollContainer {
+  width: 100%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Banner ── */
+
+.bannerBg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--clr-primary);
+}
+
+.bannerBgImage {
+  position: absolute;
+  inset: 0;
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.bannerOverlayLeft {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 33%;
+  background: linear-gradient(to right, var(--clr-primary), transparent);
+}
+
+.bannerOverlayBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 66%;
+  background: linear-gradient(to top, var(--clr-primary) 0%, transparent 100%);
+}
+
+.bannerScrollOverlay {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-primary);
+  transition: opacity 0.1s ease;
+}
+
+.bannerContent {
+  position: relative;
+  z-index: 10;
+  padding: 6vh 3vw 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 52vh;
+}
+
+.bannerContent>*+* {
+  margin-top: 1.2rem;
+}
+
+/* Event status badge */
+.eventStatusBadge {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--foc-tertiary);
+  color: var(--clr-secondary-subtitle);
+}
+
+/* Event logo */
+.eventLogo {
+  max-width: 25vw;
+  max-height: 15vh;
+  object-fit: contain;
+}
+
+/* Classification badge */
+.classificationBadge {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #31343C;
+  color: #fff;
+}
+
+/* Category row */
+.categoryRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 8vh;
+}
+
+.categoryRow>*+* {
+  margin-left: 1rem;
+}
+
+.categoryLogo {
+  height: 6vh;
+  width: auto;
+  object-fit: contain;
+}
+
+.categoryName {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--clr-primary-text);
+}
+
+/* Title + description */
+.eventTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--clr-primary-title);
+  margin: 0;
+}
+
+.eventDescription {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--clr-primary-subtitle);
+  max-width: 45vw;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+/* ── Tabs ── */
+
+.tabsContainer {
+  position: relative;
+  z-index: 10;
+  padding: 0 3vw;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.tabsInner {
+  display: flex;
+  flex-direction: row;
+}
+
+.tabsInner>*+* {
+  margin-left: 2.5rem;
+}
+
+.tabBtn {
+  padding: 1rem 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--clr-secondary-text);
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+  border-bottom: 4px solid transparent;
+  transition: color 0.2s ease;
+  margin-bottom: -2px;
+}
+
+.tabBtnActive {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.tabBtnFocused {
+  color: #fff;
+  border-bottom-color: var(--foc-primary);
+}
+
+/* ── Content area below tabs ── */
+
+.contentArea {
+  position: relative;
+  z-index: 10;
+  padding: 2.5rem 3vw 5rem;
+  min-height: 100vh;
+}
+
+/* ── Events carousel ── */
+
+.eventsWrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin: -25px -20px;
+  padding: 25px 20px;
+}
+
+.eventsTrack {
+  display: flex;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.eventsTrack>*+* {
+  margin-left: 1.5rem;
+}
+
+.eventCard {
+  flex-shrink: 0;
+  width: 22vw;
+  cursor: pointer;
+  outline: none;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0a0a0a;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  border: 3px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.eventCardFocused {
+  border-color: var(--foc-primary);
+  box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+  z-index: 10;
+}
+
+.eventCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eventCardBadge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+}
+
+.eventsEndSpacer {
+  flex-shrink: 0;
+  width: 4rem;
+}
+
+/* ── Event card wrapper (date info below) ── */
+.eventCardWrapper {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.eventCardDateInfo {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+
+.eventCardDateText {
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--clr-secondary-text);
+}
+
+.eventCardDateTitle {
+  font-size: var(--font-size-caption);
+  font-weight: 500;
+  color: var(--clr-secondary-text);
+  margin-top: 0.15rem;
+}
+
+/* ── Detail / synopsis ── */
+
+.detailContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.detailSynopsisTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.detailSynopsis {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+  max-width: 50vw;
+}
+
+/* ── Empty state ── */
+
+.emptyText {
+  font-size: 1.2rem;
+  color: var(--clr-primary-text);
+  opacity: 0.6;
+}

@@ -1,0 +1,77 @@
+/* ============================
+   Button — 3 variantes con foco/hover TV
+   REGLA 1.2: solo transform y opacity para animaciones
+   REGLA F6.1: hover = focused
+   ============================ */
+
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem 3.5rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* ── Flecha Play (::before) ── */
+.btn.withArrow::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 14px;
+    border-color: transparent transparent transparent currentColor;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* ═══════════════════════════════
+   PRIMARIA
+   ═══════════════════════════════ */
+.primary {
+    background-color: var(--clr-primary-button);
+    color: var(--clr-text-primary-button);
+}
+
+.primary.focused,
+.primary:hover {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 20px 4px var(--clr-primary-button);
+}
+
+/* ═══════════════════════════════
+   SECUNDARIA
+   ═══════════════════════════════ */
+.secondary {
+    background-color: var(--clr-secondary-button);
+    color: var(--clr-text-secondary-button);
+}
+
+.secondary.focused,
+.secondary:hover {
+    box-shadow: 0px 0px 20px 0px #FF1A73;
+}
+
+/* ═══════════════════════════════
+   TERCIARIA
+   ═══════════════════════════════ */
+.tertiary {
+    background-color: transparent;
+    color: var(--clr-text-tertiary-button);
+    border-color: var(--clr-text-tertiary-button);
+}
+
+.tertiary.focused,
+.tertiary:hover {
+    background-color: var(--clr-text-tertiary-button);
+    color: var(--clr-tertiary-button, #000000);
+    box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.15);
+}

@@ -1,0 +1,12 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.content {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+}

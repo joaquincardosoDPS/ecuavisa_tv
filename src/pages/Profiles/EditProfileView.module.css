@@ -1,0 +1,294 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  background: var(--clr-primary);
+  padding: 2vh 4vw;
+  overflow: hidden;
+}
+
+/* ── Title ── */
+.title {
+  color: var(--clr-primary-title);
+  font-size: 2.2vw;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  margin-bottom: 5vh;
+  margin-top: 15vh;
+
+  flex-shrink: 0;
+}
+
+/* ── Main content: 2 columns ── */
+.contentGrid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Left column: name + avatar ── */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20vw;
+  margin-right: 3vw;
+}
+
+.leftColumn>*+* {
+  margin-top: 4vh;
+}
+
+.columnLabel {
+  color: var(--clr-primary-text);
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.8;
+  margin: 0;
+  align-self: flex-start;
+}
+
+/* Avatar preview */
+.avatarContainer {
+  position: relative;
+}
+
+.avatarPreview {
+  width: 12vw;
+  height: 12vw;
+  border-radius: 50%;
+  /* border: 3px solid var(--foc-primary); */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.avatarPreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPreviewFallback {
+  font-size: 5vw;
+  font-weight: 700;
+  color: var(--clr-primary-text);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.avatarEditBadge {
+  position: absolute;
+  bottom: 0.3vw;
+  right: 0.3vw;
+  width: 2vw;
+  height: 2vw;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.avatarEditBadgeFocused,
+.avatarEditBadge:hover {
+  border-color: var(--foc-primary);
+  transform: scale(1.15);
+}
+
+.avatarEditIcon {
+  width: 1.1vw;
+  height: 1.1vw;
+}
+
+/* Name input */
+.nameInput {
+  width: 100%;
+  font-size: 1vw;
+  padding: 1vh 1vw;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: var(--clr-secondary);
+  color: var(--clr-primary-text);
+  outline: none;
+  text-align: center;
+}
+
+/* ── Right column: keyboard ── */
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 20vw;
+}
+
+.rightColumn>*+* {
+  margin-top: 0.5vh;
+}
+
+.keyboardWrapper {
+  width: 100%;
+}
+
+/* Override keyboard key sizes for this view */
+.keyboardWrapper>div {
+  padding: 0;
+}
+
+.keyboardWrapper button {
+  min-height: 5.5vh;
+  height: 5.5vh;
+  font-size: 1vw;
+  border-radius: 5px;
+  text-transform: none;
+}
+
+/* ── Bottom buttons ── */
+.bottomActions {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
+  flex-shrink: 0;
+}
+
+.bottomActions>*+* {
+  margin-left: 1.5rem;
+}
+
+.actionBtn {
+  padding: 0.75rem 2.5rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  outline: none;
+}
+
+.actionBtn:disabled {
+  opacity: 0.5;
+}
+
+.saveBtn {
+  background: var(--foc-primary);
+  color: #fff;
+}
+
+.saveBtnFocused {
+  border-color: #fff;
+  transform: scale(1.03);
+}
+
+.deleteBtn {
+  background: var(--clr-secondary);
+  color: var(--clr-primary-text);
+}
+
+.deleteBtnFocused {
+  border-color: var(--foc-primary);
+  transform: scale(1.03);
+}
+
+.errorText {
+  color: #fca5a5;
+  font-size: 1.2rem;
+  margin: 0;
+  text-align: center;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.successText {
+  color: #86efac;
+  font-size: 1.2rem;
+  margin: 0;
+  text-align: center;
+  background: rgba(34, 197, 94, 0.15);
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* ── Delete modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.modalContent {
+  background: var(--clr-secondary);
+  border-radius: 16px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 22rem;
+}
+
+.modalContent>*+* {
+  margin-top: 1.5rem;
+}
+
+.modalText {
+  color: var(--clr-primary-text);
+  font-size: 1rem;
+  text-align: center;
+  margin: 0;
+}
+
+.modalActions {
+  display: flex;
+  width: 100%;
+}
+
+.modalActions>*+* {
+  margin-left: 1rem;
+}
+
+.modalBtn {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.modalCancelBtn {
+  background: none;
+  color: var(--clr-primary-text);
+}
+
+.modalDeleteBtn {
+  background: var(--foc-primary);
+  color: #fff;
+}
+
+.modalBtnFocused {
+  border-color: #fff;
+  transform: scale(1.03);
+}

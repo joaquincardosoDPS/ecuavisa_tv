@@ -1,0 +1,42 @@
+/* ── CategoryView ── */
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 3rem;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.header {
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    color: var(--clr-primary-title);
+}
+
+.subtitle {
+    font-size: var(--font-size-text);
+    color: var(--clr-secondary-text);
+    margin-top: 0.25rem;
+    opacity: 0.6;
+}
+
+.errorText {
+    color: #ef4444;
+    font-size: var(--font-size-caption);
+    font-weight: 500;
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.emptyText {
+    color: var(--clr-secondary-text);
+    font-size: var(--font-size-caption);
+    text-align: center;
+    padding: 5rem 0;
+    opacity: 0.6;
+}

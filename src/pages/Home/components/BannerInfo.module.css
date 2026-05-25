@@ -1,0 +1,51 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.container > * + * {
+    margin-top: 1.5rem;
+}
+
+/* Logo / Título */
+.logoWrapper {
+    height: 8.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: auto;
+    height: 100%;
+    object-fit: contain;
+}
+
+.fallbackTitle {
+    font-size: var(--font-size-title);
+    font-family: var(--font-family-title) !important;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Acciones */
+.actions {
+    display: flex;
+    align-items: center;
+    padding-top: 1rem;
+}
+
+/* Descripción */
+.description {
+    font-size: var(--font-size-caption);
+    font-family: var(--font-family-text) !important;
+    color: #ffffff;
+    line-height: 2rem;
+    max-width: 50rem;
+    max-height: 9.5rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}

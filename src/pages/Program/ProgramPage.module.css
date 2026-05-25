@@ -1,0 +1,472 @@
+/* =============================================
+   ProgramPage — Smart TV Program Detail View
+   REGLA 1.1: CSS Modules
+   REGLA 1.2: Solo transform y opacity para animaciones
+   REGLA 1.3: Flexbox para layout
+   REGLA 1.4: Base 1920×1080
+   ============================================= */
+
+/* ── Banner Background ── */
+.bannerWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    background-color: var(--clr-primary, #001a28);
+}
+
+.bannerImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: top right;
+    background-repeat: no-repeat;
+}
+
+.bannerGradientLeft {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 66%;
+    background: linear-gradient(to right,
+            var(--clr-primary, #001a28) 0%,
+            rgba(0, 26, 40, 0.4) 50%,
+            transparent 100%);
+}
+
+.bannerGradientBottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 66%;
+    background: linear-gradient(to top,
+            var(--clr-primary, #001a28) 0%,
+            rgba(0, 26, 40, 0.4) 50%,
+            transparent 100%);
+}
+
+.bannerOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--clr-primary, #001a28);
+}
+
+/* ── Info Banner (zona de metadata del programa) ── */
+.infoBanner {
+    padding: 6vh 0 4vh 4vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 52vh;
+}
+
+.logoContainer {
+    height: 14vh;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1.5vh;
+}
+
+.logoImg {
+    max-width: 22vw;
+    height: 100%;
+    object-fit: contain;
+}
+
+.titleFallback {
+    font-size: var(--font-size-heading);
+    font-weight: var(--font-weight-title);
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Metadata row (clasificación, año, temporadas, géneros) ── */
+.metaRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1vh;
+}
+
+.metaRow>*+* {
+    margin-left: 0.6rem;
+}
+
+.badge {
+    padding: 0.3rem 0.6rem;
+    background-color: #31343C;
+    border-radius: 6px;
+    font-size: var(--font-size-caption);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.metaText {
+    font-size: var(--font-size-caption);
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ── Botones de acción ── */
+.actionRow {
+    display: flex;
+    align-items: center;
+    padding-top: 1.5vh;
+    margin-bottom: 1vh;
+}
+
+.actionRow>*+* {
+    margin-left: 1rem;
+}
+
+/* ── Barra de progreso ── */
+.progressBarContainer {
+    width: 22vw;
+    margin-bottom: 1vh;
+}
+
+.progressBarOuter {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progressBarInner {
+    height: 100%;
+    background-color: var(--foc-primary);
+    border-radius: 2px;
+}
+
+.progressLabel {
+    font-size: var(--font-size-subtext);
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.3rem;
+}
+
+/* ── Descripción corta ── */
+.description {
+    font-size: var(--font-size-text);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    max-width: 40vw;
+    /* Limitar a 3 líneas */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── Tabs Navigation ── */
+.tabsWrapper {
+    padding: 0 3vw;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+}
+
+.tabsTrack {
+    display: flex;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.tabsTrack>*+* {
+    margin-left: 2.5rem;
+}
+
+.tabItem {
+    position: relative;
+    flex-shrink: 0;
+    padding: 1rem 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--clr-secondary-text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    white-space: nowrap;
+    border-bottom: 4px solid transparent;
+    transition: color 0.2s ease;
+    margin-bottom: -2px;
+    font-family: inherit;
+}
+
+/* Activa */
+.tabItemActive {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+
+/* Foco/Hover — REGLA F6.1 */
+.tabItemFocused,
+.tabItem:hover {
+    color: #ffffff;
+    border-bottom-color: var(--foc-primary);
+}
+
+/* ── Main Content (tabs + chapters) — se desliza sobre el banner fijo ── */
+.mainContent {
+    position: relative;
+    /* background-color: rgba(0, 10, 18, 0.92); */
+}
+
+/* ── Content Area (debajo de tabs) ── */
+.contentArea {
+    padding: 3vh 4vw 6vh;
+    min-height: 100vh;
+}
+
+/* ── Season selector ── */
+.seasonsRow {
+    display: flex;
+    margin-bottom: 2vh;
+}
+
+.seasonsRow>*+* {
+    margin-left: 2vw;
+}
+
+.seasonItem {
+    font-size: var(--font-size-text);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5vh 0.5vw;
+    font-family: inherit;
+    border-bottom: 2px solid transparent;
+}
+
+.seasonItemActive {
+    color: #ffffff;
+}
+
+.seasonItemFocused,
+.seasonItem:hover {
+    color: #ffffff;
+    border-bottom-color: var(--foc-primary);
+}
+
+/* ── Chapters Carousel ── */
+.chaptersWrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    margin: -25px -20px;
+    padding: 25px 20px;
+}
+
+.chaptersTrack {
+    display: flex;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.chaptersTrack>*+* {
+    margin-left: 1.5rem;
+}
+
+/* ── Chapter Card (modelo web) ── */
+.chapterCard {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 22vw;
+}
+
+.chapterThumb {
+    position: relative;
+    width: 100%;
+    /* 16:9 aspect ratio */
+    padding-bottom: 56.25%;
+    overflow: hidden;
+    background-color: #0a0a0a;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+/* F6.1: hover = focused — ring solo en el thumbnail */
+.chapterThumb.focused,
+.chapterThumb:hover {
+    border-color: var(--foc-primary);
+    box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+    z-index: 10;
+}
+
+.chapterThumbImg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.chapterThumbPlaceholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111;
+}
+
+.chapterInfo {
+    padding: 0.6rem 0.2rem 0;
+}
+
+.chapterNumber {
+    font-size: var(--font-size-text);
+    color: #ffffff;
+    font-weight: 600;
+    margin-top: 0;
+}
+
+.chapterTitle {
+    font-size: var(--font-size-caption);
+    font-weight: 400;
+    color: var(--clr-text-primary-button, rgba(255, 255, 255, 0.6));
+    /* Limitar a 2 líneas */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.2rem;
+}
+
+/* ── Load More wrapper ── */
+.loadMoreWrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2rem;
+}
+
+/* Spacer al final del carrusel */
+.chaptersEndSpacer {
+    flex-shrink: 0;
+    width: 4rem;
+}
+
+/* ── Details / Synopsis Section ── */
+.detailsSection {
+    display: flex;
+    min-height: 44vh;
+}
+
+.detailsSynopsis {
+    flex: 0 0 50%;
+    padding-right: 4vw;
+}
+
+.detailsMeta {
+    flex: 1;
+}
+
+.detailsHeading {
+    font-size: var(--font-size-subtitle);
+    font-weight: var(--font-weight-title);
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1vh;
+}
+
+.detailsText {
+    font-size: var(--font-size-text);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.7;
+}
+
+.detailsMetaItem {
+    margin-bottom: 1.5vh;
+}
+
+.detailsLabel {
+    font-size: var(--font-size-caption);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 0.3vh;
+}
+
+.detailsValue {
+    font-size: var(--font-size-text);
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Status texts ── */
+.statusText {
+    color: #ffffff;
+    font-size: var(--font-size-caption);
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+.emptyText {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--font-size-caption);
+    font-weight: 500;
+}
+
+/* ── Page-level wrapper ── */
+.pageWrapper {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Scroller interior — se mueve con translateY (REGLA 1.2) */
+.pageScroller {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* ── Favorite Button (TV) ── */
+.favoriteBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 2px solid transparent;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.favoriteBtn.focused,
+.favoriteBtn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: var(--foc-primary);
+    box-shadow: 0 0 12px rgba(255, 19, 118, 0.3);
+}
+
+.favoriteBtn.active {
+    color: var(--foc-primary);
+}
+
+.favoriteSvg {
+    width: 1.5rem;
+    height: 1.5rem;
+}

@@ -1,0 +1,150 @@
+.container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 123.03px;
+    margin-right: 8px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.container.expanded {
+    width: 450px;
+}
+
+
+.backdrop {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--grad-sidebar);
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.container.expanded .backdrop {
+    opacity: 1;
+}
+
+/* Logo */
+.logo {
+    position: absolute;
+    top: 60px;
+    left: 3rem;
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+}
+
+/* Spacer between logo and nav items */
+.spacer {
+    height: 100px;
+}
+
+/* Nav items list */
+.navList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Profile avatar item — matches SidebarItem sizing */
+.profileItem {
+    width: 100%;
+    height: 9vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 14px 0 14px 20px;
+    cursor: pointer;
+    list-style: none;
+    margin: 20px;
+}
+
+.profileItem::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background-color: var(--foc-primary);
+    opacity: 0;
+}
+
+.profileItemFocused,
+.profileItem:hover {
+    color: var(--foc-primary);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.profileItemFocused::before,
+.profileItem:hover::before {
+    opacity: 1;
+}
+
+.profileItemInner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 60px;
+    padding-left: 8px;
+}
+
+.profileItemExpanded .profileItemInner {
+    width: 320px;
+}
+
+.profileAvatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.profileAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profileAvatarInitial {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--clr-primary-text);
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.profileLabel {
+    display: none;
+    margin-left: 16px;
+    font-size: var(--font-size-title);
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--clr-text-primary-button);
+}
+
+.profileItemExpanded .profileLabel {
+    display: block;
+}

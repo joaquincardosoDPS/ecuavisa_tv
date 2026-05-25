@@ -1,0 +1,85 @@
+/* ── SearchView ── */
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 3rem;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Barra de búsqueda (display only) */
+.inputWrapper {
+    margin-bottom: 1.5rem;
+}
+
+.inputDisplay {
+    display: flex;
+    align-items: center;
+    background-color: #2C404B;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: var(--font-size-subtitle);
+    font-weight: 500;
+    color: var(--clr-secondary-text);
+    min-height: 2.5rem;
+}
+
+.placeholder {
+    opacity: 0.4;
+    font-weight: 400;
+}
+
+/* Cursor parpadeante */
+.cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.4em;
+    background-color: var(--foc-primary);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Layout principal: teclado + resultados */
+.content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Teclado — ancho fijo */
+.keyboardPanel {
+    flex: 0 0 20vw;
+    padding-right: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* Resultados — 75% del ancho */
+.resultsPanel {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Texto de hint (sin búsqueda) */
+.hint {
+    color: var(--clr-secondary-text);
+    font-size: var(--font-size-label);
+    font-weight: 400;
+    opacity: 0.5;
+}

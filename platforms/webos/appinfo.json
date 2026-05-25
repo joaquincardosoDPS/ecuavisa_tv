@@ -1,0 +1,17 @@
+{
+    "id": "com.digitalproserver.milatina",
+    "version": "1.0.0",
+    "vendor": "DPS",
+    "type": "web",
+    "main": "index.html",
+    "title": "MiLatina",
+    "icon": "icon.png",
+    "largeIcon": "largelogo.png",
+    "bgColor": "#000000",
+    "resolution": "1920x1080",
+    "requiredPermissions": [
+        "internet"
+    ],
+    "disableBackHistoryAPI": true,
+    "transparent": false
+}

@@ -1,0 +1,148 @@
+/* ── ProgramsView (TV) ── */
+.container {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* REGLA F5.1: scroll vertical con transform */
+.scrollContainer {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* ── Banner superior FIJO — por ENCIMA del contenido ── */
+.bannerArea {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 50vh;
+    overflow: hidden;
+    background-color: var(--clr-primary, #001a28);
+    z-index: 5;
+}
+
+.bannerImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bannerImage.loaded {
+    opacity: 1;
+}
+
+.bannerImage.loading {
+    opacity: 0;
+}
+
+/* Gradientes del banner */
+.gradientLeft {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, var(--clr-primary) 0%, rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+}
+
+.gradientBottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, var(--clr-primary) 0%, rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+}
+
+/* Info del programa activo */
+.bannerInfo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 20vh 10rem 2rem;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.bannerLogo {
+    height: 8rem;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.bannerTitle {
+    font-size: var(--font-size-title);
+    font-weight: 700 !important;
+    font-family: var(--font-family-title) !important;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.bannerDescription {
+    font-size: var(--font-size-caption);
+    font-family: var(--font-family-text) !important;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 50rem;
+    max-height: 4.5rem;
+    overflow: hidden;
+    line-height: 1.5rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Carruseles ── */
+.carouselsWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: 50vh;
+    padding-bottom: 75vh;
+}
+
+.carouselsWrapper>*+* {
+    margin-top: 1.25rem;
+}
+
+.section {
+    padding: 0 5rem;
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--font-family-category) !important;
+}
+
+.sectionTitle {
+    font-size: var(--font-size-subtitle);
+    font-weight: 700 !important;
+    color: #ffffff;
+    line-height: 1.75rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-family-category) !important;
+}
+
+/* Error state */
+.errorContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    color: #ffffff;
+}
+
+.errorText {
+    color: #ef4444;
+    font-family: var(--font-family-title) !important;
+    font-size: var(--font-size-text);
+}

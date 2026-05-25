@@ -1,0 +1,133 @@
+.video-player-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    overflow: hidden;
+}
+
+#hls-video-player {
+    width: 100vw;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    /* Transición suave para PiP usando solo transform (REGLA 1.2) */
+    transition: transform 0.6s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    transform-origin: bottom right;
+}
+
+#hls-video-player.hidden {
+    display: none;
+}
+
+/* PiP mode: achica el video a esquina inferior derecha */
+#hls-video-player.pip-mode {
+    transform: scale(0.25) translate(-15%, -15%);
+    border-radius: 12px;
+    z-index: 10;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+    border: 0.6vw solid transparent;
+    transition: transform 0.6s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+#hls-video-player.pip-mode.focused {
+    border-color: var(--foc-primary);
+    box-shadow: 0 0 3vw var(--foc-primary);
+}
+
+.video-player-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* --- PiP Background --- */
+.pip-background {
+    position: absolute;
+    inset: 0;
+    background-color: #000;
+    z-index: 0;
+    animation: pipBgFadeIn 0.6s ease-out forwards;
+}
+
+.pip-background-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pip-background-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 100%);
+}
+
+@keyframes pipBgFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* --- PiP Info (estilo ShrunkBackdrop) --- */
+.pip-info {
+    position: absolute;
+    top: 12vh;
+    left: 5vw;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.5s ease-out forwards;
+    max-width: 50vw;
+}
+
+.pip-info-program-title {
+    font-size: 3vw;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin: 0 0 1.5vw 0;
+}
+
+.pip-info-description {
+    font-size: 1.1vw;
+    color: #fff;
+    line-height: 1.5;
+    margin: 0 0 1.5vw 0;
+    max-width: 45vw;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pip-info-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 1.2vw;
+    margin-top: 1vw;
+}
+
+.pip-countdown-number {
+    display: inline-block;
+    min-width: 2ch;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+
+

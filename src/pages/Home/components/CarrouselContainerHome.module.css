@@ -1,0 +1,83 @@
+.section {
+    position: relative;
+    padding: 0 5rem;
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--font-family-category) !important;
+}
+
+.section.hasBg {
+    padding: 2rem 5rem;
+}
+
+/* Fondo que se extiende detrás del sidebar */
+.section.hasBg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100px;
+    width: 100vw;
+    height: 100%;
+    background: inherit;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.sectionTitle {
+    position: relative;
+    z-index: 1;
+    font-size: var(--font-size-title);
+    font-weight: 700 !important;
+    color: #ffffff;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+    font-family: var(--font-family-category) !important;
+}
+
+/* Layout con logo lateral (vertical + icon) */
+.row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.logoSide {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5rem;
+    width: 20rem;
+}
+
+.logoSide>*+* {
+    margin-left: 1.25rem;
+}
+
+.logoImage {
+    width: 60%;
+    height: auto;
+    object-fit: contain;
+}
+
+.logoTitle {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.carouselWrapper {
+    flex: 1;
+    min-width: 0;
+}

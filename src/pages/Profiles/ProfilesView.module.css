@@ -1,0 +1,153 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  width: 100%;
+  height: 100vh;
+  background: var(--clr-primary);
+  padding-top: 15vh;
+}
+
+.container>*+* {
+  margin-top: 2rem;
+}
+
+.logo {
+  height: 5rem;
+  width: auto;
+}
+
+.heading {
+  color: var(--clr-primary-title);
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+.profilesGrid {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* .profilesGrid > * + * {
+  margin-left: 2.5rem;
+} */
+
+.profileCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
+  background: none;
+  border: none;
+  padding: 1rem;
+}
+
+.profileCard>*+* {
+  margin-top: 0.8rem;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-secondary);
+  border: 3px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.avatarWrapperFocused {
+  border-color: var(--foc-primary);
+  transform: scale(1.08);
+}
+
+/* Edit badge on avatar */
+.editBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--clr-secondary);
+  border: 2px solid var(--clr-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--clr-primary-text);
+  z-index: 2;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.editBadgeFocused {
+  background: var(--foc-primary);
+  border-color: var(--foc-primary);
+  color: #fff;
+}
+
+.editBadgeIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatarInitial {
+  font-size: 3.5rem;
+  color: var(--clr-secondary-text);
+  font-weight: 600;
+}
+
+.profileName {
+  color: var(--clr-primary-text);
+  font-size: 1.6rem;
+  font-weight: 400;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.profileNameFocused {
+  opacity: 1;
+}
+
+.addIcon {
+  font-size: 4rem;
+  color: var(--clr-secondary-text);
+  font-weight: 300;
+  transition: color 0.2s ease;
+}
+
+.addIconFocused {
+  color: var(--foc-primary);
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+
+/* Action buttons */
+.bottomActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 3rem;
+}
+
+.bottomActions>*+* {
+  margin-top: 1rem;
+}

@@ -1,0 +1,63 @@
+/* ── Carrusel horizontal ── */
+.wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    /* Espacio extra para que bordes/sombras no se corten */
+    margin: -25px -20px;
+    padding: 25px 20px;
+}
+
+.track {
+    display: flex;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.track > * + * {
+    margin-left: 1.75rem;
+}
+
+/* "Ver Más" card */
+.viewMore {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: var(--clr-secondary);
+    border: 3px solid transparent;
+    border-radius: 8px;
+}
+
+.viewMore.horizontal {
+    width: 22vw;
+    height: 12.375vw;
+}
+
+.viewMore.vertical {
+  width: 15vw;
+  height: 26.67vw;
+  border-radius: 12px;
+}
+
+.viewMore.focused,
+.viewMore:hover {
+    z-index: 10;
+    border-color: var(--foc-primary);
+    box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+}
+
+.viewMoreText {
+    font-size: var(--font-size-subtitle);
+    font-weight: 500;
+    color: #ffffff;
+}
+
+
+/* Spacer al final para padding visual */
+.endSpacer {
+    flex-shrink: 0;
+    width: 4rem;
+}
