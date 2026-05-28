@@ -22,6 +22,11 @@ export const useHomeData = () => {
         [],
     );
 
+    const liveSignalsQuery = useFetch(
+        () => catalogService.getPlaylistPremium(),
+        [],
+    );
+
     const continueWatchingQuery = useFetch(
         () => historyService.getAll({
             token: token ?? '',
@@ -37,6 +42,7 @@ export const useHomeData = () => {
         slider: sliderQuery.data?.data || [],
         categories: categoriesQuery.data?.data || [],
         recommended: recommendedQuery.data?.data || [],
+        liveSignals: liveSignalsQuery.data?.data || [],
         continueWatching: continueWatchingQuery.data?.data || [],
         isLoading: sliderQuery.isLoading || categoriesQuery.isLoading || recommendedQuery.isLoading,
         isError: sliderQuery.isError || categoriesQuery.isError || recommendedQuery.isError,

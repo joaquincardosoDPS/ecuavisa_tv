@@ -4,8 +4,9 @@
  */
 
 import type { DeviceAdInfo } from '../types';
+import { ADS_FALLBACK_DOMAIN } from '@/config-global';
 
-const DEFAULT_FALLBACK_DOMAIN = 'https://www.chv.cl';
+const DEFAULT_FALLBACK_DOMAIN = ADS_FALLBACK_DOMAIN || 'https://www.latina.pe';
 
 var cachedInfo: DeviceAdInfo | null = null;
 
@@ -74,6 +75,7 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
 
     // --- RUDO LIVE -> GOOGLE (workaround CORS http/https mismatch) ---
+    // Solo aplicar si el slug coincide con un ad unit conocido
     if (base.indexOf('rudo.video/ads/vmap/live/') !== -1) {
         var slugParts = base.split('/');
         var slug = slugParts[slugParts.length - 1].split('?')[0];
@@ -87,23 +89,26 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
             '13cocina': '/112372207/13go/13cocina/preroll',
             '13viajes': '/112372207/13go/13viajes/preroll',
         };
-        var iu = iuMap[slug] || '/112372207/13go/canal13/preroll';
+        var iu = iuMap[slug];
 
-        base = 'https://pubads.g.doubleclick.net/gampad/ads';
-        paramsMap['iu'] = encodeURIComponent(iu);
-        paramsMap['output'] = 'xml_vast4';
-        paramsMap['sz'] = '640x480';
-        paramsMap['gdfp_req'] = '1';
-        paramsMap['tfcd'] = '0';
-        paramsMap['npa'] = '0';
+        // Solo reescribir si el slug tiene un ad unit mapeado
+        if (iu) {
+            base = 'https://pubads.g.doubleclick.net/gampad/ads';
+            paramsMap['iu'] = encodeURIComponent(iu);
+            paramsMap['output'] = 'xml_vast4';
+            paramsMap['sz'] = '640x480';
+            paramsMap['gdfp_req'] = '1';
+            paramsMap['tfcd'] = '0';
+            paramsMap['npa'] = '0';
 
-        // Eliminar parámetros exclusivos de Rudo que Google rechaza
-        delete paramsMap['app'];
-        delete paramsMap['dpssid'];
-        delete paramsMap['ndvc'];
-        delete paramsMap['sid'];
-        delete paramsMap['platform'];
-        delete paramsMap['impl'];
+            // Eliminar parámetros exclusivos de Rudo que Google rechaza
+            delete paramsMap['app'];
+            delete paramsMap['dpssid'];
+            delete paramsMap['ndvc'];
+            delete paramsMap['sid'];
+            delete paramsMap['platform'];
+            delete paramsMap['impl'];
+        }
     }
 
     // Agregar parámetros de identificación persistente (Web)
@@ -176,4 +181,62 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
 
     return base + '?' + parts.join('&');
+}
+
+/**
+ * Pre-resuelve URLs de VMAP de Rudo a la URL VAST real de Google Ad Manager.
+ * Esto evita el problema de CORS donde IMA SDK (en su iframe) no puede
+ * acceder a rudo.video directamente desde HTTP (localhost).
+ *
+ * Si la URL NO es de rudo.video, la devuelve sin cambios.
+ * Si el fetch falla, devuelve null (no hay ad disponible).
+ */
+export async function resolveVastUrl(vastUrl: string): Promise<string | null> {
+    if (!vastUrl || vastUrl.trim() === '' || vastUrl === 'none') {
+        return null;
+    }
+
+    // Solo pre-resolver URLs de rudo.video/ads/vmap/
+    if (vastUrl.indexOf('rudo.video/ads/vmap/') === -1) {
+        return vastUrl; // Ya es una URL directa (Google, etc.)
+    }
+
+    try {
+        console.log('[VAST Resolve] Pre-fetching VMAP:', vastUrl);
+        const response = await fetch(vastUrl);
+        if (!response.ok) {
+            console.warn('[VAST Resolve] HTTP error:', response.status);
+            return null;
+        }
+
+        const xmlText = await response.text();
+
+        // Parsear VMAP XML para extraer AdTagURI
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        const parserError = xmlDoc.querySelector('parsererror');
+        if (parserError) {
+            console.warn('[VAST Resolve] Error parsing VMAP XML');
+            return null;
+        }
+
+        // Buscar el primer AdTagURI (preroll)
+        const adTagUri = xmlDoc.querySelector(
+            'vmap\\:AdTagURI, AdTagURI'
+        );
+
+        if (adTagUri && adTagUri.textContent) {
+            const resolvedUrl = adTagUri.textContent.trim();
+            console.log('[VAST Resolve] VAST tag resuelto:', resolvedUrl.substring(0, 100) + '...');
+            return resolvedUrl;
+        }
+
+        console.warn('[VAST Resolve] No se encontró AdTagURI en VMAP');
+        return null;
+
+    } catch (error) {
+        console.error('[VAST Resolve] Error pre-fetching VMAP:', error);
+        return null;
+    }
 }

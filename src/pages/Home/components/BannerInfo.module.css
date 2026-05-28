@@ -1,51 +1,122 @@
-.container {
-    display: flex;
-    flex-direction: column;
-}
-
-.container > * + * {
-    margin-top: 1.5rem;
-}
-
-/* Logo / Título */
+/* Logo del programa */
 .logoWrapper {
-    height: 8.5rem;
-    display: flex;
-    align-items: center;
+    position: absolute;
+    top: 4vw;
+    left: 3vw;
+    max-width: 15vw;
+    max-height: 20vw;
+    z-index: 2;
 }
 
 .logo {
-    width: auto;
+    width: 100%;
     height: 100%;
     object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
 }
 
 .fallbackTitle {
-    font-size: var(--font-size-title);
-    font-family: var(--font-family-title) !important;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #ffffff;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    font-family: 'Archia', sans-serif;
 }
 
-/* Acciones */
-.actions {
-    display: flex;
-    align-items: center;
-    padding-top: 1rem;
+/* Bloque de descripción + metadata */
+.descriptionBlock {
+    position: absolute;
+    top: 19vw;
+    left: 3vw;
+    max-width: 30vw;
+    z-index: 2;
 }
 
-/* Descripción */
 .description {
-    font-size: var(--font-size-caption);
-    font-family: var(--font-family-text) !important;
+    font-size: 1.5rem;
+    font-weight: 500;
     color: #ffffff;
-    line-height: 2rem;
-    max-width: 50rem;
-    max-height: 9.5rem;
-    overflow: hidden;
+    font-family: 'Archia', sans-serif;
+    line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+/* Fila de metadata: clasificación, año, géneros */
+.metaRow {
+    display: flex;
+    align-items: center;
+    margin-top: 0.75rem;
+    font-size: 1.2rem;
+    color: #ffffff;
+    font-family: 'Archia', sans-serif;
+}
+
+.metaRow > * + * {
+    margin-left: 0.75rem;
+}
+
+.classificationBadge {
+    background-color: #01a77e;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+.metaSeparator {
+    opacity: 0.6;
+}
+
+.genres {
+    opacity: 0.8;
+}
+
+/* Botón "Ver ahora" */
+.playButton {
+    position: absolute;
+    left: 50px;
+    bottom: 40px;
+    z-index: 2;
+    height: 8vh;
+    width: 13vw;
+    border-radius: 5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    border: 4px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.playButton:hover,
+.playButton.focused {
+    border: 4px solid #FFE500;
+}
+
+.playButtonContent {
+    display: flex;
+    align-items: center;
+}
+
+.playButtonContent > * + * {
+    margin-left: 0.75rem;
+}
+
+.playIcon {
+    width: 24px;
+    height: 24px;
+}
+
+.playText {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Archia', sans-serif;
+    color: #ffffff;
 }

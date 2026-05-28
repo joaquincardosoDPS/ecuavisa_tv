@@ -1,25 +1,50 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { useProgramsData } from '@/hooks/useProgramsData';
-import { usePageScroll } from '@/hooks/usePageScroll';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
-import CardCarrousel from '@/components/ProgramCard/CardCarrousel';
+import HomeCardCarrousel from '@/pages/Home/components/HomeCardCarrousel';
+import SelectBanner from '@/pages/Category/SelectBanner';
 import type { Program, Category } from '@/interfaces/catalog.interface';
 import styles from './ProgramsView.module.css';
 
+/** Extrae la mejor imagen grande para el banner (prioriza image_background.big) */
+function getBannerImage(program: Program): string {
+    const p = program as any;
+    const extractBig = (img: any): string => {
+        if (!img) return '';
+        if (typeof img === 'string') return img;
+        if (Array.isArray(img) && img.length > 0) {
+            const first = img[0];
+            if (typeof first === 'string') return first;
+            if (typeof first === 'object') return first.big || first.normal || first.medium || first.default || first.small || '';
+        }
+        if (typeof img === 'object') {
+            return img.big || img.normal || img.medium || img.default || img.small || '';
+        }
+        return '';
+    };
+    return (
+        extractBig(p.image_background) ||
+        extractBig(p.image_slider) ||
+        extractBig(p.image_land) ||
+        p.image ||
+        ''
+    );
+}
+
 function ProgramsView() {
-    const { scrollRef, applyScroll, currentScrollY } = usePageScroll();
+    const containerRef = useRef<HTMLDivElement>(null);
     const initialFocusSet = useRef(false);
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'PROGRAMS',
         saveLastFocusedChild: true,
         trackChildren: true,
+        autoRestoreFocus: true,
     });
 
     const { categories, isLoading, isError } = useProgramsData();
 
-    /* Categorías con programas — memoizado para evitar re-renders */
     const filteredCategories = useMemo(
         () => categories.filter((c: Category) => c.programs && c.programs.length > 0),
         [categories],
@@ -27,78 +52,54 @@ function ProgramsView() {
 
     /* Estado del programa activo para el banner */
     const [activeProgram, setActiveProgram] = useState<Program | null>(null);
+    const [bannerImageUrl, setBannerImageUrl] = useState('');
 
     /* Primer programa como default */
     useEffect(() => {
         if (!activeProgram && filteredCategories.length > 0) {
-            setActiveProgram(filteredCategories[0].programs[0] as Program);
+            const first = filteredCategories[0].programs[0] as Program;
+            setActiveProgram(first);
+            setBannerImageUrl(getBannerImage(first));
         }
     }, [filteredCategories, activeProgram]);
 
-    /* Foco inicial: primer card del primer carrusel (solo una vez) */
+    /* Foco inicial */
     useEffect(() => {
         if (initialFocusSet.current) return;
         if (filteredCategories.length > 0) {
             const firstCat = filteredCategories[0];
             const firstProgramId = firstCat.programs[0]?.id;
             if (firstProgramId) {
-                setFocus(`programs-${firstCat.key}-${firstProgramId}`);
+                setTimeout(() => {
+                    setFocus(`programs-${firstCat.key}-${firstProgramId}`);
+                }, 200);
                 initialFocusSet.current = true;
             }
         }
     }, [filteredCategories]);
 
-    /* Imagen de fondo del banner */
-    const [bgImages, setBgImages] = useState<{ src: string; loaded: boolean }[]>([]);
+    /* Scroll vertical nativo — posiciona la sección visible debajo del banner (51vh) */
+    const handleCardFocused = useCallback((sectionId: string) => {
+        const container = containerRef.current;
+        if (!container) return;
 
-    const currentBgSrc =
-        activeProgram?.image_slider?.big ||
-        activeProgram?.image_background?.big ||
-        activeProgram?.image_land?.big ||
-        '';
-
-    const logo = activeProgram?.image_logo?.normal || activeProgram?.image_logo?.default;
-
-    useEffect(() => {
-        if (!currentBgSrc) return;
-
-        setBgImages(prev => {
-            const lastImage = prev[prev.length - 1];
-            if (lastImage && lastImage.src === currentBgSrc) return prev;
-
-            const lastLoaded = prev.filter(img => img.loaded).slice(-1);
-            const isAlreadyCached = prev.some(img => img.src === currentBgSrc && img.loaded);
-
-            return [...lastLoaded, { src: currentBgSrc, loaded: isAlreadyCached }];
-        });
-    }, [currentBgSrc]);
-
-    /**
-     * Scroll vertical centrado en la zona visible (debajo del banner).
-     * Usa getBoundingClientRect + currentScrollY para calcular la posición absoluta.
-     */
-    const handleCardFocused = useCallback((sectionId: string, program?: Program) => {
-        if (program) {
-            setActiveProgram(program);
-        }
-
-        const scrollContainer = scrollRef.current;
-        if (!scrollContainer) return;
-
-        const section = scrollContainer.querySelector(
+        const section = container.querySelector(
             `[data-section="${sectionId}"]`,
         ) as HTMLElement | null;
         if (!section) return;
 
-        const vh = window.innerHeight;
+        const bannerHeight = window.innerHeight * 0.53; // 53vh (banner + margin)
         const sectionRect = section.getBoundingClientRect();
-        const currentScroll = currentScrollY.current;
+        const vh = window.innerHeight;
 
-        const sectionCenterAbsolute = sectionRect.top + currentScroll + sectionRect.height / 2;
-        const visibleMidpoint = vh * 0.65;
-        const targetY = sectionCenterAbsolute - visibleMidpoint;
-        applyScroll(targetY);
-    }, [applyScroll, scrollRef, currentScrollY]);
+        // Solo scrollear si la sección no está completamente visible
+        // Zona visible: desde bannerHeight hasta el fondo del viewport
+        if (sectionRect.top < bannerHeight || sectionRect.bottom > vh) {
+            // Posicionar la sección justo debajo del banner con un pequeño offset
+            const targetScrollTop = section.offsetTop - bannerHeight + container.offsetTop;
+            container.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'smooth' });
+        }
+    }, []);
 
     return (
         <FocusContext.Provider value={focusKey}>
@@ -113,49 +114,18 @@ function ProgramsView() {
                     </div>
                 ) : (
                     <>
-                        <div className={styles.bannerArea}>
-                            {bgImages.map(img => (
-                                <img
-                                    key={img.src}
-                                    src={img.src}
-                                    alt=""
-                                    onLoad={() => {
-                                        setBgImages(prev =>
-                                            prev.map(i =>
-                                                i.src === img.src ? { ...i, loaded: true } : i,
-                                            ),
-                                        );
-                                    }}
-                                    className={`${styles.bannerImage} ${img.loaded ? styles.loaded : styles.loading}`}
-                                    style={{ backgroundColor: 'var(--clr-primary)' }}
-                                    decoding="async"
+                        {/* Banner fijo — idéntico al original */}
+                        <div className={styles.bannerFixed}>
+                            <div className={styles.bannerInner}>
+                                <SelectBanner
+                                    program={activeProgram}
+                                    imageUrl={bannerImageUrl}
                                 />
-                            ))}
-                            <div className={styles.gradientLeft} />
-                            <div className={styles.gradientBottom} />
-
-                            {/* Información del programa */}
-                            <div className={styles.bannerInfo}>
-                                {logo ? (
-                                    <img
-                                        src={logo}
-                                        alt={activeProgram?.title || ''}
-                                        className={styles.bannerLogo}
-                                    />
-                                ) : (
-                                    <h1 className={styles.bannerTitle}>
-                                        {activeProgram?.title}
-                                    </h1>
-                                )}
-
-                                {activeProgram?.description_short && (
-                                    <p className={styles.bannerDescription}>
-                                        {activeProgram.description_short}
-                                    </p>
-                                )}
                             </div>
                         </div>
-                        <div ref={scrollRef} className={styles.scrollContainer}>
+
+                        {/* Scroll nativo con categorías */}
+                        <div ref={containerRef} className={styles.scrollContainer}>
                             <div className={styles.carouselsWrapper}>
                                 {filteredCategories.map((category: Category) => {
                                     const sectionId = `programs-${category.key}`;
@@ -166,15 +136,19 @@ function ProgramsView() {
                                             className={styles.section}
                                         >
                                             <h2 className={styles.sectionTitle}>{category.title}</h2>
-                                            <CardCarrousel
+                                            <HomeCardCarrousel
                                                 programs={category.programs}
                                                 orientation="horizontal"
                                                 categorySlug={category.key}
                                                 categoryTitle={category.title}
                                                 focusKeyPrefix={sectionId}
-                                                onProgramFocused={(p) =>
-                                                    handleCardFocused(sectionId, p as Program | undefined)
-                                                }
+                                                onRowFocused={() => handleCardFocused(sectionId)}
+                                                onProgramFocused={(p) => {
+                                                    if (p) {
+                                                        setActiveProgram(p as Program);
+                                                        setBannerImageUrl(getBannerImage(p as Program));
+                                                    }
+                                                }}
                                             />
                                         </div>
                                     );

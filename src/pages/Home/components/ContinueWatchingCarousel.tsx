@@ -2,8 +2,10 @@ import { useRef } from "react";
 import {
   FocusContext,
   useFocusable,
+  setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
 import { useNavigate } from "react-router-dom";
+import { SIDEBAR_FOCUS_KEY } from "@/layout/sidebar/constants";
 import type { HistoryItem } from "@/interfaces/history.interface";
 import styles from "./ContinueWatchingCarousel.module.css";
 
@@ -24,20 +26,22 @@ function parseDuration(duration: string): number {
 function ContinueWatchingCard({
   item,
   focusKey,
+  index,
   onCardFocus,
 }: {
   item: HistoryItem;
   focusKey: string;
+  index: number;
   onCardFocus?: () => void;
 }) {
   const navigate = useNavigate();
 
   const imgSrc =
-    item.image_land?.medium || item.image_land?.default || item.image;
-  const progress = Math.min(
-    100,
-    (item.time / parseDuration(item.duration)) * 100,
-  );
+    item.image_land?.small || item.image_land?.normal || item.image_land?.big || item.image_land?.default || item.image;
+
+  const totalSec = Number((item as any).duration_seg) || parseDuration(item.duration);
+  const savedSec = Number(item.time) || 0;
+  const progress = Math.min(100, (savedSec / totalSec) * 100);
 
   const handlePress = () => {
     navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, {
@@ -49,20 +53,35 @@ function ContinueWatchingCard({
     focusKey,
     onEnterPress: handlePress,
     onFocus: () => onCardFocus?.(),
+    onArrowPress: (direction) => {
+      if (direction === 'left' && index === 0) {
+        setFocus(SIDEBAR_FOCUS_KEY);
+        return false;
+      }
+      return true;
+    },
   });
 
   const classList = [styles.card, focused && styles.focused]
     .filter(Boolean)
     .join(" ");
 
+  // Título con info de temporada/capítulo
+  let title = item.title || '';
+  if ((item as any).chapter) {
+    const season = (item as any).season ? `T${(item as any).season} ` : '';
+    title += ` ${season}E${(item as any).chapter}`;
+  }
+
   return (
-    <div
-      ref={ref}
-      className={classList}
-      data-focuskey={focusKey}
-      onClick={handlePress}
-    >
-      <div className={styles.imageWrapper}>
+    <div className={styles.cardWrapper}>
+      <div
+        ref={ref}
+        className={classList}
+        data-focuskey={focusKey}
+        onClick={handlePress}
+        onMouseEnter={() => setFocus(focusKey)}
+      >
         {imgSrc ? (
           <img
             src={imgSrc}
@@ -76,13 +95,22 @@ function ContinueWatchingCard({
             <span className={styles.fallbackText}>{item.title}</span>
           </div>
         )}
+
+        {/* Barra de progreso superpuesta */}
+        <div className={styles.progressWrapper}>
+          <div className={styles.progressBar}>
+            <div
+              className={styles.progressFill}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
       </div>
-      <div className={styles.progressBar}>
-        <div
-          className={styles.progressFill}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+
+      {/* Título debajo del card */}
+      {title && (
+        <span className={styles.cardTitle}>{title}</span>
+      )}
     </div>
   );
 }
@@ -125,10 +153,11 @@ function ContinueWatchingCarousel({
         <h2 className={styles.sectionTitle}>Seguir Viendo</h2>
         <div ref={ref} className={styles.wrapper}>
           <div ref={trackRef} className={styles.track}>
-            {items.map((item) => (
+            {items.map((item, i) => (
               <ContinueWatchingCard
                 key={item.slug}
                 item={item}
+                index={i}
                 focusKey={`cw-${item.slug}`}
                 onCardFocus={() => scrollToCard(`cw-${item.slug}`)}
               />

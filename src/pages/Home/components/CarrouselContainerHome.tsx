@@ -1,5 +1,5 @@
 import type { Category } from '@/interfaces/catalog.interface';
-import CardCarrousel from '@/components/ProgramCard/CardCarrousel';
+import HomeCardCarrousel from './HomeCardCarrousel';
 import styles from './CarrouselContainerHome.module.css';
 
 interface CarrouselContainerProps {
@@ -55,7 +55,7 @@ function CarrouselContainerHome({ category, onRowFocused }: CarrouselContainerPr
                 )}
 
                 <div className={styles.carouselWrapper}>
-                    <CardCarrousel
+                    <HomeCardCarrousel
                         programs={category.programs}
                         orientation={finalOrientation}
                         categorySlug={category.key}

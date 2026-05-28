@@ -1,150 +1,224 @@
-/* ── LoginView (TV) ── */
+/* ── LoginView — Idéntico al original ── */
+
+/* Main container: Stack column spacing={4} (32px gap) */
 .container {
     display: flex;
+    flex-direction: column;
+    gap: 32px; /* MUI spacing: 4 */
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     overflow: hidden;
-    background-color: var(--clr-primary, #001a28);
-}
-
-/* ── Panel izquierdo: instrucciones ── */
-.leftPanel {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 40vw;
-    height: 100%;
-    padding: 3rem 4rem 3rem 5rem;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 2;
-}
-
-.heading {
-    font-size: var(--font-size-heading);
-    font-weight: 700;
+    background-color: #00705a;
     color: #ffffff;
-    line-height: 1.3;
-    margin-bottom: 2.5rem;
-    font-family: var(--font-family-title);
+    padding-left: 40px;   /* MUI paddingLeft: 5 */
+    padding-right: 32px;  /* MUI pr: 4 */
+    box-sizing: border-box;
 }
 
-/* ── Pasos ── */
-.step {
+/* ── Row 1: Back button ── */
+.backRow {
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    margin-bottom: 2rem;
+    justify-content: flex-start;
 }
 
-.stepHeader {
+.backBtn {
+    position: relative;
+    top: 30px;
+    left: 10px;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tam-back-button-height, 60px);
+    height: var(--tam-back-button-width, 60px);
+    font-size: var(--font-siz-icon, 2rem);
+    text-align: center;
+    border-radius: 8px;
+    z-index: 1;
+    outline: none;
+    transition: color 0.3s ease;
+    padding: 0;
+}
+
+.backBtn.focused,
+.backBtn:hover {
+    color: #ffe500;
+}
+
+.backBtn svg {
+    width: 1.4em;
+    height: 1.4em;
+    font-size: inherit;
+}
+
+/* ── Row 2: Logo centered (flexGrow: 1, height: 0) ── */
+.logoRow {
+    flex-grow: 1;
+    height: 0;
     display: flex;
     flex-direction: row;
+    justify-content: center;
     align-items: center;
 }
 
-.stepNumber {
-    flex-shrink: 0;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background: var(--clr-primary-button, #e6007e);
-    color: var(--clr-text-primary-button, #ffffff);
+.logo {
+    position: relative;
+    top: 10px;
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+}
+
+/* ── Row 3: Body (3 columns, flexGrow: 1) ── */
+.body {
+    display: flex;
+    flex-direction: row;
+    gap: 16px; /* MUI spacing: 2 */
+    flex-grow: 1;
+}
+
+/* Left column — DeviceCodeAuth (width: 100%, centered) */
+.codeColumn {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.codeText {
+    font-size: 1.5rem; /* MUI h5 = 1.5rem */
+    font-weight: 400;
+    width: 450px;
+    text-align: center;
+    color: #ffffff;
+    line-height: 1.4;
+    margin: 0;
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
+}
+
+.codeUrl {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #00b28a;
+    padding-top: 8px;     /* MUI paddingTop: 1 */
+    padding-bottom: 80px; /* MUI paddingBottom: 10 */
+    margin: 0;
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
+}
+
+/* Yellow chip (MUI Chip: fontSize 35, width 300, height 100, borderRadius 4rem) */
+.codeChip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 100px;
+    border-radius: 4rem;
+    background-color: #ffe500;
+    color: black;
+    font-size: 35px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
+}
+
+/* Loading spinner (replaces CircularProgress) */
+.codeLoading {
+    width: 300px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--font-size-label);
-    font-weight: 700;
-    margin-right: 1rem;
+    border-radius: 4rem;
+    background-color: #ffe500;
 }
 
-.stepBody {
-    padding-left: 3.75rem;
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.2);
+    border-top-color: black;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-.stepText {
-    font-size: var(--font-size-body);
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.5;
-    font-family: var(--font-family-text);
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-/* ── QR Code ── */
-.qrWrapper {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 1rem;
-    display: inline-flex;
+/* Center column — AuthDivider (Stack alignItems center) */
+.divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.dividerLine {
+    height: 20vh;
+    border-left: 1px solid #ffe500;
+}
+
+.dividerText {
+    margin: 16px 0; /* MUI my: 2 */
+    color: #ffffff;
+    font-size: 2.125rem; /* MUI h4 = 2.125rem */
+    font-weight: 400;
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
+}
+
+/* Right column — QrAuth (width: 100%, Stack alignItems center spacing 1) */
+.qrColumn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px; /* MUI spacing: 1 */
+}
+
+.qrText {
+    font-size: 1.5rem; /* MUI h5 */
+    font-weight: 400;
+    color: #ffffff;
+    text-align: center;
+    margin: 0;
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
+}
+
+.qrTextBottom {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #ffffff;
+    text-align: center;
+    margin: 0;
+    padding-bottom: 24px; /* MUI paddingBottom: 3 */
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
+}
+
+/* QrContainer: 350x350, borderRadius 2rem, padding 20, white bg, NO boxShadow */
+.qrContainer {
+    width: 350px;
+    height: 350px;
+    border-radius: 2rem;
+    padding: 20px;
+    background-color: #ffffff;
+    display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 1rem;
-    width: fit-content;
+    box-sizing: border-box;
+    margin-top: 8px; /* MUI mt: 1 */
 }
 
-/* ── Código TV ── */
-.codeBox {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1rem;
-    padding: 0.85rem 3rem;
-    border-radius: 8px;
-    background: var(--clr-primary-button, #e6007e);
-    font-size: var(--font-size-code);
-    font-weight: 700;
-    letter-spacing: 0.3rem;
-    color: var(--clr-text-primary-button, #ffffff);
-    font-family: var(--font-family-title);
-    width: fit-content;
-}
-
-/* ── Link inferior ── */
-.emailLink {
-    margin-top: 2.5rem;
-    font-size: var(--font-size-label);
-    color: var(--clr-primary-button, #e6007e);
-    font-weight: 600;
-    cursor: pointer;
-    font-family: var(--font-family-text);
-}
-
-/* ── Loading / Error states ── */
-.loadingText {
-    font-size: var(--font-size-text);
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 1rem;
-    font-family: var(--font-family-text);
-}
-
+/* ── Error state ── */
 .errorText {
-    font-size: var(--font-size-subtext);
+    font-size: 1rem;
     color: #ef4444;
-    margin-top: 0.5rem;
-    font-family: var(--font-family-text);
-}
-
-/* ── Panel derecho: mosaico de programas ── */
-.rightPanel {
-    position: relative;
-    /* flex: 1; */
-    height: 100%;
-    width: 55%;
-    overflow: hidden;
-}
-
-.mosaicImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: left center;
-    opacity: 0.55;
-}
-
-.mosaicOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, var(--clr-primary, #001a28) 0%, transparent 40%);
-    pointer-events: none;
+    margin-top: 8px;
+    text-align: center;
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
 }

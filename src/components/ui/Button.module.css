@@ -42,8 +42,8 @@
 
 .primary.focused,
 .primary:hover {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: var(--foc-primary);
+    color: var(--clr-text-primary-button);
     box-shadow: 0 0 20px 4px var(--clr-primary-button);
 }
 
@@ -57,7 +57,7 @@
 
 .secondary.focused,
 .secondary:hover {
-    box-shadow: 0px 0px 20px 0px #FF1A73;
+    box-shadow: 0px 0px 20px 0px var(--foc-secondary);
 }
 
 /* ═══════════════════════════════
@@ -72,6 +72,6 @@
 .tertiary.focused,
 .tertiary:hover {
     background-color: var(--clr-text-tertiary-button);
-    color: var(--clr-tertiary-button, #000000);
-    box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.15);
+    color: var(--clr-tertiary-button, var(--clr-primary));
+    box-shadow: 0 0 10px 1px var(--foc-tertiary);
 }

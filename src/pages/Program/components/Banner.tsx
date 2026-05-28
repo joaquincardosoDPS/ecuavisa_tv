@@ -11,10 +11,21 @@ interface BannerBackgroundProps {
 
 /** Fondo fijo del banner — debe renderizarse FUERA del pageScroller */
 export function BannerBackground({ program, scrollY = 0 }: BannerBackgroundProps) {
+  // Prioridad del original: image_slider > image_land > image_port
+  const getImageUrl = (imgSet: any): string => {
+    if (!imgSet) return '';
+    const priority = ['big', 'normal', 'medium', 'default', 'small'];
+    for (const size of priority) {
+      if (imgSet[size]?.trim()) return imgSet[size].trim();
+    }
+    return '';
+  };
+
   const bgImg =
-    program?.image_slider?.big ||
-    program?.image_background?.big ||
-    program?.image_land?.big;
+    getImageUrl(program?.image_slider) ||
+    getImageUrl(program?.image_land) ||
+    getImageUrl((program as any)?.image_port) ||
+    '';
 
   // Calcular opacidad del overlay: 0 en top, ~0.85 cuando scroll completo
   const vh = typeof window !== "undefined" ? window.innerHeight : 1080;
@@ -29,8 +40,6 @@ export function BannerBackground({ program, scrollY = 0 }: BannerBackgroundProps
           style={{ backgroundImage: `url(${bgImg})` }}
         />
       )}
-      <div className={styles.bannerGradientLeft} />
-      <div className={styles.bannerGradientBottom} />
       {/* Overlay dinámico — REGLA 1.2: solo opacity para animar */}
       <div
         className={styles.bannerOverlay}

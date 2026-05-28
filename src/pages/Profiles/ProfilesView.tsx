@@ -114,7 +114,7 @@ function AddProfileCard({ focusKey, disabled }: { focusKey: string; disabled?: b
   const navigate = useNavigate();
 
   const goToCreate = () => {
-    if (!disabled) navigate('/perfiles/nuevo', { replace: true });
+    if (!disabled) navigate('/mi-latina/nuevo', { replace: true });
   };
 
   const { ref, focused } = useFocusable({
@@ -203,7 +203,7 @@ function ProfilesView() {
   };
 
   const handleEditProfile = (profile: Profile) => {
-    navigate(`/perfiles/${profile.id}`, { replace: true });
+    navigate(`/mi-latina/${profile.id}`, { replace: true });
   };
 
   return (
@@ -254,6 +254,13 @@ function ProfilesView() {
                 onPress={() => setEditMode((prev) => !prev)}
               >
                 {editMode ? 'Listo' : 'Editar perfil'}
+              </Button>
+              <Button
+                focusKey="profiles-account-btn"
+                variant="secondary"
+                onPress={() => navigate('/mi-latina/cuenta', { replace: true })}
+              >
+                Información de Cuenta
               </Button>
               <Button
                 focusKey="profiles-logout-btn"

@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
-import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useNavigate } from 'react-router-dom';
-import type { Program } from '@/interfaces/catalog.interface';
 import { useFavorite } from '@/hooks/useFavorite';
+import type { Program } from '@/interfaces/catalog.interface';
+import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { useContinueWatching } from '@/hooks/useContinueWatching';
-import { Button } from '@/components/ui/Button';
 import FavoriteButton from './FavoriteButton';
 import ProgressBar from './ProgressBar';
 import styles from '../ProgramPage.module.css';
@@ -46,47 +45,70 @@ function InfoBanner({ program, onBannerFocused }: InfoBannerProps) {
     const maxSeasons = program.segments?.[0]?.max_temp || 0;
     const genderNames = program.genders?.map((g) => g.name).join(', ');
 
+    const { ref: playRef, focused: playFocused } = useFocusable({
+        focusKey: 'program-btn-play',
+        onEnterPress: handlePlay,
+        onFocus: () => onBannerFocused?.(),
+        onArrowPress: (direction) => {
+            if (direction === 'right' && isEnabled) {
+                setFocus('program-btn-favorite');
+                return false;
+            }
+            if (direction === 'down') {
+                setFocus('PROGRAM-TABS');
+                return false;
+            }
+            return true;
+        },
+    });
+
     return (
         <div className={styles.infoBanner}>
-            {/* Logo / Título */}
-            <div className={styles.logoContainer}>
-                {logoImg ? (
+            {/* Logo / Título — posición absoluta */}
+            {logoImg ? (
+                <div className={styles.logoContainer}>
                     <img
                         src={logoImg}
                         alt={program.title}
                         className={styles.logoImg}
                         draggable={false}
                     />
-                ) : (
-                    <h2 className={styles.titleFallback}>{program.title}</h2>
-                )}
-            </div>
+                </div>
+            ) : (
+                <h2 className={styles.titleFallback}>{program.title}</h2>
+            )}
 
-            {/* Metadata */}
+            {/* Metadata — posición absoluta */}
             <div className={styles.metaRow}>
                 {program.classification && (
                     <span className={styles.badge}>{program.classification}</span>
                 )}
-                {program.anio_production && (
-                    <span className={styles.metaText}>{program.anio_production} –</span>
-                )}
                 <span className={styles.metaText}>
-                    {maxSeasons > 1 ? `${maxSeasons} Temporadas` : '1 Temporada'} –
+                    {program.anio_production && `${program.anio_production} – `}
+                    {maxSeasons > 1 ? `${maxSeasons} Temporadas` : '1 Temporada'}
+                    {genderNames && ` – ${genderNames}`}
                 </span>
-                {genderNames && <span className={styles.metaText}>{genderNames}</span>}
+
+                {/* Descripción */}
+                <p className={styles.description}>
+                    {program.description_short}
+                </p>
             </div>
 
-            {/* Botones de acción — zona de foco */}
+            {/* Botón Play — posición absoluta en el fondo */}
             <FocusContext.Provider value={focusKey}>
                 <div ref={ref} className={styles.actionRow}>
-                    <Button
-                        focusKey="program-btn-play"
-                        variant="primary"
-                        showArrow
-                        onPress={handlePlay}
+                    <div
+                        ref={playRef}
+                        className={`${styles.playBtn} ${playFocused ? styles.focused : ''}`}
+                        onClick={handlePlay}
+                        onMouseEnter={() => {/* hover handled by CSS */}}
                     >
-                        {continueWatchingItem ? 'Reanudar' : 'Play'}
-                    </Button>
+                        <span className={styles.playIcon}>▶</span>
+                        <span className={styles.playText}>
+                            {continueWatchingItem ? 'Reanudar' : program.single_episode ? 'Reproducir' : 'Capítulos'}
+                        </span>
+                    </div>
 
                     {isEnabled && (
                         <FavoriteButton
@@ -106,11 +128,6 @@ function InfoBanner({ program, onBannerFocused }: InfoBannerProps) {
                     time={continueWatchingItem.time}
                 />
             )}
-
-            {/* Descripción */}
-            <p className={styles.description}>
-                {program.description_short}
-            </p>
         </div>
     );
 }

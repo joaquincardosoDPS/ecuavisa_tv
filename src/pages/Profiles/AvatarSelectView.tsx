@@ -172,7 +172,7 @@ function AvatarSelectView() {
   }, [selectedAvatar]);
 
   const goBack = useCallback(() => {
-    const returnTo = stateData.returnTo || '/perfiles/nuevo';
+    const returnTo = stateData.returnTo || '/mi-latina/nuevo';
     navigate(returnTo, {
       replace: true,
       state: { selectedAvatar },
@@ -195,7 +195,7 @@ function AvatarSelectView() {
               onSelectAvatar={(id, url) => {
                 setSelectedAvatar(id);
                 // Auto-return after selecting
-                const returnTo = stateData.returnTo || '/perfiles/nuevo';
+                const returnTo = stateData.returnTo || '/mi-latina/nuevo';
                 navigate(returnTo, {
                   replace: true,
                   state: { selectedAvatar: id, selectedAvatarUrl: url },

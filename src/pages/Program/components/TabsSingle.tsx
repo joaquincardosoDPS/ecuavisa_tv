@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import type { FocusDetails } from '@noriginmedia/norigin-spatial-navigation';
 import type { Segment } from '@/interfaces/catalog.interface';
 import styles from '../ProgramPage.module.css';
@@ -13,26 +13,53 @@ interface TabsSingleProps {
     onTabsFocused?: (details: FocusDetails) => void;
 }
 
-/** Tab individual con su propio useFocusable */
+/** Tab individual con su propio useFocusable — misma lógica que Tabs regular */
 function TabButton({
     label,
     focusKey,
     isActive,
     onPress,
     onTabFocus,
+    onArrowDown,
+    index,
+    allFocusKeys,
 }: {
     label: string;
     focusKey: string;
     isActive: boolean;
     onPress: () => void;
     onTabFocus?: () => void;
+    onArrowDown?: () => boolean;
+    index: number;
+    allFocusKeys: string[];
 }) {
     const { ref, focused } = useFocusable({
         focusKey,
         onEnterPress: onPress,
         onFocus: () => {
-            onPress();
+            if (!isActive) {
+                onPress();
+            }
             onTabFocus?.();
+        },
+        onArrowPress: (direction) => {
+            if (direction === 'down' && onArrowDown) {
+                return onArrowDown();
+            }
+            // Navegación manual izq/der para evitar saltos
+            if (direction === 'left') {
+                if (index > 0) {
+                    setFocus(allFocusKeys[index - 1]);
+                }
+                return false;
+            }
+            if (direction === 'right') {
+                if (index < allFocusKeys.length - 1) {
+                    setFocus(allFocusKeys[index + 1]);
+                }
+                return false;
+            }
+            return true;
         },
     });
 
@@ -55,7 +82,7 @@ function TabButton({
     );
 }
 
-function TabsSingle({ segments, activeTab, setActiveTab, onTabsFocused }: TabsSingleProps) {
+function TabsSingle({ activeTab, setActiveTab, onTabsFocused }: TabsSingleProps) {
     const trackRef = useRef<HTMLDivElement>(null);
 
     const { ref, focusKey } = useFocusable({
@@ -82,42 +109,42 @@ function TabsSingle({ segments, activeTab, setActiveTab, onTabsFocused }: TabsSi
         const wrapperWidth = wrapper.offsetWidth;
         const childLeft = child.offsetLeft;
         const childWidth = child.offsetWidth;
+        const rightMargin = 80;
 
         const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-        const maxScroll = Math.max(0, track.scrollWidth - wrapperWidth);
+        const maxScroll = Math.max(0, track.scrollWidth - wrapperWidth + rightMargin);
         const clampedX = Math.max(0, Math.min(targetX, maxScroll));
 
         track.style.transform = `translateX(-${clampedX}px)`;
     }, []);
 
+    /** Flecha abajo → contenido debajo (Recomendados o Detalles) */
+    const handleTabArrowDown = useCallback(() => {
+        // Intentar foco al contenedor de related
+        setFocus('PROGRAM-RELATED');
+        return false;
+    }, []);
+
+    // Build focus keys array for manual left/right navigation
+    const allFocusKeys = [
+        'program-single-tab-related',
+        'program-single-tab-details',
+    ];
+
     return (
         <FocusContext.Provider value={focusKey}>
             <div ref={ref} className={styles.tabsWrapper}>
                 <div ref={trackRef} className={styles.tabsTrack}>
-                    {/* Tabs de segmentos (si existen) */}
-                    {segments.map((segment) => {
-                        const isActive =
-                            typeof activeTab === 'object' && activeTab.id === segment.id;
-                        const tabKey = `program-single-tab-${segment.key}`;
-                        return (
-                            <TabButton
-                                key={segment.key}
-                                label={segment.name}
-                                focusKey={tabKey}
-                                isActive={isActive}
-                                onPress={() => setActiveTab(segment)}
-                                onTabFocus={() => scrollToTab(tabKey)}
-                            />
-                        );
-                    })}
-
-                    {/* Tab Relacionados */}
+                    {/* Tab Recomendados */}
                     <TabButton
-                        label="Relacionados"
+                        label="Recomendados"
                         focusKey="program-single-tab-related"
                         isActive={activeTab === 'related'}
+                        index={0}
+                        allFocusKeys={allFocusKeys}
                         onPress={() => setActiveTab('related')}
                         onTabFocus={() => scrollToTab('program-single-tab-related')}
+                        onArrowDown={handleTabArrowDown}
                     />
 
                     {/* Tab Detalles */}
@@ -125,6 +152,8 @@ function TabsSingle({ segments, activeTab, setActiveTab, onTabsFocused }: TabsSi
                         label="Detalles"
                         focusKey="program-single-tab-details"
                         isActive={activeTab === 'details'}
+                        index={1}
+                        allFocusKeys={allFocusKeys}
                         onPress={() => setActiveTab('details')}
                         onTabFocus={() => scrollToTab('program-single-tab-details')}
                     />

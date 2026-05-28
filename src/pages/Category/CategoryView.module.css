@@ -1,42 +1,159 @@
-/* ── CategoryView ── */
+/* ══════════════════════════════════════════════
+   CategoryView — idéntico al /more del original
+   Cards: 20vw × 21vh, 3 por fila, borderRadius 2rem
+   ══════════════════════════════════════════════ */
+
 .container {
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: auto;
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Banner sticky como el original */
+.stickyBanner {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--clr-primary);
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+/* ── Header ── */
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.backButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.backButton.focused,
+.backButton:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.backIcon {
+    width: 28px;
+    height: 28px;
+}
+
+.categoryTitle {
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--clr-primary-text);
+    text-transform: capitalize;
+    font-family: Archia, Arial, Helvetica, sans-serif;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* ── Grid: 3 por fila, wrap ── */
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    border-radius: 2rem;
+    padding-bottom: 3rem;
+}
+
+/* ── Card wrapper ── */
+.cardWrapper {
     display: flex;
     flex-direction: column;
-    padding: 2rem 3rem;
-    height: 100vh;
-    box-sizing: border-box;
+    flex-shrink: 0;
+    margin-right: 20px;
+    margin-bottom: 16px;
+}
+
+/* ── Card (idéntico al original: 20vw × 21vh) ── */
+.card {
+    position: relative;
+    width: 20vw;
+    height: 21vh;
+    border-radius: 2rem;
+    background-color: var(--clr-secondary);
+    cursor: pointer;
     overflow: hidden;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
-.header {
-    margin-bottom: 1.5rem;
+.cardImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+    box-sizing: border-box;
+    background-color: var(--clr-secondary);
 }
 
-.title {
-    font-size: var(--font-size-title);
-    font-weight: 700;
-    color: var(--clr-primary-title);
+.card.focused .cardImage,
+.card:hover .cardImage {
+    border: 0.3rem solid var(--foc-primary);
 }
 
-.subtitle {
-    font-size: var(--font-size-text);
-    color: var(--clr-secondary-text);
-    margin-top: 0.25rem;
-    opacity: 0.6;
+.cardFallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3rem;
+    background-color: var(--clr-secondary);
 }
 
+.cardFallbackText {
+    color: var(--clr-primary-text);
+    font-size: 1.2rem;
+    font-weight: 500;
+    font-family: Archia, Arial, Helvetica, sans-serif;
+}
+
+/* ── Error / Empty ── */
 .errorText {
     color: #ef4444;
-    font-size: var(--font-size-caption);
+    font-size: 1.2rem;
     font-weight: 500;
     text-align: center;
     padding: 5rem 0;
 }
 
 .emptyText {
-    color: var(--clr-secondary-text);
-    font-size: var(--font-size-caption);
+    color: #ffffff;
+    font-size: 1.2rem;
     text-align: center;
     padding: 5rem 0;
     opacity: 0.6;
+}
+
+/* ── Spinner ── */
+.loadingMore {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+    width: 100%;
 }

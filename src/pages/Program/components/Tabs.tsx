@@ -6,6 +6,7 @@ import styles from '../ProgramPage.module.css';
 
 interface TabsProps {
     program: Program;
+    validSegments: Segment[];
     activeSegment: Segment | null;
     setActiveSegment: (segment: Segment) => void;
     showDetails: boolean;
@@ -21,6 +22,8 @@ function TabButton({
     onPress,
     onTabFocus,
     onArrowDown,
+    index,
+    allFocusKeys,
 }: {
     label: string;
     focusKey: string;
@@ -28,17 +31,34 @@ function TabButton({
     onPress: () => void;
     onTabFocus?: () => void;
     onArrowDown?: () => boolean;
+    index: number;
+    allFocusKeys: string[];
 }) {
     const { ref, focused } = useFocusable({
         focusKey,
         onEnterPress: onPress,
         onFocus: () => {
-            onPress();
+            if (!isActive) {
+                onPress();
+            }
             onTabFocus?.();
         },
         onArrowPress: (direction) => {
             if (direction === 'down' && onArrowDown) {
                 return onArrowDown();
+            }
+            // Navegación manual izq/der para evitar saltos
+            if (direction === 'left') {
+                if (index > 0) {
+                    setFocus(allFocusKeys[index - 1]);
+                }
+                return false;
+            }
+            if (direction === 'right') {
+                if (index < allFocusKeys.length - 1) {
+                    setFocus(allFocusKeys[index + 1]);
+                }
+                return false;
             }
             return true;
         },
@@ -64,7 +84,7 @@ function TabButton({
 }
 
 function Tabs({
-    program,
+    validSegments,
     activeSegment,
     setActiveSegment,
     showDetails,
@@ -97,9 +117,10 @@ function Tabs({
         const wrapperWidth = wrapper.offsetWidth;
         const childLeft = child.offsetLeft;
         const childWidth = child.offsetWidth;
+        const rightMargin = 80; // px extra para que el último tab no quede cortado
 
         const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-        const maxScroll = Math.max(0, track.scrollWidth - wrapperWidth);
+        const maxScroll = Math.max(0, track.scrollWidth - wrapperWidth + rightMargin);
         const clampedX = Math.max(0, Math.min(targetX, maxScroll));
 
         track.style.transform = `translateX(-${clampedX}px)`;
@@ -122,32 +143,46 @@ function Tabs({
         <FocusContext.Provider value={focusKey}>
             <div ref={ref} className={styles.tabsWrapper}>
                 <div ref={trackRef} className={styles.tabsTrack}>
-                    {program.segments.map((segment) => {
-                        const isActive = !showDetails && activeSegment?.id === segment.id;
-                        const tabKey = `program-tab-${segment.key}`;
+                    {(() => {
+                        const allFocusKeys = [
+                            ...validSegments.map((s) => `program-tab-${s.key}`),
+                            'program-tab-details',
+                        ];
                         return (
-                            <TabButton
-                                key={segment.key}
-                                label={segment.name}
-                                focusKey={tabKey}
-                                isActive={isActive}
-                                onPress={() => {
-                                    setActiveSegment(segment);
-                                    setShowDetails(false);
-                                }}
-                                onTabFocus={() => scrollToTab(tabKey)}
-                                onArrowDown={handleTabArrowDown}
-                            />
-                        );
-                    })}
+                            <>
+                                {validSegments.map((segment, idx) => {
+                                    const isActive = !showDetails && activeSegment?.id === segment.id;
+                                    const tabKey = `program-tab-${segment.key}`;
+                                    return (
+                                        <TabButton
+                                            key={segment.key}
+                                            label={segment.name}
+                                            focusKey={tabKey}
+                                            isActive={isActive}
+                                            index={idx}
+                                            allFocusKeys={allFocusKeys}
+                                            onPress={() => {
+                                                setActiveSegment(segment);
+                                                setShowDetails(false);
+                                            }}
+                                            onTabFocus={() => scrollToTab(tabKey)}
+                                            onArrowDown={handleTabArrowDown}
+                                        />
+                                    );
+                                })}
 
-                    <TabButton
-                        label="Detalles"
-                        focusKey="program-tab-details"
-                        isActive={showDetails}
-                        onPress={() => setShowDetails(true)}
-                        onTabFocus={() => scrollToTab('program-tab-details')}
-                    />
+                                <TabButton
+                                    label="Detalles"
+                                    focusKey="program-tab-details"
+                                    isActive={showDetails}
+                                    index={validSegments.length}
+                                    allFocusKeys={allFocusKeys}
+                                    onPress={() => setShowDetails(true)}
+                                    onTabFocus={() => scrollToTab('program-tab-details')}
+                                />
+                            </>
+                        );
+                    })()}
                 </div>
             </div>
         </FocusContext.Provider>

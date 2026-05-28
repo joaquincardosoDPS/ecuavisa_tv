@@ -1,11 +1,21 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { isInputAction } from '@/utils/keycodes';
 import { exitApp } from '@/utils/platform';
 
+/** Rutas principales del sidebar — Back muestra exit modal */
+const MAIN_ROUTES = ['/live', '/home', '/buscar', '/programas', '/mi-lista'];
+
+function isMainRoute(pathname: string): boolean {
+    return MAIN_ROUTES.some(
+        (route) => pathname === route || pathname === route + '/',
+    );
+}
+
 export function useBackHandler(onExitRequest?: (currentFocusKey: string) => void) {
     const navigate = useNavigate();
+    const location = useLocation();
     const savedFocusRef = useRef<string>('');
 
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -14,21 +24,26 @@ export function useBackHandler(onExitRequest?: (currentFocusKey: string) => void
         e.preventDefault();
         e.stopPropagation();
 
-        // Si hay historial, simplemente retrocedemos.
-        const historyIndex = window.history.state?.idx ?? 0;
-        if (historyIndex > 0) {
-            navigate(-1);
+        // En vistas principales del sidebar → siempre exit modal
+        if (isMainRoute(location.pathname)) {
+            if (onExitRequest) {
+                savedFocusRef.current = getCurrentFocusKey();
+                onExitRequest(savedFocusRef.current);
+            } else {
+                exitApp();
+            }
             return;
         }
 
-        // Si no hay más historial, pedimos salida.
-        if (onExitRequest) {
-            savedFocusRef.current = getCurrentFocusKey();
-            onExitRequest(savedFocusRef.current);
-        } else {
-            exitApp();
+        // En vistas de programa (/programas/{slug}) → volver a la lista
+        if (location.pathname.startsWith('/programas/')) {
+            navigate('/programas', { replace: true });
+            return;
         }
-    }, [navigate, onExitRequest]);
+
+        // En sub-vistas (perfiles, cuenta, etc.) → retroceder
+        navigate(-1);
+    }, [navigate, onExitRequest, location.pathname]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);

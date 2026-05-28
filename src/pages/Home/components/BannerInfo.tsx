@@ -1,22 +1,56 @@
 import { useNavigate } from 'react-router-dom';
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import type { Program } from '@/interfaces/catalog.interface';
-import { Button } from '@/components/ui/Button';
 import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
+import PlayIcon from '@/assets/img/icons/play.svg';
 import styles from './BannerInfo.module.css';
 
 interface BannerInfoProps {
     program: Program;
     onPlayFocused?: () => void;
+    /** Ir al siguiente slide (undefined si ya es el último) */
+    onSlideNext?: () => void;
+    /** Ir al slide anterior (undefined si ya es el primero) */
+    onSlidePrev?: () => void;
+    /** true si estamos en el primer slide */
+    isFirstSlide?: boolean;
 }
 
-export function BannerInfo({ program, onPlayFocused }: BannerInfoProps) {
+export function BannerInfo({ program, onPlayFocused, onSlideNext, onSlidePrev, isFirstSlide }: BannerInfoProps) {
     const navigate = useNavigate();
+
+    const { ref, focused } = useFocusable({
+        focusKey: 'BANNER-PLAY',
+        onEnterPress: () => navigate(`/programas/${program.key}`),
+        onFocus: () => onPlayFocused?.(),
+        onArrowPress: (dir: string) => {
+            if (dir === 'left') {
+                if (onSlidePrev) {
+                    onSlidePrev();
+                } else if (isFirstSlide) {
+                    setFocus(SIDEBAR_FOCUS_KEY);
+                }
+                return false;
+            }
+            if (dir === 'right') {
+                if (onSlideNext) {
+                    onSlideNext();
+                }
+                return false;
+            }
+            if (dir === 'up') return false;
+            return true;
+        },
+    });
 
     if (!program) return null;
 
+    // Géneros como texto separado por comas
+    const genresText = program.genders?.map((g) => g.name).join(', ');
+
     return (
-        <div className={styles.container}>
+        <>
+            {/* Logo del programa */}
             <div className={styles.logoWrapper}>
                 {program.image_logo?.medium ? (
                     <img
@@ -31,29 +65,45 @@ export function BannerInfo({ program, onPlayFocused }: BannerInfoProps) {
                 )}
             </div>
 
-            <div className={styles.actions}>
-                <Button
-                    focusKey="BANNER-PLAY"
-                    variant="primary"
-                    showArrow
-                    onPress={() => navigate(`/programas/${program.key}`)}
-                    onFocused={onPlayFocused}
-                    onArrowPress={(dir) => {
-                        if (dir === 'left') {
-                            setFocus(SIDEBAR_FOCUS_KEY);
-                            return false;
-                        }
-                        if (dir === 'right' || dir === 'up') return false;
-                        return true;
-                    }}
-                >
-                    Play
-                </Button>
+            {/* Descripción + Metadata */}
+            <div className={styles.descriptionBlock}>
+                <p className={styles.description}>
+                    {program.description_short}
+                </p>
+
+                <div className={styles.metaRow}>
+                    {program.classification && (
+                        <span className={styles.classificationBadge}>
+                            {typeof program.classification === 'object'
+                                ? (program.classification as { name?: string }).name
+                                : program.classification}
+                        </span>
+                    )}
+                    {program.anio_production && (
+                        <span>{program.anio_production}</span>
+                    )}
+                    {genresText && (
+                        <>
+                            <span className={styles.metaSeparator}>|</span>
+                            <span className={styles.genres}>{genresText}</span>
+                        </>
+                    )}
+                </div>
             </div>
 
-            <p className={styles.description}>
-                {program.description_short}
-            </p>
-        </div>
+            {/* Botón "Ver ahora" */}
+            <button
+                ref={ref}
+                type="button"
+                className={`${styles.playButton} ${focused ? styles.focused : ''}`}
+                onClick={() => navigate(`/programas/${program.key}`)}
+            >
+                <span className={styles.playButtonContent}>
+                    <img src={PlayIcon} alt="" className={styles.playIcon} />
+                    <span className={styles.playText}>Ver ahora</span>
+                </span>
+            </button>
+        </>
     );
 }
+

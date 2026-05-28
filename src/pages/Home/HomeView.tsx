@@ -1,22 +1,18 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback } from 'react';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { useHomeData } from '@/hooks/useHomeData';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import Banner from './components/Banner';
-import CardCarrousel from '@/components/ProgramCard/CardCarrousel';
+import HomeLiveGrid from './components/HomeLiveGrid';
+import HomeCardCarrousel from './components/HomeCardCarrousel';
 import CarrouselContainerHome from './components/CarrouselContainerHome';
 import ContinueWatchingCarousel from './components/ContinueWatchingCarousel';
 import styles from './HomeView.module.css';
 import { useAppInitialization } from '@/hooks/useAppInitilization';
 
 function HomeView() {
-    // scrollY para pasar al Banner (efecto parallax con portal)
-    const [scrollY, setScrollY] = useState(0);
-
-    const { scrollRef, scrollToSection, scrollToTop } = usePageScroll({
-        onScroll: setScrollY,
-    });
+    const { scrollRef, scrollToSection, scrollToTop } = usePageScroll();
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'HOME',
@@ -33,6 +29,7 @@ function HomeView() {
         slider,
         categories,
         recommended,
+        liveSignals,
         continueWatching,
         isLoading,
         isError,
@@ -44,57 +41,46 @@ function HomeView() {
         return () => scrollToSection(sectionId);
     }, [scrollToSection]);
 
-    if (isLoading) {
-        return <FullScreenSpinner />;
-    }
-
-    if (isError || !slider) {
-        return (
-            <div className={styles.errorContainer}>
-                <p className={styles.errorText}>
-                    Error al cargar el catálogo.
-                </p>
-            </div>
-        );
-    }
-
     return (
         <FocusContext.Provider value={focusKey}>
             <div ref={ref} className={styles.container}>
+                {isLoading ? (
+                    <FullScreenSpinner />
+                ) : isError || !slider ? (
+                    <div className={styles.errorContainer}>
+                        <p className={styles.errorText}>
+                            Error al cargar el catálogo.
+                        </p>
+                    </div>
+                ) : (
                 <div ref={scrollRef} className={styles.scrollContainer}>
                     <Banner
                         slider={slider}
-                        scrollY={scrollY}
                         onPlayFocused={scrollToTop}
                     />
 
                     <div className={styles.carouselsWrapper}>
-                        {/* Recomendados */}
-                        {slider.length > 1 && (
-                            <div
-                                className={styles.sectionRecommended}
-                                data-section="destacados"
-                            >
-                                <h2 className={styles.sectionTitle}>
-                                    {data?.data?.nombre_slider || "Destacados"}
-                                </h2>
-                                <CardCarrousel
-                                    programs={slider.slice(1)}
-                                    focusKeyPrefix="destacados"
-                                    onRowFocused={makeRowFocusHandler('destacados')}
-                                />
-                            </div>
+                        {/* Nuestras Señales (canales en vivo) */}
+                        {liveSignals.length > 0 && (
+                            <HomeLiveGrid
+                                signals={liveSignals}
+                                onRowFocused={makeRowFocusHandler('live-signals')}
+                            />
                         )}
+
                         {recommended.length > 0 && (
                             <div
                                 className={styles.sectionRecommended}
                                 data-section="recommended"
                             >
                                 <h2 className={styles.sectionTitle}>
-                                    {data?.data?.nombre_recomendados || "Recomendados para ti"}
+                                    {data?.data?.nombre_recomendados || "Destacados"}
                                 </h2>
-                                <CardCarrousel
+                                <HomeCardCarrousel
                                     programs={recommended}
+                                    orientation="vertical"
+                                    categorySlug="recomendados"
+                                    categoryTitle={data?.data?.nombre_recomendados || "Destacados"}
                                     focusKeyPrefix="recommended"
                                     onRowFocused={makeRowFocusHandler('recommended')}
                                 />
@@ -128,6 +114,7 @@ function HomeView() {
                         )}
                     </div>
                 </div>
+                )}
             </div>
         </FocusContext.Provider>
     );

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useNavigate } from 'react-router-dom';
 import type { Chapter } from '@/interfaces/catalog.interface';
@@ -12,12 +13,25 @@ interface ChapterCardProps {
     onCardFocus?: () => void;
 }
 
-/**
- * Tarjeta de capítulo para TV — basada en el modelo web.
- * REGLA F4.2: el estado focused se consume solo aquí (nivel más bajo).
- * REGLA F6.1: hover = focused
- * REGLA F6.2: click = enter
- */
+/** Convierte "HH:MM:SS" o "MM:SS" a minutos */
+function durationToMinutes(duration: any): string {
+    if (!duration) return '--';
+    const parts = String(duration).split(':');
+    if (parts.length === 3) {
+        return Math.round(
+            parseInt(parts[0], 10) * 60 +
+            parseInt(parts[1], 10) +
+            parseInt(parts[2], 10) / 60
+        ).toString();
+    } else if (parts.length === 2) {
+        return Math.round(
+            parseInt(parts[0], 10) +
+            parseInt(parts[1], 10) / 60
+        ).toString();
+    }
+    return parts[0] || '--';
+}
+
 function ChapterCard({
     chapter,
     programKey,
@@ -26,6 +40,7 @@ function ChapterCard({
     onCardFocus,
 }: ChapterCardProps) {
     const navigate = useNavigate();
+    const [isHovered, setIsHovered] = useState(false);
 
     const handlePress = () => {
         navigate(
@@ -39,7 +54,17 @@ function ChapterCard({
         onFocus: () => onCardFocus?.(),
     });
 
-    const imageSrc = chapter.image_land?.default || chapter.image;
+    const imageSrc = (chapter as any).image_land?.normal
+        || (chapter as any).image_land?.default
+        || chapter.image;
+
+    const duration = durationToMinutes((chapter as any).duration);
+    const showTimeBar = (chapter as any).duration_seg && (chapter as any).time;
+
+    // Título: "chapter - title" si active_number, sino solo "title"
+    const titleText = showChapter && chapter.chapter
+        ? `${chapter.chapter} - ${chapter.title}`
+        : chapter.title || '';
 
     return (
         <div
@@ -47,9 +72,11 @@ function ChapterCard({
             className={styles.chapterCard}
             data-focuskey={focusKey}
             onClick={handlePress}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Thumbnail 16:9 */}
-            <div className={`${styles.chapterThumb} ${focused ? styles.focused : ''}`}>
+            {/* Thumbnail */}
+            <div className={`${styles.chapterThumb} ${(focused || isHovered) ? styles.focused : ''}`}>
                 {imageSrc ? (
                     <img
                         src={imageSrc}
@@ -61,18 +88,45 @@ function ChapterCard({
                 ) : (
                     <div className={styles.chapterThumbPlaceholder} />
                 )}
+
+                {/* TimeBar dentro del thumbnail */}
+                {showTimeBar && (
+                    <div className={styles.chapterTimeBar} style={{
+                        position: 'absolute',
+                        left: '50%',
+                        bottom: 2,
+                        transform: 'translateX(-50%)',
+                    }}>
+                        <div className={styles.chapterTimeBarInner}>
+                            <div
+                                className={styles.chapterTimeBarFill}
+                                style={{
+                                    width: `${Math.min(100, ((chapter as any).time / (chapter as any).duration_seg) * 100)}%`
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Info debajo de la imagen */}
+            {/* Info al lado de la imagen */}
             <div className={styles.chapterInfo}>
-                {showChapter ? (
-                    <>
-                        <p className={styles.chapterNumber}>Capítulo {chapter.chapter}</p>
-                        <p className={styles.chapterTitle}>{chapter.title}</p>
-                    </>
-                ) : (
-                    <p className={styles.chapterNumber}>{chapter.title}</p>
-                )}
+                {/* Fila: título + duración */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                }}>
+                    <p className={styles.chapterNumber}>{titleText}</p>
+                    <span className={styles.chapterDuration}>{duration} min</span>
+                </div>
+
+                {/* Descripción del capítulo */}
+                <p className={styles.chapterTitle}>
+                    {(chapter as any).description || 'Descripción no disponible'}
+                </p>
             </div>
         </div>
     );

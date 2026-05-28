@@ -5,7 +5,7 @@ import { useBackHandler } from '@/hooks/useBackHandler';
 import { exitApp } from '@/utils/platform';
 import { Sidebar } from './sidebar/Sidebar';
 import { ExitModal } from './sidebar/ExitModal';
-import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_FOCUS_KEY, CONTENT_FOCUS_KEY } from './sidebar/constants';
+import { SIDEBAR_FOCUS_KEY, CONTENT_FOCUS_KEY } from './sidebar/constants';
 import styles from './MainLayout.module.css';
 
 /** Contenedor de contenido con su propio FocusContext para saveLastFocusedChild */
@@ -30,7 +30,7 @@ function ContentWrapper() {
             <main
                 ref={ref}
                 className={styles.content}
-                style={{ marginLeft: SIDEBAR_WIDTH_COLLAPSED }}
+                style={{ marginLeft: '9vw' }}
             >
                 <Outlet />
             </main>

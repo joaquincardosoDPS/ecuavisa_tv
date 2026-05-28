@@ -122,19 +122,7 @@ function MyListView() {
     }
   }, [isLoading, token, activeProfile, favorites.length, isError]);
 
-  // Keyboard: Back navega atrás
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const code = e.keyCode;
-      if (code === 27 || code === 8 || code === 10009) {
-        e.preventDefault();
-        e.stopPropagation();
-        navigate(-1);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [navigate]);
+  // Back lo maneja el global useBackHandler (exit modal en vista principal)
 
   return (
     <FocusContext.Provider value={focusKey}>

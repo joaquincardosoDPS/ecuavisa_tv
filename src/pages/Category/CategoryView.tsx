@@ -1,32 +1,145 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import {
+    FocusContext,
+    useFocusable,
+    setFocus,
+} from '@noriginmedia/norigin-spatial-navigation';
 import { catalogService } from '@/services/catalogService';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
-import ProgramGrid from '@/components/ProgramCard/ProgramGrid';
 import type { Program } from '@/interfaces/catalog.interface';
+import SelectBanner from './SelectBanner';
 import styles from './CategoryView.module.css';
 
-const PAGE_LIMIT = 12;
+const PAGE_LIMIT = 20;
 
+/** Extrae URL de imagen landscape de un programa */
+function getCardImage(program: Program): string {
+    return (
+        (program.image_land && typeof program.image_land === 'object' && !Array.isArray(program.image_land)
+            ? (program.image_land.small || program.image_land.normal || program.image_land.big || program.image_land.default)
+            : '') ||
+        (program as any).image ||
+        ''
+    );
+}
+
+/** Extrae la mejor imagen grande para el banner (prioriza image_background.big) */
+function getBannerImage(program: Program): string {
+    const p = program as any;
+
+    // Helper: extrae la URL más grande de un ImageSet (objeto o array)
+    const extractBig = (img: any): string => {
+        if (!img) return '';
+        if (typeof img === 'string') return img;
+        if (Array.isArray(img) && img.length > 0) {
+            const first = img[0];
+            if (typeof first === 'string') return first;
+            if (typeof first === 'object') return first.big || first.normal || first.medium || first.default || first.small || '';
+        }
+        if (typeof img === 'object') {
+            return img.big || img.normal || img.medium || img.default || img.small || '';
+        }
+        return '';
+    };
+
+    return (
+        extractBig(p.image_background) ||
+        extractBig(p.image_slider) ||
+        extractBig(p.image_land) ||
+        p.image ||
+        ''
+    );
+}
+
+/* ── Card individual (idéntico al original) ── */
+function CategoryCard({
+    program,
+    focusKey,
+    onProgramFocus,
+}: {
+    program: Program;
+    focusKey: string;
+    onProgramFocus?: (p: Program) => void;
+}) {
+    const navigate = useNavigate();
+
+    const imgSrc = getCardImage(program);
+
+    const handlePress = () => {
+        navigate(`/programas/${program.key}`, { state: { program } });
+    };
+
+    const { ref, focused } = useFocusable({
+        focusKey,
+        onEnterPress: handlePress,
+        onFocus: () => {
+            onProgramFocus?.(program);
+            (ref.current as HTMLElement)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'nearest',
+            });
+        },
+    });
+
+    const cardClass = [styles.card, focused && styles.focused]
+        .filter(Boolean)
+        .join(' ');
+
+    return (
+        <div className={styles.cardWrapper}>
+            <div
+                ref={ref}
+                className={cardClass}
+                data-focuskey={focusKey}
+                onClick={handlePress}
+                onMouseEnter={() => { setFocus(focusKey); onProgramFocus?.(program); }}
+            >
+                {imgSrc ? (
+                    <img
+                        src={imgSrc}
+                        alt={program.title}
+                        className={styles.cardImage}
+                        draggable={false}
+                        decoding="async"
+                    />
+                ) : (
+                    <div className={styles.cardFallback}>
+                        <span className={styles.cardFallbackText}>
+                            {program.title}
+                        </span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+/* ── Vista de categoría ── */
 function CategoryView() {
     const { slug } = useParams<{ slug: string }>();
     const location = useLocation();
-    const navTitle = (location.state as { title?: string })?.title || '';
+
+    const navTitle =
+        (location.state as { title?: string })?.title || '';
     const [categoryTitle, setCategoryTitle] = useState(navTitle);
     const [programs, setPrograms] = useState<Program[]>([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
-    const [totalRecords, setTotalRecords] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [isError, setIsError] = useState(false);
+    const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+    const [bannerImageUrl, setBannerImageUrl] = useState('');
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'CATEGORY',
         saveLastFocusedChild: true,
         trackChildren: true,
     });
+
+
 
     /* Carga inicial */
     useEffect(() => {
@@ -44,16 +157,21 @@ function CategoryView() {
                 if (cancelled) return;
                 const results = res.data || [];
                 setPrograms(results);
-                setTotalRecords(res.total_records || 0);
                 setHasMore(1 < (res.last_page || 1));
 
                 if (results.length > 0 && !categoryTitle) {
-                    setCategoryTitle(results[0].name_category || slug);
+                    setCategoryTitle(
+                        results[0].name_category || slug,
+                    );
                 }
 
-                /* Foco inicial al primer card */
                 if (results.length > 0) {
-                    setTimeout(() => setFocus(`CAT-GRID-${results[0].id}`), 150);
+                    setSelectedProgram(results[0]);
+                    setBannerImageUrl(getBannerImage(results[0]));
+                    setTimeout(
+                        () => setFocus(`CAT-GRID-0`),
+                        150,
+                    );
                 }
             })
             .catch(() => {
@@ -63,7 +181,9 @@ function CategoryView() {
                 if (!cancelled) setIsLoading(false);
             });
 
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, [slug]);
 
     /* Cargar más */
@@ -74,25 +194,39 @@ function CategoryView() {
         setIsLoadingMore(true);
 
         catalogService
-            .searchPrograms({ category: slug, limit: PAGE_LIMIT, page: nextPage })
+            .searchPrograms({
+                category: slug,
+                limit: PAGE_LIMIT,
+                page: nextPage,
+            })
             .then((res) => {
                 const results = res.data || [];
                 setPrograms((prev) => [...prev, ...results]);
                 setPage(nextPage);
                 setHasMore(nextPage < (res.last_page || 1));
-
-                /* Foco al primer resultado nuevo */
-                if (results.length > 0) {
-                    setTimeout(() => {
-                        setFocus(`CAT-GRID-${results[0].id}`);
-                    }, 100);
-                }
             })
-            .catch(() => { /* silencioso */ })
+            .catch(() => {
+                /* silencioso */
+            })
             .finally(() => {
                 setIsLoadingMore(false);
             });
     }, [slug, page, hasMore, isLoadingMore]);
+
+    /* Detectar scroll al fondo para cargar más */
+    const handleScroll = useCallback(
+        (e: React.UIEvent<HTMLDivElement>) => {
+            const el = e.currentTarget;
+            if (
+                el.scrollHeight - el.scrollTop - el.clientHeight < 300 &&
+                hasMore &&
+                !isLoadingMore
+            ) {
+                loadMore();
+            }
+        },
+        [hasMore, isLoadingMore, loadMore],
+    );
 
     if (isLoading) {
         return <FullScreenSpinner />;
@@ -108,31 +242,46 @@ function CategoryView() {
         );
     }
 
-
     return (
         <FocusContext.Provider value={focusKey}>
-            <div ref={ref} className={styles.container}>
-                <div className={styles.header}>
-                    <h1 className={styles.title}>{categoryTitle || slug}</h1>
-                    {totalRecords > 0 && (
-                        <p className={styles.subtitle}>
-                            {totalRecords} programa{totalRecords !== 1 ? 's' : ''}
-                        </p>
-                    )}
+            <div
+                ref={ref}
+                className={styles.container}
+                onScroll={handleScroll}
+            >
+                {/* Banner del programa seleccionado — sticky como el original */}
+                <div className={styles.stickyBanner}>
+                    <SelectBanner program={selectedProgram} imageUrl={bannerImageUrl} />
                 </div>
+
+                {/* Título de categoría */}
+                <h1 className={styles.categoryTitle}>{categoryTitle || slug}</h1>
 
                 {programs.length === 0 ? (
                     <p className={styles.emptyText}>
                         No hay programas en esta categoría.
                     </p>
                 ) : (
-                    <ProgramGrid
-                        programs={programs}
-                        focusKeyPrefix="CAT-GRID"
-                        hasMore={hasMore}
-                        isLoadingMore={isLoadingMore}
-                        onLoadMore={loadMore}
-                    />
+                    <div className={styles.grid}>
+                        {programs.map((program, i) => (
+                            <CategoryCard
+                                key={program.id || program.key}
+                                program={program}
+                                focusKey={`CAT-GRID-${i}`}
+
+                                onProgramFocus={(p) => {
+                                    setSelectedProgram(p);
+                                    setBannerImageUrl(getBannerImage(p));
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {isLoadingMore && (
+                    <div className={styles.loadingMore}>
+                        <FullScreenSpinner />
+                    </div>
                 )}
             </div>
         </FocusContext.Provider>

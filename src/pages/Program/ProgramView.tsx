@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   FocusContext,
   useFocusable,
@@ -23,7 +23,15 @@ function ProgramView({
   slug,
   setIsLoading,
 }: ProgramViewProps) {
-  const firstSegment = programDetail?.segments?.[0] ?? null;
+  // Filtrar segmentos sin temporadas/episodios
+  const validSegments = useMemo(
+    () => (programDetail?.segments ?? []).filter(
+      (s) => s.all_temp && s.all_temp.length > 0
+    ),
+    [programDetail?.segments],
+  );
+
+  const firstSegment = validSegments[0] ?? null;
 
   const [activeSegment, setActiveSegment] = useState<Segment | null>(
     firstSegment,
@@ -46,7 +54,7 @@ function ProgramView({
   }, []);
 
   const [scrollY, setScrollY] = useState(0);
-  const { scrollRef, scrollToTop, scrollToSection, scrollToElement } = usePageScroll({
+  const { scrollRef, scrollToTop, scrollToSection } = usePageScroll({
     onScroll: setScrollY,
   });
 
@@ -75,6 +83,7 @@ function ProgramView({
           <div data-section="tabs" className={styles.mainContent}>
             <Tabs
               program={programDetail}
+              validSegments={validSegments}
               activeSegment={activeSegment}
               setActiveSegment={handleSegmentChange}
               showDetails={showDetails}
@@ -84,7 +93,7 @@ function ProgramView({
                 if (evt && (evt.key === 'ArrowUp' || evt.keyCode === 38)) {
                   return;
                 }
-                scrollToSection("tabs", "start", window.innerHeight * 0.25);
+                scrollToSection("tabs", "start", 60);
               }}
             />
 
@@ -101,7 +110,7 @@ function ProgramView({
                   onLoaded={handleChaptersLoaded}
                   showChapter={programDetail.active_number}
                   // onContentFocused={() => scrollToSection("tabs", "start")}
-                  onScrollToElement={scrollToElement}
+
                 />
               )}
             </div>

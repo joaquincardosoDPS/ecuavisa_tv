@@ -1,13 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import {
+    useFocusable,
+    FocusContext,
+    setFocus,
+} from '@noriginmedia/norigin-spatial-navigation';
 import api from '@/services/api';
 import { RUDO_DEVICE_CODE_URL, RUDO_DEVICE_VERIFY_URL } from '@/config-global';
 import { profileService } from '@/services/profileService';
 import { useConfigStore } from '@/features/config/useConfigStore';
 import { useAuthStore } from '@/features/auth/authStore';
 import { isInputAction } from '@/utils/keycodes';
-import bgPrograms from '@/assets/img/bgPrograms.png';
+import logoFallback from '@/assets/img/logo.svg';
 import styles from './LoginView.module.css';
 
 interface DeviceCodeData {
@@ -37,38 +42,58 @@ interface DeviceVerifyResponse {
     };
 }
 
+const LOGIN_FOCUS_KEY = 'sn:login';
+
 function LoginView() {
     const navigate = useNavigate();
-    const tvUrl = useConfigStore((s) => s.config?.['url-tv-vincular'] || 'https://www.chv.cl/tv');
-    const bgImage = useConfigStore((s) => s.config?.background_image) || bgPrograms;
+    const configLogo = useConfigStore((s) => s.config?.logo);
+    const activationUrl = useConfigStore(
+        (s) => s.config?.['url-tv-vincular'] || 'https://www.latina.pe/activacion',
+    );
     const [deviceData, setDeviceData] = useState<DeviceCodeData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    /* Botón Back → volver al home (REGLA 4.1) */
+    const codeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const verifyIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Focus context
+    const { ref: containerRef, focusKey } = useFocusable({
+        focusKey: LOGIN_FOCUS_KEY,
+        trackChildren: true,
+        isFocusBoundary: true,
+    });
+
+    // Back button (same as original: useFocusable with onEnterPress → navigate(-1))
+    const { ref: backBtnRef, focused: backBtnFocused } = useFocusable({
+        focusKey: 'sn:login-back-btn',
+        onEnterPress: () => navigate(-1),
+    });
+
+    // Auto-focus back button on mount
+    useEffect(() => {
+        const timer = setTimeout(() => setFocus('sn:login-back-btn'), 300);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Back key → go back (same as original BackButton component)
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (isInputAction(e, 'Back')) {
                 e.preventDefault();
                 e.stopPropagation();
-                navigate('/home', { replace: true });
+                navigate(-1);
             }
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
     }, [navigate]);
 
-    const codeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const verifyIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    /**
-     * Solicita un nuevo código de dispositivo a la API.
-     */
+    // ── Device code pairing logic ──
     const fetchDeviceCode = useCallback(async () => {
         try {
             setIsLoading(true);
             setError(null);
-
             const { data } = await api.post<DeviceCodeResponse>(RUDO_DEVICE_CODE_URL, {});
             if (data.status === 'ok' && data.data && data.data.code_tv) {
                 setDeviceData(data.data);
@@ -83,10 +108,6 @@ function LoginView() {
         }
     }, []);
 
-    /**
-     * Verifica si el usuario ya vinculó el dispositivo desde el móvil/web.
-     * Hace polling cada 5 segundos.
-     */
     const checkAuthentication = useCallback(async () => {
         try {
             const token_tv = localStorage.getItem('token_tv');
@@ -97,12 +118,10 @@ function LoginView() {
             });
 
             if (data.status === 'ok' && data.user?.token) {
-                /* Vinculación exitosa — guardar auth en LS */
                 console.log('[Auth] Device verified, user:', data.user.email);
                 useAuthStore.getState().login(data.user.token, data.user);
                 localStorage.removeItem('token_tv');
 
-                /* Cargar perfiles y setear el primero como activo */
                 try {
                     const profilesRes = await profileService.getAll(data.user.token);
                     const profiles = profilesRes?.data || [];
@@ -114,26 +133,17 @@ function LoginView() {
                     console.warn('[Auth] Could not fetch profiles after login:', err);
                 }
 
-                navigate('/perfiles', { replace: true });
+                navigate('/mi-latina', { replace: true });
             }
         } catch {
             /* Silenciar errores de polling */
         }
     }, [navigate]);
 
-    /* Efecto inicial: obtener código + arrancar intervalos */
     useEffect(() => {
         fetchDeviceCode();
-
-        /* Renovar código cada 30s */
-        codeIntervalRef.current = setInterval(() => {
-            fetchDeviceCode();
-        }, 30_000);
-
-        /* Verificar auth cada 5s */
-        verifyIntervalRef.current = setInterval(() => {
-            checkAuthentication();
-        }, 5_000);
+        codeIntervalRef.current = setInterval(() => fetchDeviceCode(), 30_000);
+        verifyIntervalRef.current = setInterval(() => checkAuthentication(), 5_000);
 
         return () => {
             if (codeIntervalRef.current) clearInterval(codeIntervalRef.current);
@@ -141,83 +151,87 @@ function LoginView() {
         };
     }, [fetchDeviceCode, checkAuthentication]);
 
-    const qrUrl = deviceData
-        ? `${tvUrl}?code=${deviceData.code_tv}`
-        : '';
+    const backBtnClass = [styles.backBtn, backBtnFocused && styles.focused]
+        .filter(Boolean)
+        .join(' ');
 
     return (
-        <div className={styles.container}>
-            {/* Panel izquierdo — instrucciones de vinculación */}
-            <div className={styles.leftPanel}>
-                <h1 className={styles.heading}>
-                    Para iniciar sesión, debes vincular su televisor
-                </h1>
-
-                {/* Paso 1 — QR */}
-                <div className={styles.step}>
-                    <div className={styles.stepHeader}>
-                        <span className={styles.stepNumber}>1</span>
-                        <p className={styles.stepText}>
-                            Visita {tvUrl.replace(/^https?:\/\//, '')} o Escanee el
-                            siguiente código QR usando su móvil:
-                        </p>
-                    </div>
-                    <div className={styles.stepBody}>
-                        <div className={styles.qrWrapper}>
-                            {isLoading ? (
-                                <div style={{ width: 160, height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <span className={styles.loadingText}>Cargando...</span>
-                                </div>
-                            ) : qrUrl ? (
-                                <QRCodeSVG
-                                    value={qrUrl}
-                                    size={160}
-                                    bgColor="#ffffff"
-                                    fgColor="#000000"
-                                    level="M"
-                                />
-                            ) : null}
-                        </div>
-                    </div>
+        <FocusContext.Provider value={focusKey}>
+            {/* Stack direction="column" spacing={4} */}
+            <div ref={containerRef} className={styles.container}>
+                {/* Row 1: Back button (Box width: 100%, justify: flex-start) */}
+                <div className={styles.backRow}>
+                    <button
+                        ref={backBtnRef}
+                        className={backBtnClass}
+                        onClick={() => navigate(-1)}
+                        onMouseEnter={() => setFocus('sn:login-back-btn')}
+                    >
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                        </svg>
+                    </button>
                 </div>
 
-                {/* Paso 2 — Código */}
-                <div className={styles.step}>
-                    <div className={styles.stepHeader}>
-                        <span className={styles.stepNumber}>2</span>
-                        <p className={styles.stepText}>
-                            Ingresa el siguiente código
+                {/* Row 2: Logo centered (flexGrow: 1, height: 0) */}
+                <div className={styles.logoRow}>
+                    <img
+                        src={configLogo || logoFallback}
+                        alt="Logo"
+                        className={styles.logo}
+                    />
+                </div>
+
+                {/* Row 3: Body — Stack direction="row" spacing={2} flexGrow={1} */}
+                <div className={styles.body}>
+                    {/* DeviceCodeAuth */}
+                    <div className={styles.codeColumn}>
+                        <p className={styles.codeText}>
+                            Para iniciar sesion, debe vincular su televisor en el sitio web. Visite
                         </p>
-                    </div>
-                    <div className={styles.stepBody}>
+                        <p className={styles.codeUrl}>
+                            {activationUrl}
+                        </p>
                         {isLoading ? (
-                            <span className={styles.loadingText}>Generando código...</span>
+                            <div className={styles.codeLoading}>
+                                <div className={styles.spinner} />
+                            </div>
                         ) : deviceData ? (
-                            <div className={styles.codeBox}>
+                            <div className={styles.codeChip}>
                                 {deviceData.code_tv}
                             </div>
                         ) : null}
                         {error && <p className={styles.errorText}>{error}</p>}
                     </div>
+
+                    {/* AuthDivider */}
+                    <div className={styles.divider}>
+                        <div className={styles.dividerLine} />
+                        <span className={styles.dividerText}>o</span>
+                        <div className={styles.dividerLine} />
+                    </div>
+
+                    {/* QrAuth */}
+                    <div className={styles.qrColumn}>
+                        <p className={styles.qrText}>
+                            Escanee el siguiente código QR
+                        </p>
+                        <p className={styles.qrTextBottom}>
+                            usando tu móvil:
+                        </p>
+                        <div className={styles.qrContainer}>
+                            <QRCodeSVG
+                                value={activationUrl}
+                                size={300}
+                                bgColor="#ffffff"
+                                fgColor="#000000"
+                                level="M"
+                            />
+                        </div>
+                    </div>
                 </div>
-
-                {/* Link alternativo */}
-                <p className={styles.emailLink}>
-                    O ingresa con tu correo electrónico
-                </p>
             </div>
-
-            {/* Panel derecho — mosaico de programas */}
-            <div className={styles.rightPanel}>
-                <img
-                    src={bgImage}
-                    // src={bgPrograms}
-                    alt="Programas Chilevisión"
-                    className={styles.mosaicImage}
-                />
-                <div className={styles.mosaicOverlay} />
-            </div>
-        </div>
+        </FocusContext.Provider>
     );
 }
 

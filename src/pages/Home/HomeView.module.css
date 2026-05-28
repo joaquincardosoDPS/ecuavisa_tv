@@ -1,41 +1,45 @@
 .container {
     position: relative;
     height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
 }
 
-/* REGLA F5.1: contenedor de scroll vertical con transform */
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Contenedor interno */
 .scrollContainer {
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+    padding-top: 32px;
+    padding-right: 32px;
+    padding-bottom: 32px;
 }
 
 .carouselsWrapper {
     display: flex;
     flex-direction: column;
+    gap: 32px;
     padding-bottom: 5rem;
+    margin-top: 32px;
 }
 
-.carouselsWrapper > * + * {
-    margin-top: 1.25rem;
-}
-
-/* Sección de recomendados */
+/* Sección de recomendados / destacados */
 .sectionRecommended {
-    padding: 0 5rem;
     display: flex;
     flex-direction: column;
-    margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
-    font-family: var(--font-family-category) !important;
 }
 
 .sectionTitle {
-    font-size: var(--font-size-title);
-    font-weight: 700 !important;
+    font-size: 1.8rem;
+    font-weight: 500;
     color: #ffffff;
     line-height: 1.3;
-    margin-bottom: 1.5rem;
-    font-family: var(--font-family-category) !important;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-transform: capitalize;
+    font-family: Archia, var(--font-family-category), Arial, Helvetica, sans-serif;
 }
 
 /* Error state */
@@ -49,6 +53,6 @@
 
 .errorText {
     color: #ef4444;
-    font-family: var(--font-family-title) !important;
+    font-family: var(--font-family-title);
     font-size: var(--font-size-text);
 }

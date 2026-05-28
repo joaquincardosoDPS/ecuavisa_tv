@@ -12,7 +12,7 @@ interface AlternativeCardProps {
 function AlternativeCard({ program, focusKey, onCardFocus }: AlternativeCardProps) {
     const navigate = useNavigate();
 
-    const imageSrc = program?.image_land?.medium;
+    const imageSrc = program?.image_land?.small;
 
     const handlePress = () => {
         navigate(`/programas/${program.key}`);

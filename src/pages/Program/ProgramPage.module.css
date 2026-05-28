@@ -1,5 +1,6 @@
 /* =============================================
    ProgramPage — Smart TV Program Detail View
+   Estilos idénticos al /program del original
    REGLA 1.1: CSS Modules
    REGLA 1.2: Solo transform y opacity para animaciones
    REGLA 1.3: Flexbox para layout
@@ -15,7 +16,7 @@
     height: 100vh;
     z-index: -1;
     overflow: hidden;
-    background-color: var(--clr-primary, #001a28);
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .bannerImage {
@@ -25,7 +26,7 @@
     right: 0;
     bottom: 0;
     background-size: cover;
-    background-position: top right;
+    background-position: center center;
     background-repeat: no-repeat;
 }
 
@@ -34,10 +35,10 @@
     top: 0;
     bottom: 0;
     left: 0;
-    width: 66%;
+    width: 33.35%;
     background: linear-gradient(to right,
-            var(--clr-primary, #001a28) 0%,
-            rgba(0, 26, 40, 0.4) 50%,
+            rgba(0, 0, 0, 0.8) 0%,
+            rgba(0, 0, 0, 0.4) 50%,
             transparent 100%);
 }
 
@@ -46,10 +47,10 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 66%;
+    height: 50%;
     background: linear-gradient(to top,
-            var(--clr-primary, #001a28) 0%,
-            rgba(0, 26, 40, 0.4) 50%,
+            rgba(0, 0, 0, 0.8) 0%,
+            rgba(0, 0, 0, 0.4) 50%,
             transparent 100%);
 }
 
@@ -59,84 +60,155 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--clr-primary, #001a28);
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* ── Info Banner (zona de metadata del programa) ── */
+/* ── Info Banner — programa banner (940px height original) ── */
 .infoBanner {
-    padding: 6vh 0 4vh 4vw;
+    position: relative;
+    width: 100%;
+    min-height: 940px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    min-height: 52vh;
+    justify-content: flex-start;
 }
 
+/* Logo del programa */
 .logoContainer {
-    height: 14vh;
-    display: flex;
-    align-items: flex-end;
-    margin-bottom: 1.5vh;
+    position: absolute;
+    top: 7vw;
+    left: 3vw;
+    max-width: 15vw;
+    max-height: 20vw;
+    overflow: hidden;
 }
 
 .logoImg {
-    max-width: 22vw;
-    height: 100%;
-    object-fit: contain;
+    max-width: 15vw;
+    max-height: 20vw;
+    border-radius: 10px;
+    object-fit: cover;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
 }
 
 .titleFallback {
-    font-size: var(--font-size-heading);
-    font-weight: var(--font-weight-title);
+    position: absolute;
+    top: 7vw;
+    left: 3vw;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: #ffffff;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-/* ── Metadata row (clasificación, año, temporadas, géneros) ── */
+/* ── Metadata section (classification, year, seasons, genres) ── */
 .metaRow {
+    position: absolute;
+    top: 25vw;
+    left: 3vw;
+    max-width: 30vw;
     display: flex;
-    align-items: center;
-    margin-bottom: 1vh;
-}
-
-.metaRow>*+* {
-    margin-left: 0.6rem;
+    flex-direction: column;
 }
 
 .badge {
-    padding: 0.3rem 0.6rem;
-    background-color: #31343C;
-    border-radius: 6px;
-    font-size: var(--font-size-caption);
-    font-weight: 600;
+    display: inline-block;
+    padding: 10px;
+    background-color: #00AD86;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 500;
     color: #ffffff;
+    text-transform: capitalize;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
+    width: fit-content;
+    margin-bottom: 0.5rem;
 }
 
 .metaText {
-    font-size: var(--font-size-caption);
+    font-size: 1.3rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.8);
+    color: #ffffff;
+    white-space: nowrap;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
+}
+
+/* ── Descripción del programa ── */
+.description {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #ffffff;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    word-break: break-word;
+    max-width: 30vw;
 }
 
 /* ── Botones de acción ── */
 .actionRow {
+    position: absolute;
+    bottom: 6vw;
+    left: 2vw;
     display: flex;
     align-items: center;
-    padding-top: 1.5vh;
-    margin-bottom: 1vh;
 }
 
-.actionRow>*+* {
+.actionRow > * + * {
     margin-left: 1rem;
 }
 
+/* Botón principal (Play / Capítulos) */
+.playBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 8vh;
+    width: 12vw;
+    border-radius: 5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 4px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
+}
+
+.playBtn.focused,
+.playBtn:hover {
+    border-color: #FFE500;
+}
+
+.playIcon {
+    color: #ffe500;
+    font-size: 2.5rem;
+    margin-right: 0.5rem;
+}
+
+.playText {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
+}
+
 /* ── Barra de progreso ── */
+.progressUnderAction {
+    position: absolute;
+    bottom: 3vw;
+    left: 2vw;
+}
+
 .progressBarContainer {
-    width: 22vw;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
     margin-bottom: 1vh;
 }
 
 .progressBarOuter {
-    width: 100%;
+    width: 12vw;
+    flex-shrink: 0;
     height: 4px;
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
@@ -145,7 +217,7 @@
 
 .progressBarInner {
     height: 100%;
-    background-color: var(--foc-primary);
+    background-color: #ffe500;
     border-radius: 2px;
 }
 
@@ -155,157 +227,179 @@
     margin-top: 0.3rem;
 }
 
-/* ── Descripción corta ── */
-.description {
-    font-size: var(--font-size-text);
-    font-weight: 400;
+.progressRemaining {
+    font-size: 1rem;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.7);
-    line-height: 1.6;
-    max-width: 40vw;
-    /* Limitar a 3 líneas */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    white-space: nowrap;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
-/* ── Tabs Navigation ── */
+/* ── Tabs Navigation (Segmented Button) ── */
 .tabsWrapper {
-    padding: 0 3vw;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    padding: 0 2rem 0 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     overflow: hidden;
 }
 
 .tabsTrack {
     display: flex;
+    height: 60px;
+    padding-right: 4rem;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
-}
-
-.tabsTrack>*+* {
-    margin-left: 2.5rem;
 }
 
 .tabItem {
     position: relative;
     flex-shrink: 0;
-    padding: 1rem 0.5rem;
+    padding: 8px 40px;
     font-size: 1.3rem;
-    font-weight: 500;
-    color: var(--clr-secondary-text);
+    font-weight: 400;
+    color: #ffffff;
     background: none;
     border: none;
     cursor: pointer;
     outline: none;
     white-space: nowrap;
-    border-bottom: 4px solid transparent;
-    transition: color 0.2s ease;
-    margin-bottom: -2px;
+    border-bottom: 0.3rem solid transparent;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    transition: all 0.2s ease;
+    margin-bottom: -1px;
     font-family: inherit;
+    display: flex;
+    align-items: center;
 }
 
 /* Activa */
 .tabItemActive {
-    color: #ffffff;
-    border-bottom-color: #ffffff;
+    font-weight: 500;
+    border-bottom-color: #ffe500;
 }
 
 /* Foco/Hover — REGLA F6.1 */
 .tabItemFocused,
 .tabItem:hover {
-    color: #ffffff;
-    border-bottom-color: var(--foc-primary);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: #ffe500;
 }
 
-/* ── Main Content (tabs + chapters) — se desliza sobre el banner fijo ── */
+/* ── Main Content (tabs + chapters) ── */
 .mainContent {
     position: relative;
-    /* background-color: rgba(0, 10, 18, 0.92); */
 }
 
 /* ── Content Area (debajo de tabs) ── */
 .contentArea {
-    padding: 3vh 4vw 6vh;
-    min-height: 100vh;
+    padding: 0 2rem 6vh;
 }
 
-/* ── Season selector ── */
+/* ── Season selector (sidebar izquierdo) ── */
 .seasonsRow {
     display: flex;
-    margin-bottom: 2vh;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 220px;
+    max-width: 260px;
+    flex-shrink: 0;
+    margin-top: 40px;
+    margin-right: 176px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    padding-right: 8px;
 }
 
-.seasonsRow>*+* {
-    margin-left: 2vw;
+.seasonsRow::-webkit-scrollbar {
+    display: none;
 }
 
 .seasonItem {
-    font-size: var(--font-size-text);
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.4);
-    background: none;
+    min-width: 210px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 1rem;
+    margin-bottom: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: capitalize;
+    text-align: center;
+    background: transparent;
     border: none;
+    border-radius: 24px;
     cursor: pointer;
-    padding: 0.5vh 0.5vw;
-    font-family: inherit;
-    border-bottom: 2px solid transparent;
+    transition: background 0.2s;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
 .seasonItemActive {
-    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 .seasonItemFocused,
 .seasonItem:hover {
-    color: #ffffff;
-    border-bottom-color: var(--foc-primary);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffe500;
 }
 
-/* ── Chapters Carousel ── */
+/* ── Chapters vertical list ── */
 .chaptersWrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    margin: -25px -20px;
-    padding: 25px 20px;
+    flex: 1;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    margin-top: 40px;
+}
+
+.chaptersWrapper::-webkit-scrollbar {
+    display: none;
 }
 
 .chaptersTrack {
     display: flex;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+    flex-direction: column;
 }
 
-.chaptersTrack>*+* {
-    margin-left: 1.5rem;
-}
-
-/* ── Chapter Card (modelo web) ── */
+/* ── Chapter Card ── */
 .chapterCard {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: flex-start;
     cursor: pointer;
     flex-shrink: 0;
-    width: 22vw;
+    width: 100%;
+    background: transparent;
+    border-radius: 24px;
+    margin-bottom: 12px;
+    transition: transform 0.2s ease;
+    outline: none;
 }
 
 .chapterThumb {
     position: relative;
-    width: 100%;
-    /* 16:9 aspect ratio */
-    padding-bottom: 56.25%;
+    width: 18vw;
+    height: 18vh;
     overflow: hidden;
+    flex-shrink: 0;
     background-color: #0a0a0a;
-    border-radius: 8px;
+    border-radius: 25px;
     border: 2px solid transparent;
     transition: border-color 0.2s ease;
+    margin-right: 16px;
 }
 
 /* F6.1: hover = focused — ring solo en el thumbnail */
 .chapterThumb.focused,
 .chapterThumb:hover {
-    border-color: var(--foc-primary);
-    box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+    border-color: #ffe500;
     z-index: 10;
 }
 
@@ -316,6 +410,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     border-radius: inherit;
 }
 
@@ -329,26 +424,36 @@
 }
 
 .chapterInfo {
-    padding: 0.6rem 0.2rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .chapterNumber {
-    font-size: var(--font-size-text);
+    font-size: 22.5px;
     color: #ffffff;
-    font-weight: 600;
-    margin-top: 0;
+    font-weight: 700;
+    margin: 0;
+    transition: color 0.2s ease;
+}
+
+.chapterDuration {
+    font-size: 20px;
+    font-weight: 400;
+    color: #ffffff;
+    white-space: nowrap;
+    margin-right: 25px;
 }
 
 .chapterTitle {
-    font-size: var(--font-size-caption);
+    font-size: 20px;
     font-weight: 400;
-    color: var(--clr-text-primary-button, rgba(255, 255, 255, 0.6));
-    /* Limitar a 2 líneas */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    margin-top: 0.2rem;
+    color: #ffffff;
+    opacity: 0.85;
+    margin: 2px 0 0 0;
 }
 
 /* ── Load More wrapper ── */
@@ -373,28 +478,30 @@
 }
 
 .detailsSynopsis {
-    flex: 0 0 50%;
+    flex: 0 0 45%;
     padding-right: 4vw;
 }
 
 .detailsMeta {
-    flex: 1;
+    flex: 0 0 45%;
 }
 
 .detailsHeading {
-    font-size: var(--font-size-subtitle);
-    font-weight: var(--font-weight-title);
+    font-size: 2.5rem;
+    font-weight: 500;
     color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    text-transform: capitalize;
     margin-bottom: 1vh;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
 .detailsText {
-    font-size: var(--font-size-text);
+    font-size: 1.5rem;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
     line-height: 1.7;
+    text-align: justify;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
 .detailsMetaItem {
@@ -402,16 +509,19 @@
 }
 
 .detailsLabel {
-    font-size: var(--font-size-caption);
+    font-size: 1.5rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.5);
     margin-bottom: 0.3vh;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
 .detailsValue {
-    font-size: var(--font-size-text);
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.5rem;
+    font-weight: normal;
+    color: #ffffff;
+    text-transform: capitalize;
+    font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
 /* ── Status texts ── */
@@ -426,6 +536,59 @@
     color: rgba(255, 255, 255, 0.5);
     font-size: var(--font-size-caption);
     font-weight: 500;
+}
+
+/* ── Related Programs Grid (Recomendados tab) ── */
+.relatedGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 1rem;
+}
+
+.relatedCard {
+    width: 20vw;
+    height: 21vh;
+    border-radius: 3rem;
+    background-color: #00604e;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.relatedCard:hover {
+    border-color: #ffe500;
+}
+
+.relatedCardFocused {
+    border-color: #ffe500;
+    transform: scale(1.02);
+}
+
+.relatedCardImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3rem;
+}
+
+.relatedCardFallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.relatedCardFallbackText {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: Archia, Arial, Helvetica, sans-serif;
 }
 
 /* ── Page-level wrapper ── */
@@ -458,15 +621,35 @@
 .favoriteBtn.focused,
 .favoriteBtn:hover {
     background-color: rgba(255, 255, 255, 0.3);
-    border-color: var(--foc-primary);
-    box-shadow: 0 0 12px rgba(255, 19, 118, 0.3);
+    border-color: #ffe500;
+    box-shadow: 0 0 12px rgba(255, 229, 0, 0.3);
 }
 
 .favoriteBtn.active {
-    color: var(--foc-primary);
+    color: #ffe500;
 }
 
 .favoriteSvg {
     width: 1.5rem;
     height: 1.5rem;
+}
+
+/* ── Chapter TimeBar ── */
+.chapterTimeBar {
+    width: 18vw;
+    margin-top: 4px;
+}
+
+.chapterTimeBarInner {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.chapterTimeBarFill {
+    height: 100%;
+    background-color: #ffe500;
+    border-radius: 2px;
 }

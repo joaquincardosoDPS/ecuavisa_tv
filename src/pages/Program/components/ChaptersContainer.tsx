@@ -2,7 +2,6 @@ import { useEffect, useRef, useCallback } from "react";
 import {
   FocusContext,
   useFocusable,
-  setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
 import type { Segment } from "@/interfaces/catalog.interface";
 import { useChapters } from "@/hooks/useChapters";
@@ -22,8 +21,6 @@ interface ChaptersContainerProps {
   onLoaded?: () => void;
   showChapter?: boolean;
   onContentFocused?: () => void;
-  /** Callback del page-scroll para centrar un elemento en el viewport */
-  onScrollToElement?: (el: HTMLElement | null) => void;
 }
 
 function ChaptersContainer({
@@ -35,9 +32,8 @@ function ChaptersContainer({
   onLoaded,
   showChapter = true,
   onContentFocused,
-  onScrollToElement,
 }: ChaptersContainerProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const {
     chapters: chaptersData,
@@ -65,38 +61,21 @@ function ChaptersContainer({
     onFocus: () => onContentFocused?.(),
   });
 
-  /** REGLA F5.1: centra el card enfocado horizontalmente en el track */
-  const scrollToCard = useCallback((cardFocusKey: string) => {
-    const track = trackRef.current;
-    if (!track) return;
+  /** Scroll vertical al capítulo enfocado */
+  const scrollToChapter = useCallback((idx: number) => {
+    const list = listRef.current;
+    if (!list) return;
 
-    const wrapper = track.parentElement;
-    if (!wrapper) return;
+    const children = list.children;
+    if (idx < 0 || idx >= children.length) return;
 
-    const child = track.querySelector(
-      `[data-focuskey="${cardFocusKey}"]`,
-    ) as HTMLElement | null;
-    if (!child) return;
+    const child = children[idx] as HTMLElement;
+    child.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
 
-    const wrapperWidth = wrapper.offsetWidth;
-    const childLeft = child.offsetLeft;
-    const childWidth = child.offsetWidth;
-
-    const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-    const maxScroll = track.scrollWidth - wrapperWidth;
-    const clampedX = Math.max(0, Math.min(targetX, maxScroll));
-
-    track.style.transform = `translateX(-${clampedX}px)`;
-
-    // También notificar al padre para page-scroll vertical
-    if (onScrollToElement) {
-      onScrollToElement(child);
-    }
-  }, [onScrollToElement]);
-
-  /** Infinite scroll: carga más al acercarse al final */
-  const handleCardFocus = useCallback((cardKey: string, index: number) => {
-    scrollToCard(cardKey);
+  /** Focus handler con infinite scroll */
+  const handleCardFocus = useCallback((_cardKey: string, index: number) => {
+    scrollToChapter(index);
 
     // Prefetch cuando el foco llega a los últimos N cards
     if (
@@ -106,41 +85,26 @@ function ChaptersContainer({
     ) {
       fetchNextPage();
     }
-  }, [scrollToCard, hasNextPage, isFetchingNextPage, chapters.length, fetchNextPage]);
-
-  /** FocusKey del primer card */
-  const firstCardKey = chapters.length > 0
-    ? `PROGRAM-CHAPTERS-${chapters[0].key}-0`
-    : undefined;
-
-  /** Intercepta flecha abajo desde SeasonSelector → foco al primer card */
-  const handleSeasonArrowDown = useCallback(() => {
-    if (firstCardKey) {
-      setFocus(firstCardKey);
-      return false;
-    }
-    return true;
-  }, [firstCardKey]);
+  }, [scrollToChapter, hasNextPage, isFetchingNextPage, chapters.length, fetchNextPage]);
 
   return (
     <FocusContext.Provider value={focusKey}>
-      <div ref={ref}>
-        {/* Selector de temporada */}
-        {activeSegment && activeSegment.all_temp.length > 1 && (
+      <div ref={ref} style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+        {/* Sidebar de temporadas — a la izquierda */}
+        {activeSegment && activeSegment.all_temp.length >= 1 && (
           <SeasonSelector
             seasons={activeSegment.all_temp}
             activeSeason={activeSeason}
             setActiveSeason={setActiveSeason}
-            onArrowDown={handleSeasonArrowDown}
           />
         )}
 
-        {/* Carrusel de capítulos */}
+        {/* Lista vertical de capítulos — a la derecha */}
         {isLoadingChapters ? (
           <p className={styles.statusText}>Cargando capítulos...</p>
         ) : chapters.length > 0 ? (
           <div className={styles.chaptersWrapper}>
-            <div ref={trackRef} className={styles.chaptersTrack}>
+            <div ref={listRef} className={styles.chaptersTrack}>
               {chapters.map((chapter: any, index: number) => {
                 const cardKey = `PROGRAM-CHAPTERS-${chapter.key}-${index}`;
                 return (
@@ -155,8 +119,6 @@ function ChaptersContainer({
                   />
                 );
               })}
-
-              <div className={styles.chaptersEndSpacer} />
             </div>
           </div>
         ) : (

@@ -1,4 +1,4 @@
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import { useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import styles from '../ProgramPage.module.css';
 
 interface FavoriteButtonProps {
@@ -6,6 +6,10 @@ interface FavoriteButtonProps {
     isFavorited: boolean;
     isToggling: boolean;
     onPress: () => void;
+    /** FocusKey del botón play al que navegar con flecha izquierda */
+    playFocusKey?: string;
+    /** FocusKey de los tabs al que navegar con flecha abajo */
+    tabsFocusKey?: string;
 }
 
 /**
@@ -13,11 +17,29 @@ interface FavoriteButtonProps {
  * REGLA F6.1: hover = focused
  * REGLA F6.2: onClick = onEnterPress
  */
-function FavoriteButton({ focusKey, isFavorited, isToggling, onPress }: FavoriteButtonProps) {
+function FavoriteButton({
+    focusKey,
+    isFavorited,
+    isToggling,
+    onPress,
+    playFocusKey = 'program-btn-play',
+    tabsFocusKey = 'PROGRAM-TABS',
+}: FavoriteButtonProps) {
     const { ref, focused } = useFocusable({
         focusKey,
         onEnterPress: () => {
             if (!isToggling) onPress();
+        },
+        onArrowPress: (direction) => {
+            if (direction === 'left') {
+                setFocus(playFocusKey);
+                return false;
+            }
+            if (direction === 'down') {
+                setFocus(tabsFocusKey);
+                return false;
+            }
+            return true;
         },
     });
 

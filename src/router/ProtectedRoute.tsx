@@ -6,7 +6,7 @@ function ProtectedRoute({ children }: { children?: React.ReactNode }) {
     const location = useLocation();
 
     if (!isAuthenticated) {
-        return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
+        return <Navigate to="/auth/register" state={{ from: location.pathname }} replace />;
     }
 
     return children ? <>{children}</> : <Outlet />;

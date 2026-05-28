@@ -1,15 +1,11 @@
 .section {
     position: relative;
-    padding: 0 5rem;
     display: flex;
     flex-direction: column;
-    margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
-    font-family: var(--font-family-category) !important;
 }
 
 .section.hasBg {
-    padding: 2rem 5rem;
+    padding: 2rem 0;
 }
 
 /* Fondo que se extiende detrás del sidebar */
@@ -30,13 +26,15 @@
 
 .sectionTitle {
     position: relative;
-    z-index: 1;
-    font-size: var(--font-size-title);
-    font-weight: 700 !important;
+    z-index: 2;
+    font-size: 1.8rem;
+    font-weight: 500;
     color: #ffffff;
     line-height: 1.3;
-    margin-bottom: 1.5rem;
-    font-family: var(--font-family-category) !important;
+    margin-left: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-transform: capitalize;
+    font-family: Archia, var(--font-family-category), Arial, Helvetica, sans-serif;
 }
 
 /* Layout con logo lateral (vertical + icon) */
@@ -55,6 +53,8 @@
     justify-content: center;
     margin: 0 5rem;
     width: 20rem;
+    position: relative;
+    z-index: 2;
 }
 
 .logoSide>*+* {
@@ -71,7 +71,7 @@
     width: 100%;
     position: relative;
     z-index: 1;
-    font-size: var(--font-size-title);
+    font-size: 1.5rem;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.3;
@@ -80,4 +80,5 @@
 .carouselWrapper {
     flex: 1;
     min-width: 0;
+    overflow: hidden;
 }

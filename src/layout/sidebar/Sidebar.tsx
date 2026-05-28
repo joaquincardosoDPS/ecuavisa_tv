@@ -20,7 +20,7 @@ function ProfileSidebarItem({
     profile,
     avatarUrl,
     isExpanded,
-    nextFocusKey,
+    prevFocusKey,
     onItemFocus,
     onItemBlur,
     onCollapse,
@@ -28,7 +28,7 @@ function ProfileSidebarItem({
     profile: Profile;
     avatarUrl: string | null;
     isExpanded: boolean;
-    nextFocusKey: string | null;
+    prevFocusKey: string | null;
     onItemFocus: () => void;
     onItemBlur: () => void;
     onCollapse: () => void;
@@ -36,7 +36,7 @@ function ProfileSidebarItem({
     const navigate = useNavigate();
 
     const goToProfiles = () => {
-        navigate('/perfiles', { replace: true });
+        navigate('/mi-latina', { replace: true });
         onCollapse();
         setFocus(CONTENT_FOCUS_KEY);
     };
@@ -53,11 +53,11 @@ function ProfileSidebarItem({
                 return false;
             }
             if (direction === 'left') return false;
-            if (direction === 'up') return false;
-            if (direction === 'down' && nextFocusKey) {
-                setFocus(nextFocusKey);
+            if (direction === 'up' && prevFocusKey) {
+                setFocus(prevFocusKey);
                 return false;
             }
+            if (direction === 'down') return false;
             return false;
         },
     });
@@ -86,7 +86,7 @@ function ProfileSidebarItem({
                         </span>
                     )}
                 </span>
-                <span className={styles.profileLabel}>Perfil</span>
+                <span className={styles.profileLabel}>Mi Latina</span>
             </div>
         </li>
     );
@@ -156,33 +156,33 @@ export function Sidebar() {
                 <div className={styles.spacer} />
 
                 <ul className={styles.navList}>
-                    {/* Active profile avatar — above Home, focusable */}
-                    {isAuthenticated && activeProfile && (
-                        <ProfileSidebarItem
-                            profile={activeProfile}
-                            avatarUrl={getProfileAvatarUrl(activeProfile)}
-                            isExpanded={isExpanded}
-                            nextFocusKey={items.length > 0 ? items[0].id : null}
-                            onItemFocus={handleChildFocus}
-                            onItemBlur={handleChildBlur}
-                            onCollapse={handleCollapse}
-                        />
-                    )}
-
                     {items.map((item, index) => (
                         <SidebarItem
                             key={item.id}
                             item={item}
                             isExpanded={isExpanded}
-                            prevFocusKey={index > 0
-                                ? items[index - 1].id
+                            prevFocusKey={index > 0 ? items[index - 1].id : null}
+                            nextFocusKey={index < items.length - 1
+                                ? items[index + 1].id
                                 : (isAuthenticated && activeProfile ? 'sidebar-profile' : null)}
-                            nextFocusKey={index < items.length - 1 ? items[index + 1].id : null}
                             onItemFocus={handleChildFocus}
                             onItemBlur={handleChildBlur}
                             onCollapse={handleCollapse}
                         />
                     ))}
+
+                    {/* Active profile avatar — below nav items, focusable */}
+                    {isAuthenticated && activeProfile && (
+                        <ProfileSidebarItem
+                            profile={activeProfile}
+                            avatarUrl={getProfileAvatarUrl(activeProfile)}
+                            isExpanded={isExpanded}
+                            prevFocusKey={items[items.length - 1]?.id || null}
+                            onItemFocus={handleChildFocus}
+                            onItemBlur={handleChildBlur}
+                            onCollapse={handleCollapse}
+                        />
+                    )}
                 </ul>
             </nav>
         </FocusContext.Provider>

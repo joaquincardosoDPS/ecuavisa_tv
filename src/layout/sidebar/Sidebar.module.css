@@ -1,44 +1,50 @@
+/* ═══════════════════════════════════════
+   Sidebar Container — matches original
+   ═══════════════════════════════════════ */
+
 .container {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    width: 123.03px;
-    margin-right: 8px;
+    width: 9vw;
     z-index: 10;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
+    /* align-items NOT centered — original had it commented out */
+    transition: box-shadow 0.3s ease;
+    margin-right: 0.5rem;
 }
 
-.container.expanded {
-    width: 450px;
-}
-
-
+/* Backdrop gradient — 60vmax wide, fades from green to transparent */
 .backdrop {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 60vmax;
     height: 100%;
     background: var(--grad-sidebar);
     opacity: 0;
     z-index: -1;
     pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
 .container.expanded .backdrop {
     opacity: 1;
 }
 
-/* Logo */
+.container.expanded {
+    z-index: 99999999;
+}
+
+/* Logo — absolute positioned */
 .logo {
     position: absolute;
     top: 60px;
-    left: 3rem;
+    margin-left: 3rem;
     width: 75px;
     height: 75px;
     object-fit: contain;
@@ -46,68 +52,51 @@
 
 /* Spacer between logo and nav items */
 .spacer {
-    height: 100px;
+    height: 140px;
 }
 
 /* Nav items list */
 .navList {
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 100%;
     padding: 0;
     margin: 0;
     list-style: none;
 }
 
-/* Profile avatar item — matches SidebarItem sizing */
+/* ═══════════════════════════════════════
+   Profile avatar item
+   ═══════════════════════════════════════ */
+
 .profileItem {
     width: 100%;
-    height: 9vh;
     position: relative;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: flex-start;
-    padding: 14px 0 14px 20px;
+    margin: 20px;
     cursor: pointer;
     list-style: none;
-    margin: 20px;
-}
-
-.profileItem::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 15%;
-    bottom: 15%;
-    width: 4px;
-    border-radius: 0 4px 4px 0;
-    background-color: var(--foc-primary);
-    opacity: 0;
-}
-
-.profileItemFocused,
-.profileItem:hover {
-    color: var(--foc-primary);
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-.profileItemFocused::before,
-.profileItem:hover::before {
-    opacity: 1;
 }
 
 .profileItemInner {
+    margin-right: 36px;
+    width: 4rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    width: 60px;
     padding-left: 8px;
+    background-color: transparent;
+    transition: all 0.3s ease;
 }
 
-.profileItemExpanded .profileItemInner {
-    width: 320px;
+.profileItemFocused .profileItemInner,
+.profileItem:hover .profileItemInner {
+    transform: scale(1.2);
+    transform-origin: left center;
 }
 
 .profileAvatar {
@@ -139,10 +128,11 @@
 .profileLabel {
     display: none;
     margin-left: 16px;
-    font-size: var(--font-size-title);
+    font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
     font-weight: 600;
+    font-size: 1.2rem;
     white-space: nowrap;
-    color: var(--clr-text-primary-button);
+    color: #ffffff;
 }
 
 .profileItemExpanded .profileLabel {

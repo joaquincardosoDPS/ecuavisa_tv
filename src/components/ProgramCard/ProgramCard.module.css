@@ -6,6 +6,7 @@
     cursor: pointer;
     background-color: #0a0a0a;
     border: 3px solid transparent;
+    transition: transform 0.2s ease;
 }
 
 /* F6.1: hover = focused (REGLA 2.3: visible a 3m) */
@@ -14,6 +15,14 @@
     z-index: 10;
     border-color: var(--foc-primary);
     box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+    transform: scale(1.02);
+}
+
+/* Alternative cards override: no border/shadow on the card itself */
+.card.alternative.focused,
+.card.alternative:hover {
+    border-color: transparent;
+    box-shadow: none;
 }
 
 /* ── Orientaciones ── */
@@ -32,8 +41,11 @@
 }
 
 .alternative {
-    border-radius: 8px;
+    border-radius: 32px;
     width: 100%;
+    background-color: #00AD86;
+    overflow: visible;
+    border: none;
 }
 
 /* 16:9 ratio box inside alternative cards */
@@ -43,6 +55,7 @@
     height: 0;
     padding-top: 56.25%;
     overflow: hidden;
+    border-radius: 28px;
 }
 
 .ratioBox .image,
@@ -52,6 +65,25 @@
     left: 0;
     width: 100%;
     height: 100%;
+}
+
+/* Image border on focus for alternative cards */
+.alternative.focused .ratioBox,
+.alternative:hover .ratioBox {
+    border: 4px solid #ffe500;
+    box-sizing: border-box;
+}
+
+/* ── Card title (below card) ── */
+.cardTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: Archia, Arial, Helvetica, sans-serif;
+    padding-top: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ── Imagen ── */

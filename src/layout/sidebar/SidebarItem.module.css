@@ -1,93 +1,77 @@
+/* ═══════════════════════════════════════
+   SidebarItem — matches original exactly
+   ═══════════════════════════════════════ */
+
+/* Container: column flex, centered, margin 20px */
 .item {
     width: 100%;
-    height: 9vh;
     position: relative;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: start;
-    padding: 20px 0 20px 20px;
-    color: var(--clr-text-primary-button);
+    margin: 20px;
+    color: #ffffff;
     cursor: pointer;
-
 }
 
-/* Barra lateral de foco — visible a 3m sin afectar bounding box (REGLA 2.3) */
-.item::before {
-    content: '';
-    position: absolute;
-    left: 24px;
-    top: 20%;
-    bottom: 20%;
-    width: 0.4rem;
-    /* border-radius: 0 4px 4px 0; */
-    background-color: var(--foc-primary);
-    opacity: 0;
-}
-
-/* Focused / Hover state (F6.1) */
-.item.focused,
-.item:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-
-
-/* Active route indicator */
-.item.active {
-    color: var(--foc-primary);
-}
-
-.item.active::before {
-    opacity: 1;
-}
-
+/* Inner box: row flex, 4rem wide, marginRight 36px, paddingLeft 8px */
 .itemInner {
+    margin-right: 36px;
+    width: 4rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    width: 60px;
-    padding-left: calc(0.4rem + 12px);
-    transition: transform 0.3s ease-out;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    padding-left: 8px;
 }
 
-.item.focused .itemInner,
-.item:hover .itemInner {
+/* Active route indicator — borderLeft on inner */
+.item.active .itemInner {
+    border-left: 0.4rem solid var(--foc-primary);
+}
+
+/* Focus: scale the entire inner box to 1.2 */
+.item.focused .itemInner {
     transform: scale(1.2);
     transform-origin: left center;
 }
 
-.item.expanded .itemInner {
-    width: 320px;
-}
-
+/* Icon wrapper */
 .iconWrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: color 0.3s ease, transform 0.2s cubic-bezier(.4, 2, .6, 1);
 }
 
+/* Hover: scale only the icon to 1.1 (not the entire inner) */
+.item:hover .iconWrapper {
+    transform: scale(1.1);
+}
+
+/* Force SVG size to 48x48 */
+.iconWrapper svg {
+    width: 48px;
+    height: 48px;
+}
+
+/* Label — hidden by default, shown when expanded (sidebarFocused) */
 .label {
     display: none;
     margin: 0;
     font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
     font-weight: 600;
     font-size: 1.2rem;
-    line-height: 1.57;
-    color: #FFFFFF;
+    color: #ffffff;
     white-space: nowrap;
     padding-left: 16px;
     transition: opacity 0.3s ease, font-size 0.2s cubic-bezier(.4, 2, .6, 1);
 }
 
 .item.expanded .label {
-    display: flex;
-    align-items: center;
-}
-
-/* Focus / Hover glow para TV (visible a distancia, F6.1) */
-.item.focused .iconWrapper,
-.item:hover .iconWrapper {
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+    display: block;
 }

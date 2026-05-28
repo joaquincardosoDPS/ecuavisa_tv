@@ -80,7 +80,10 @@ function EditProfileView() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isDefaultProfile = existingProfile?.default === true;
+  const isFirstProfile = profilesResponse?.data
+    ? profilesResponse.data[0]?.id === id
+    : false;
+  const isDefaultProfile = existingProfile?.default === true || isFirstProfile;
 
   // Receive avatar from AvatarSelectView (must be BEFORE the profile prefill)
   const location = useLocation();
@@ -126,7 +129,7 @@ function EditProfileView() {
         if (showDeleteModal) {
           setShowDeleteModal(false);
         } else {
-          navigate('/perfiles', { replace: true });
+          navigate('/mi-latina', { replace: true });
         }
       }
     };
@@ -187,7 +190,7 @@ function EditProfileView() {
       }
 
       setSubmitSuccess(true);
-      setTimeout(() => navigate('/perfiles', { replace: true }), 1200);
+      setTimeout(() => navigate('/mi-latina', { replace: true }), 1200);
     } catch (err) {
       console.error('[EditProfile] Error:', err);
       setSubmitError('Error de conexión. Intenta de nuevo.');
@@ -207,7 +210,7 @@ function EditProfileView() {
         setShowDeleteModal(false);
         return;
       }
-      navigate('/perfiles', { replace: true });
+      navigate('/mi-latina', { replace: true });
     } catch (err) {
       console.error('[EditProfile] Delete error:', err);
       setSubmitError('Error de conexión.');
@@ -226,9 +229,9 @@ function EditProfileView() {
   const avatarUrl = getProfileAvatarUrl();
 
   // Navigate to avatar selection
-  const returnPath = isCreateMode ? '/perfiles/nuevo' : `/perfiles/${id}`;
+  const returnPath = isCreateMode ? '/mi-latina/nuevo' : `/mi-latina/${id}`;
   const goToAvatarSelect = useCallback(() => {
-    navigate('/perfiles/avatar', {
+    navigate('/mi-latina/avatar', {
       state: { currentAvatar: selectedAvatar, returnTo: returnPath },
     });
   }, [navigate, selectedAvatar, returnPath]);

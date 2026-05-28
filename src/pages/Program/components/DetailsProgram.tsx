@@ -5,43 +5,48 @@ interface DetailsProgramProps {
     programDetail: Program;
 }
 
+/** Formatea el campo actors que puede ser string o array */
+function formatActors(actors: any): string {
+    if (!actors) return '';
+    if (typeof actors === 'string') return actors;
+    if (Array.isArray(actors)) {
+        return actors
+            .map((a: any) => (typeof a === 'string' ? a : a?.name || ''))
+            .filter(Boolean)
+            .join(', ');
+    }
+    return '';
+}
+
 function DetailsProgram({ programDetail }: DetailsProgramProps) {
     const yearProduction = programDetail.anio_production;
-    const genders = programDetail.genders
-        ?.map((gender) => gender.name)
-        .join(', ');
-    const casting = programDetail.actors || '';
+    const casting = formatActors(programDetail.actors);
 
     return (
-        <div className={styles.detailsSection}>
-            {/* Sinopsis */}
-            <div className={styles.detailsSynopsis}>
-                <h3 className={styles.detailsHeading}>Sinopsis</h3>
-                <p className={styles.detailsText}>
-                    {programDetail.description || programDetail.description_short}
-                </p>
-            </div>
+        <div style={{ marginTop: '2rem', marginLeft: '1rem' }}>
+            <h3 className={styles.detailsHeading}>Sinopsis</h3>
 
-            {/* Metadata */}
-            <div className={styles.detailsMeta}>
-                {yearProduction && (
-                    <div className={styles.detailsMetaItem}>
-                        <p className={styles.detailsLabel}>Año</p>
-                        <p className={styles.detailsValue}>{yearProduction}</p>
-                    </div>
-                )}
-                {genders && (
-                    <div className={styles.detailsMetaItem}>
-                        <p className={styles.detailsLabel}>Géneros</p>
-                        <p className={styles.detailsValue}>{genders}</p>
-                    </div>
-                )}
-                {casting && (
-                    <div className={styles.detailsMetaItem}>
-                        <p className={styles.detailsLabel}>Elenco</p>
-                        <p className={styles.detailsValue}>{casting}</p>
-                    </div>
-                )}
+            <div className={styles.detailsSection}>
+                {/* Columna izquierda: sinopsis */}
+                <div className={styles.detailsSynopsis}>
+                    <p className={styles.detailsText}>
+                        {programDetail.description || programDetail.description_short || 'Sinopsis no disponible.'}
+                    </p>
+                </div>
+
+                {/* Columna derecha: metadata */}
+                <div className={styles.detailsMeta}>
+                    {yearProduction && (
+                        <p className={styles.detailsValue}>
+                            Año: {yearProduction}.
+                        </p>
+                    )}
+                    {casting && (
+                        <p className={styles.detailsValue} style={{ marginTop: '0.5rem' }}>
+                            Elenco: {casting}.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );

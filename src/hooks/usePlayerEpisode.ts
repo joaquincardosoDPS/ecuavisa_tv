@@ -117,16 +117,20 @@ export function usePlayerEpisode() {
         const programDetail = program
           ? (await catalogService.getProgramDetail(program))?.data
           : null;
-        const isNoSegments = programDetail?.single_episode === true;
+        // Detectar single_episode: por flag del programa, o por season=0/chapter=0
+        const isNoSegments = programDetail?.single_episode === true
+          || (seasonNum === 0 && chapterNum === 0);
 
         // Cargar capítulo actual
         let chapterData: Chapter | undefined;
 
         if (isNoSegments) {
-          // Programa single_episode: obtener capítulos sin segmento
+          // Programa single_episode: obtener primer capítulo sin segment/season
+          // Idéntico al original: {page:1, limit:1}
           const response = await catalogService.getChapters({
             program: program!,
-            no_segments: true,
+            page: 1,
+            limit: 1,
           });
           chapterData = response?.data?.[0];
         } else {
