@@ -52,7 +52,7 @@ function ProgramView({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useRelatedPrograms(programDetail.key, programDetail.name_category);
+  } = useRelatedPrograms(programDetail.key, programDetail.category?.slug || programDetail.name_category);
 
   // Historial "Seguir viendo" para el banner — sin filtro de segment/season
   const { item: continueWatchingItem } = useContinueWatching(programDetail.key);

@@ -7,6 +7,7 @@ import {
 import type { Program } from "@/interfaces/catalog.interface";
 import { useFetch } from "@/hooks/useFetch";
 import { usePageScroll } from "@/hooks/usePageScroll";
+import { useRelatedPrograms } from "@/hooks/useRelatedPrograms";
 import { catalogService } from "@/services/catalogService";
 import Banner, { BannerBackground } from "./components/Banner";
 import TabsSingle, { type ActiveTab } from "./components/TabsSingle";
@@ -35,18 +36,15 @@ function ProgramSingleView({
     { enabled: !!programDetail.key },
   );
 
-  // Obtener programas relacionados
-  const { data: relatedProgramsData, isLoading: isLoadingRelated } = useFetch(
-    () =>
-      catalogService.searchPrograms({
-        slug_exclude: programDetail.key,
-        category: programDetail.name_category,
-      }),
-    [programDetail.key],
-    { enabled: !!programDetail.key },
-  );
+  // Obtener programas relacionados con scroll infinito
+  const {
+    programs: relatedPrograms,
+    isLoading: isLoadingRelated,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useRelatedPrograms(programDetail.key, programDetail.category?.slug || programDetail.name_category);
 
-  const relatedPrograms = relatedProgramsData?.data ?? [];
   const chapter = chapterData?.data?.[0] ?? null;
 
   // Single episode: solo "Recomendados" y "Detalles"
@@ -116,6 +114,9 @@ function ProgramSingleView({
                 <RelatedProgramsContainer
                   programs={relatedPrograms}
                   isLoading={isLoadingRelated}
+                  isFetchingNextPage={isFetchingNextPage}
+                  hasNextPage={hasNextPage}
+                  fetchNextPage={fetchNextPage}
                 />
               )}
             </div>
