@@ -83,32 +83,28 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo): 
         var slugParts = base.split('/');
         var slug = slugParts[slugParts.length - 1].split('?')[0];
 
-        var iuMap: Record<string, string> = {
-            '13cl': '/112372207/13go/canal13/preroll',
-            't13': '/112372207/13go/t13/preroll',
-            'deportes': '/112372207/13go/13deportes/preroll',
-            'cultura': '/112372207/13go/13cultura/preroll',
-            'entretencion': '/112372207/13go/13entretencion/preroll',
-            '13cocina': '/112372207/13go/13cocina/preroll',
-            '13viajes': '/112372207/13go/13viajes/preroll',
-        };
-        var iu = iuMap[slug] || '/112372207/13go/canal13/preroll';
+        // Ad units por señal — agregar mapeos cuando estén definidos
+        var iuMap: Record<string, string> = {};
+        var iu = iuMap[slug];
 
-        base = 'https://pubads.g.doubleclick.net/gampad/ads';
-        paramsMap['iu'] = encodeURIComponent(iu);
-        paramsMap['output'] = 'xml_vast4';
-        paramsMap['sz'] = '640x480';
-        paramsMap['gdfp_req'] = '1';
-        paramsMap['tfcd'] = '0';
-        paramsMap['npa'] = '0';
+        // Solo reescribir si el slug tiene un ad unit mapeado
+        if (iu) {
+            base = 'https://pubads.g.doubleclick.net/gampad/ads';
+            paramsMap['iu'] = encodeURIComponent(iu);
+            paramsMap['output'] = 'xml_vast4';
+            paramsMap['sz'] = '640x480';
+            paramsMap['gdfp_req'] = '1';
+            paramsMap['tfcd'] = '0';
+            paramsMap['npa'] = '0';
 
-        // Eliminar parámetros exclusivos de Rudo que Google rechaza
-        delete paramsMap['app'];
-        delete paramsMap['dpssid'];
-        delete paramsMap['ndvc'];
-        delete paramsMap['sid'];
-        delete paramsMap['platform'];
-        delete paramsMap['impl'];
+            // Eliminar parámetros exclusivos de Rudo que Google rechaza
+            delete paramsMap['app'];
+            delete paramsMap['dpssid'];
+            delete paramsMap['ndvc'];
+            delete paramsMap['sid'];
+            delete paramsMap['platform'];
+            delete paramsMap['impl'];
+        }
     }
 
     // Agregar parámetros de identificación persistente (Web)

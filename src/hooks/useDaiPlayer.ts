@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Hls from "hls.js";
+import { getHlsSessionParams, forceSessionParams } from "@/services/hlsSessionService";
+import type { HlsSessionParams } from "@/services/hlsSessionService";
 
 interface UseDaiPlayerOptions {
   /** URL m3u8 del stream en vivo (backup si DAI falla) */
@@ -45,27 +47,32 @@ export function useDaiPlayer({
   assetKeyRef.current = assetKey;
   streamSrcRef.current = streamSrc;
 
+  // ── Ref para isAdPlaying (evitar stale closures en handlers DAI) ──
+  const isAdPlayingRef = useRef(isAdPlaying);
+  isAdPlayingRef.current = isAdPlaying;
+
+  // ── Generación: se incrementa en cada cambio de señal para invalidar callbacks async pendientes ──
+  const generationRef = useRef(0);
+
+  // ── Ref del setTimeout pendiente para poder cancelarlo en cleanup ──
+  const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // ── Determinar si hay VAST preroll válido ──
   const hasVast = !!(vastUrl && vastUrl.trim() !== '' && vastUrl !== 'none');
 
   // ── Estado expuesto: ¿mostrar VastPlayer? ──
   const showVastPreroll = adPhase === 'vast';
 
-  // ── Función que inicia DAI/HLS (fase 2) ──
-  const startDaiOrHls = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const currentAssetKey = assetKeyRef.current;
-    const currentStreamSrc = streamSrcRef.current;
-
-    // Limpiar instancias previas de HLS/StreamManager
+  // ── Cleanup centralizado de HLS + StreamManager ──
+  const cleanupStream = useCallback(() => {
     if (hlsRef.current) {
+      console.log("[Live] Destruyendo instancia HLS");
       hlsRef.current.destroy();
       hlsRef.current = null;
     }
     if (streamManagerRef.current) {
       try {
+        // IMA DAI StreamManager: intentar destroy/reset
         if (typeof streamManagerRef.current.destroy === 'function') {
           streamManagerRef.current.destroy();
         } else if (typeof streamManagerRef.current.reset === 'function') {
@@ -76,12 +83,63 @@ export function useDaiPlayer({
       }
       streamManagerRef.current = null;
     }
+  }, []);
+
+  // ── Cancelar timeout pendiente ──
+  const cancelPendingTimeout = useCallback(() => {
+    if (startTimeoutRef.current !== null) {
+      clearTimeout(startTimeoutRef.current);
+      startTimeoutRef.current = null;
+    }
+  }, []);
+
+  // ── Función que inicia DAI/HLS (fase 2) ──
+  const startDaiOrHls = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Capturar la generación actual al momento de ejecutar
+    const myGeneration = generationRef.current;
+
+    const currentAssetKey = assetKeyRef.current;
+    const currentStreamSrc = streamSrcRef.current;
+
+    // Limpiar instancias previas de HLS/StreamManager
+    cleanupStream();
+
+    // ── Obtener parámetros de sesión DPS (dpssid, ndvc, sid) ──
+    let sessionParams: HlsSessionParams | null = null;
+    try {
+      sessionParams = await getHlsSessionParams();
+      console.log("[Live] Session params obtenidos:", sessionParams);
+    } catch (err) {
+      console.warn("[Live] No se pudieron obtener session params, continuando sin ellos:", err);
+    }
+
+    // Guard: verificar generación después de la operación async
+    if (generationRef.current !== myGeneration) {
+      console.warn("[Live] Generación cambió durante getHlsSessionParams, abortando");
+      return;
+    }
 
     // ── Función para cargar HLS en el reproductor ──
     const loadUrl = (url: string) => {
+      // Guard: si la generación cambió, este callback es stale → no crear nada
+      if (generationRef.current !== myGeneration) {
+        console.warn("[Live] Stale loadUrl call ignored (gen", myGeneration, "vs current", generationRef.current, ")");
+        return;
+      }
+
       if (!url) {
         console.error("[Live] No URL provided to loadUrl");
         return;
+      }
+
+      // Destruir HLS previo antes de sobrescribir hlsRef (defensa extra)
+      if (hlsRef.current) {
+        console.log("[Live] Destruyendo HLS previo antes de crear nuevo");
+        hlsRef.current.destroy();
+        hlsRef.current = null;
       }
 
       console.log("[Live] Loading stream:", url);
@@ -97,6 +155,16 @@ export function useDaiPlayer({
           backBufferLength: 30,
           maxBufferLength: 30,
           maxMaxBufferLength: 60,
+          // Interceptar solo peticiones de segmentos .ts
+          // para inyectar los parámetros de sesión DPS
+          xhrSetup: sessionParams
+            ? (xhr: XMLHttpRequest, requestUrl: string) => {
+                if (requestUrl.includes('.ts') && !requestUrl.includes('dai.google.com')) {
+                  const enrichedUrl = forceSessionParams(requestUrl, sessionParams);
+                  xhr.open('GET', enrichedUrl, true);
+                }
+              }
+            : undefined,
         });
         hlsRef.current = hls;
 
@@ -113,6 +181,9 @@ export function useDaiPlayer({
         });
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          // Guard por generación
+          if (generationRef.current !== myGeneration) return;
+
           console.log("[Live] Manifest parsed, playing...");
           video.play().then(() => {
             video.muted = false;
@@ -176,6 +247,11 @@ export function useDaiPlayer({
         streamManager.addEventListener(
           google.ima.dai.api.StreamEvent.Type.LOADED,
           (e: any) => {
+            // Guard: si la generación cambió, ignorar callback stale
+            if (generationRef.current !== myGeneration) {
+              console.warn("[Live] Stale DAI LOADED callback ignored (gen", myGeneration, "vs current", generationRef.current, ")");
+              return;
+            }
             console.log("[Live] DAI Stream loaded");
             const streamUrl = e.getStreamData().url;
             setAdPhase('content');
@@ -187,6 +263,11 @@ export function useDaiPlayer({
         streamManager.addEventListener(
           google.ima.dai.api.StreamEvent.Type.ERROR,
           (e: any) => {
+            // Guard: si la generación cambió, ignorar callback stale
+            if (generationRef.current !== myGeneration) {
+              console.warn("[Live] Stale DAI ERROR callback ignored");
+              return;
+            }
             console.error("[Live] DAI Error, playing backup stream.", e);
             setAdPhase('content');
             loadUrl(currentStreamSrc);
@@ -197,6 +278,7 @@ export function useDaiPlayer({
         streamManager.addEventListener(
           google.ima.dai.api.StreamEvent.Type.AD_BREAK_STARTED,
           () => {
+            if (generationRef.current !== myGeneration) return;
             console.log("[Live] Ad Break Started");
             setIsAdPlaying(true);
             video.controls = false;
@@ -208,6 +290,7 @@ export function useDaiPlayer({
         streamManager.addEventListener(
           google.ima.dai.api.StreamEvent.Type.AD_BREAK_ENDED,
           () => {
+            if (generationRef.current !== myGeneration) return;
             console.log("[Live] Ad Break Ended");
             setIsAdPlaying(false);
             video.controls = false;
@@ -219,6 +302,7 @@ export function useDaiPlayer({
         streamManager.addEventListener(
           google.ima.dai.api.StreamEvent.Type.AD_PROGRESS,
           (e: any) => {
+            if (generationRef.current !== myGeneration) return;
             const adProgressData = e.getStreamData().adProgressData;
             if (adProgressData) {
               console.log(
@@ -230,14 +314,14 @@ export function useDaiPlayer({
           false
         );
 
-        // Pause/Play handlers para interacción durante ads
+        // Pause/Play handlers para interacción durante ads (usan ref para no crear stale closure)
         const onPause = () => {
-          if (isAdPlaying && adUiRef.current) {
+          if (isAdPlayingRef.current && adUiRef.current) {
             adUiRef.current.style.display = 'none';
           }
         };
         const onPlay = () => {
-          if (isAdPlaying && adUiRef.current) {
+          if (isAdPlayingRef.current && adUiRef.current) {
             adUiRef.current.style.display = 'block';
           }
         };
@@ -264,7 +348,7 @@ export function useDaiPlayer({
       setAdPhase('content');
       loadUrl(currentStreamSrc);
     }
-  }, [videoRef, adUiRef, isAdPlaying]);
+  }, [videoRef, adUiRef, cleanupStream]);
 
   // ── Callback expuesto: VastPlayer terminó → iniciar DAI/HLS ──
   const onVastFinished = useCallback(() => {
@@ -278,23 +362,16 @@ export function useDaiPlayer({
     const video = videoRef.current;
     if (!video || !streamSrc) return;
 
+    // Incrementar generación → invalida todos los callbacks async pendientes de la señal anterior
+    generationRef.current++;
+    const currentGen = generationRef.current;
+    console.log("[Live] Nueva señal, generación:", currentGen, "src:", streamSrc);
+
+    // Cancelar timeout pendiente de la señal anterior
+    cancelPendingTimeout();
+
     // Cleanup previo
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-    if (streamManagerRef.current) {
-      try {
-        if (typeof streamManagerRef.current.destroy === 'function') {
-          streamManagerRef.current.destroy();
-        } else if (typeof streamManagerRef.current.reset === 'function') {
-          streamManagerRef.current.reset();
-        }
-      } catch (e) {
-        console.warn("[Live] Error cleaning StreamManager", e);
-      }
-      streamManagerRef.current = null;
-    }
+    cleanupStream();
     video.pause();
     video.removeAttribute("src");
     video.load();
@@ -309,26 +386,22 @@ export function useDaiPlayer({
       console.log("[Live] Sin VAST preroll, iniciando DAI/HLS directo...");
       setAdPhase('dai');
       // Pequeño delay para que el cleanup del video se aplique
-      setTimeout(() => startDaiOrHls(), 50);
+      startTimeoutRef.current = setTimeout(() => {
+        startTimeoutRef.current = null;
+        // Guard extra: verificar que la generación no cambió durante el delay
+        if (generationRef.current !== currentGen) {
+          console.warn("[Live] setTimeout stale, generación cambió durante delay");
+          return;
+        }
+        startDaiOrHls();
+      }, 50);
     }
 
     return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-      if (streamManagerRef.current) {
-        try {
-          if (typeof streamManagerRef.current.destroy === 'function') {
-            streamManagerRef.current.destroy();
-          } else if (typeof streamManagerRef.current.reset === 'function') {
-            streamManagerRef.current.reset();
-          }
-        } catch (e) {
-          console.warn("[Live] Error cleaning StreamManager", e);
-        }
-        streamManagerRef.current = null;
-      }
+      // Cancelar timeout pendiente
+      cancelPendingTimeout();
+
+      cleanupStream();
       video.pause();
       video.removeAttribute("src");
       video.load();

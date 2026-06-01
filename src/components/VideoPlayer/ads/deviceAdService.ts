@@ -80,15 +80,8 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
         var slugParts = base.split('/');
         var slug = slugParts[slugParts.length - 1].split('?')[0];
 
-        var iuMap: Record<string, string> = {
-            '13cl': '/112372207/13go/canal13/preroll',
-            't13': '/112372207/13go/t13/preroll',
-            'deportes': '/112372207/13go/13deportes/preroll',
-            'cultura': '/112372207/13go/13cultura/preroll',
-            'entretencion': '/112372207/13go/13entretencion/preroll',
-            '13cocina': '/112372207/13go/13cocina/preroll',
-            '13viajes': '/112372207/13go/13viajes/preroll',
-        };
+        // Ad units por señal — agregar mapeos cuando estén definidos
+        var iuMap: Record<string, string> = {};
         var iu = iuMap[slug];
 
         // Solo reescribir si el slug tiene un ad unit mapeado
