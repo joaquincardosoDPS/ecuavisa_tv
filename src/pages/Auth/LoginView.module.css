@@ -4,7 +4,6 @@
 .container {
     display: flex;
     flex-direction: column;
-    gap: 32px; /* MUI spacing: 4 */
     width: 100vw;
     min-height: 100vh;
     overflow: hidden;
@@ -13,6 +12,10 @@
     padding-left: 40px;   /* MUI paddingLeft: 5 */
     padding-right: 32px;  /* MUI pr: 4 */
     box-sizing: border-box;
+}
+
+.container > * + * {
+    margin-top: 32px; /* MUI spacing: 4 */
 }
 
 /* ── Row 1: Back button ── */
@@ -77,8 +80,11 @@
 .body {
     display: flex;
     flex-direction: row;
-    gap: 16px; /* MUI spacing: 2 */
     flex-grow: 1;
+}
+
+.body > * + * {
+    margin-left: 16px; /* MUI spacing: 2 */
 }
 
 /* Left column — DeviceCodeAuth (width: 100%, centered) */
@@ -178,7 +184,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px; /* MUI spacing: 1 */
+}
+
+.qrColumn > * + * {
+    margin-top: 8px; /* MUI spacing: 1 */
 }
 
 .qrText {

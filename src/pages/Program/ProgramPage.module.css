@@ -202,8 +202,11 @@
 .progressBarContainer {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
     margin-bottom: 1vh;
+}
+
+.progressBarContainer > * + * {
+    margin-left: 0.8rem;
 }
 
 .progressBarOuter {
@@ -299,7 +302,6 @@
 .seasonsRow {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     min-width: 220px;
     max-width: 260px;
     flex-shrink: 0;
@@ -311,6 +313,10 @@
     scrollbar-width: none;
     scroll-behavior: smooth;
     padding-right: 8px;
+}
+
+.seasonsRow > * + * {
+    margin-top: 16px;
 }
 
 .seasonsRow::-webkit-scrollbar {
@@ -540,10 +546,28 @@
 
 /* ── Related Programs Grid (Recomendados tab) ── */
 .relatedGrid {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    margin-top: 1rem;
+    padding-bottom: 6vh;
+}
+
+.relatedGrid::-webkit-scrollbar {
+    display: none;
+}
+
+.relatedGridInner {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 1rem;
+    padding: 0.5rem 0.5rem 6vh 0.5rem;
+}
+
+.relatedGridInner > * {
+    margin-right: 20px;
+    margin-bottom: 20px;
 }
 
 .relatedCard {

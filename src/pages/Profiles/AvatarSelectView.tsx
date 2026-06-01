@@ -131,6 +131,7 @@ function AvatarSelectView() {
   const stateData = (location.state || {}) as {
     currentAvatar?: string | null;
     returnTo?: string;
+    currentName?: string;
   };
 
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(stateData.currentAvatar ?? null);
@@ -158,26 +159,27 @@ function AvatarSelectView() {
     }
   }, [isLoading, avatarGroups]);
 
+  const goBack = useCallback(() => {
+    const returnTo = stateData.returnTo || '/mi-latina/nuevo';
+    navigate(returnTo, {
+      replace: true,
+      state: { selectedAvatar, currentName: stateData.currentName },
+    });
+  }, [navigate, selectedAvatar, stateData.returnTo, stateData.currentName]);
+
   // Back key → go back with selected avatar
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (isInputAction(e, 'Back')) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         e.stopPropagation();
         goBack();
       }
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [selectedAvatar]);
-
-  const goBack = useCallback(() => {
-    const returnTo = stateData.returnTo || '/mi-latina/nuevo';
-    navigate(returnTo, {
-      replace: true,
-      state: { selectedAvatar },
-    });
-  }, [navigate, selectedAvatar, stateData.returnTo]);
+    window.addEventListener('keydown', handleKey, true);
+    return () => window.removeEventListener('keydown', handleKey, true);
+  }, [goBack]);
 
   if (isLoading) return <FullScreenSpinner />;
 
@@ -198,7 +200,7 @@ function AvatarSelectView() {
                 const returnTo = stateData.returnTo || '/mi-latina/nuevo';
                 navigate(returnTo, {
                   replace: true,
-                  state: { selectedAvatar: id, selectedAvatarUrl: url },
+                  state: { selectedAvatar: id, selectedAvatarUrl: url, currentName: stateData.currentName },
                 });
               }}
               focusKeyPrefix={`avatar-row-${idx}`}

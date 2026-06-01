@@ -6,10 +6,12 @@ import {
 } from "@noriginmedia/norigin-spatial-navigation";
 import type { Program, Segment } from "@/interfaces/catalog.interface";
 import { usePageScroll } from "@/hooks/usePageScroll";
+import { useRelatedPrograms } from "@/hooks/useRelatedPrograms";
 import Banner, { BannerBackground } from "./components/Banner";
 import Tabs from "./components/Tabs";
 import DetailsProgram from "./components/DetailsProgram";
 import ChaptersContainer from "./components/ChaptersContainer";
+import RelatedProgramsContainer from "./components/RelatedProgramsContainer";
 import styles from "./ProgramPage.module.css";
 
 interface ProgramViewProps {
@@ -40,6 +42,16 @@ function ProgramView({
     firstSegment?.all_temp?.[0] ?? null,
   );
   const [showDetails, setShowDetails] = useState(!firstSegment);
+  const [showRelated, setShowRelated] = useState(false);
+
+  // Obtener programas relacionados con scroll infinito
+  const {
+    programs: relatedPrograms,
+    isLoading: isLoadingRelated,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useRelatedPrograms(programDetail.key, programDetail.name_category);
 
   const { ref, focusKey } = useFocusable({
     focusKey: "PROGRAM-VIEW",
@@ -88,6 +100,8 @@ function ProgramView({
               setActiveSegment={handleSegmentChange}
               showDetails={showDetails}
               setShowDetails={setShowDetails}
+              showRelated={showRelated}
+              setShowRelated={setShowRelated}
               onTabsFocused={(details) => {
                 const evt = details?.event as KeyboardEvent | undefined;
                 if (evt && (evt.key === 'ArrowUp' || evt.keyCode === 38)) {
@@ -98,7 +112,15 @@ function ProgramView({
             />
 
             <div className={styles.contentArea}>
-              {showDetails ? (
+              {showRelated ? (
+                <RelatedProgramsContainer
+                  programs={relatedPrograms}
+                  isLoading={isLoadingRelated}
+                  isFetchingNextPage={isFetchingNextPage}
+                  hasNextPage={hasNextPage}
+                  fetchNextPage={fetchNextPage}
+                />
+              ) : showDetails ? (
                 <DetailsProgram programDetail={programDetail} />
               ) : (
                 <ChaptersContainer
@@ -109,8 +131,6 @@ function ProgramView({
                   setActiveSeason={setActiveSeason}
                   onLoaded={handleChaptersLoaded}
                   showChapter={programDetail.active_number}
-                  // onContentFocused={() => scrollToSection("tabs", "start")}
-
                 />
               )}
             </div>

@@ -66,8 +66,11 @@
 .body {
     display: flex;
     flex-direction: row;
-    gap: 16px; /* MUI spacing: 2 */
     margin-top: 32px; /* MUI spacing: 4 between header and body */
+}
+
+.body > * + * {
+    margin-left: 16px; /* MUI spacing: 2 */
 }
 
 /* Left column — text content (DeviceCodeAuth) */
@@ -174,7 +177,10 @@
 .dialogActions {
     display: flex;
     justify-content: center;
-    gap: 24px;
+}
+
+.dialogActions > * + * {
+    margin-left: 24px;
 }
 
 .dialogBtn {

@@ -49,6 +49,10 @@ function ProfileCard({
     focusKey,
     onEnterPress: handleAction,
     onArrowPress: (direction) => {
+      if (direction === 'down') {
+        setFocus('profiles-edit-btn');
+        return false;
+      }
       if (direction === 'left') {
         if (prevFocusKey) {
           setFocus(prevFocusKey);
@@ -121,6 +125,13 @@ function AddProfileCard({ focusKey, disabled }: { focusKey: string; disabled?: b
     focusKey,
     onEnterPress: goToCreate,
     focusable: !disabled,
+    onArrowPress: (direction) => {
+      if (direction === 'down') {
+        setFocus('profiles-edit-btn');
+        return false;
+      }
+      return true;
+    },
   });
 
   return (
@@ -174,6 +185,12 @@ function ProfilesView() {
     trackChildren: true,
   });
 
+  const { ref: gridRef, focusKey: gridFocusKey } = useFocusable({
+    focusKey: 'PROFILES-GRID',
+    saveLastFocusedChild: true,
+    trackChildren: true,
+  });
+
   useEffect(() => {
     if (!isLoading && profiles.length > 0) {
       setTimeout(() => setFocus(`profile-${profiles[0].id}`), 300);
@@ -221,30 +238,32 @@ function ProfilesView() {
           <p className={styles.errorText}>Error al cargar perfiles.</p>
         ) : (
           <>
-            <div className={styles.profilesGrid}>
-              {profiles.map((profile, index) => {
-                const prevKey = index > 0 ? `profile-${profiles[index - 1].id}` : null;
-                const isLast = index === profiles.length - 1;
-                const nextKey = isLast
-                  ? (profiles.length < 4 && !editMode ? 'profile-add' : null)
-                  : `profile-${profiles[index + 1].id}`;
-                return (
-                  <ProfileCard
-                    key={profile.id}
-                    profile={profile}
-                    focusKey={`profile-${profile.id}`}
-                    onSelect={() => handleSelectProfile(profile)}
-                    editMode={editMode}
-                    onEdit={() => handleEditProfile(profile)}
-                    prevFocusKey={prevKey}
-                    nextFocusKey={nextKey}
-                  />
-                );
-              })}
-              {profiles.length < 4 && (
-                <AddProfileCard focusKey="profile-add" disabled={editMode} />
-              )}
-            </div>
+            <FocusContext.Provider value={gridFocusKey}>
+              <div ref={gridRef} className={styles.profilesGrid}>
+                {profiles.map((profile, index) => {
+                  const prevKey = index > 0 ? `profile-${profiles[index - 1].id}` : null;
+                  const isLast = index === profiles.length - 1;
+                  const nextKey = isLast
+                    ? (profiles.length < 4 && !editMode ? 'profile-add' : null)
+                    : `profile-${profiles[index + 1].id}`;
+                  return (
+                    <ProfileCard
+                      key={profile.id}
+                      profile={profile}
+                      focusKey={`profile-${profile.id}`}
+                      onSelect={() => handleSelectProfile(profile)}
+                      editMode={editMode}
+                      onEdit={() => handleEditProfile(profile)}
+                      prevFocusKey={prevKey}
+                      nextFocusKey={nextKey}
+                    />
+                  );
+                })}
+                {profiles.length < 4 && (
+                  <AddProfileCard focusKey="profile-add" disabled={editMode} />
+                )}
+              </div>
+            </FocusContext.Provider>
 
             {/* Action buttons */}
             <div className={styles.bottomActions}>
@@ -252,6 +271,13 @@ function ProfilesView() {
                 focusKey="profiles-edit-btn"
                 variant="secondary"
                 onPress={() => setEditMode((prev) => !prev)}
+                onArrowPress={(direction) => {
+                  if (direction === 'up') {
+                    setFocus('PROFILES-GRID');
+                    return false;
+                  }
+                  return true;
+                }}
               >
                 {editMode ? 'Listo' : 'Editar perfil'}
               </Button>
@@ -259,6 +285,13 @@ function ProfilesView() {
                 focusKey="profiles-account-btn"
                 variant="secondary"
                 onPress={() => navigate('/mi-latina/cuenta', { replace: true })}
+                onArrowPress={(direction) => {
+                  if (direction === 'up') {
+                    setFocus('PROFILES-GRID');
+                    return false;
+                  }
+                  return true;
+                }}
               >
                 Información de Cuenta
               </Button>
@@ -268,6 +301,13 @@ function ProfilesView() {
                 onPress={() => {
                   useAuthStore.getState().logout();
                   navigate('/home', { replace: true });
+                }}
+                onArrowPress={(direction) => {
+                  if (direction === 'up') {
+                    setFocus('PROFILES-GRID');
+                    return false;
+                  }
+                  return true;
                 }}
               >
                 Cerrar sesión

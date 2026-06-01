@@ -33,7 +33,10 @@
     flex-direction: row;
     align-items: center;
     margin-bottom: 1.5rem;
-    gap: 1rem;
+}
+
+.header > * + * {
+    margin-left: 1rem;
 }
 
 .backButton {
@@ -111,9 +114,22 @@
     background-color: var(--clr-secondary);
 }
 
-.card.focused .cardImage,
-.card:hover .cardImage {
-    border: 0.3rem solid var(--foc-primary);
+/* Pseudo-elemento para el borde (no afecta layout, no encoge la imagen) */
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0; /* top:0, left:0, right:0, bottom:0 */
+    border-radius: inherit;
+    border: 0.3rem solid transparent;
+    pointer-events: none;
+    z-index: 5;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.card.focused::after,
+.card:hover::after {
+    border-color: var(--foc-primary);
 }
 
 .cardFallback {

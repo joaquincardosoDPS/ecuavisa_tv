@@ -149,7 +149,10 @@
   display: flex;
   align-items: center;
   padding: 8px 0 8px;
-  gap: 20px;
+}
+
+.statusBar > * + * {
+  margin-left: 20px;
 }
 
 /* Spacer = ancho del logo de señal (padding-left row + logo + margin-right) */

@@ -51,6 +51,60 @@ function ActionButton({
   );
 }
 
+// ── Delete Modal Component con Focus Trap ──
+
+function DeleteModal({
+  name,
+  isDeleting,
+  onCancel,
+  onDelete,
+}: {
+  name: string;
+  isDeleting: boolean;
+  onCancel: () => void;
+  onDelete: () => void;
+}) {
+  const { ref, focusKey } = useFocusable({
+    focusKey: 'DELETE-MODAL',
+    isFocusBoundary: true, // Trampa de foco (Regla F3.1)
+    trackChildren: true,
+  });
+
+  useEffect(() => {
+    // Forzar foco al abrir (Regla F4.1)
+    setTimeout(() => setFocus('modal-cancel'), 50);
+  }, []);
+
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <div ref={ref} className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <p className={styles.modalText}>
+            ¿Quieres borrar el perfil de {name}?
+          </p>
+          <div className={styles.modalActions}>
+            <ActionButton
+              focusKey="modal-cancel"
+              label="Cancelar"
+              onPress={onCancel}
+              baseClass={`${styles.modalBtn} ${styles.modalCancelBtn}`}
+              focusedClass={styles.modalBtnFocused}
+            />
+            <ActionButton
+              focusKey="modal-delete"
+              label={isDeleting ? 'Borrando...' : 'Borrar'}
+              onPress={onDelete}
+              disabled={isDeleting}
+              baseClass={`${styles.modalBtn} ${styles.modalDeleteBtn}`}
+              focusedClass={styles.modalBtnFocused}
+            />
+          </div>
+        </div>
+      </div>
+    </FocusContext.Provider>
+  );
+}
+
 // ── Main View ──
 
 function EditProfileView() {
@@ -90,11 +144,14 @@ function EditProfileView() {
   const avatarFromNav = useRef(false);
 
   useEffect(() => {
-    const state = location.state as { selectedAvatar?: string; selectedAvatarUrl?: string } | null;
+    const state = location.state as { selectedAvatar?: string; selectedAvatarUrl?: string; currentName?: string } | null;
     if (state?.selectedAvatar) {
       setSelectedAvatar(state.selectedAvatar);
       setSelectedAvatarUrl(state.selectedAvatarUrl || null);
       avatarFromNav.current = true;
+    }
+    if (state?.currentName !== undefined) {
+      setName(state.currentName);
     }
   }, [location.state]);
 
@@ -125,6 +182,7 @@ function EditProfileView() {
     const handleKey = (e: KeyboardEvent) => {
       if (isInputAction(e, 'Back')) {
         e.preventDefault();
+        e.stopImmediatePropagation();
         e.stopPropagation();
         if (showDeleteModal) {
           setShowDeleteModal(false);
@@ -133,14 +191,14 @@ function EditProfileView() {
         }
       }
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    window.addEventListener('keydown', handleKey, true);
+    return () => window.removeEventListener('keydown', handleKey, true);
   }, [navigate, showDeleteModal]);
 
-    const activeProfile = useAuthStore((s) => s.activeProfile);
-    const setActiveProfile = useAuthStore((s) => s.setActiveProfile);
+  const activeProfile = useAuthStore((s) => s.activeProfile);
+  const setActiveProfile = useAuthStore((s) => s.setActiveProfile);
 
-    const handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (!token) return;
     if (!name.trim()) {
       setSubmitError('El nombre del perfil es obligatorio.');
@@ -232,9 +290,9 @@ function EditProfileView() {
   const returnPath = isCreateMode ? '/mi-latina/nuevo' : `/mi-latina/${id}`;
   const goToAvatarSelect = useCallback(() => {
     navigate('/mi-latina/avatar', {
-      state: { currentAvatar: selectedAvatar, returnTo: returnPath },
+      state: { currentAvatar: selectedAvatar, returnTo: returnPath, currentName: name },
     });
-  }, [navigate, selectedAvatar, returnPath]);
+  }, [navigate, selectedAvatar, returnPath, name]);
 
   // Focusable avatar edit badge
   const { ref: editBadgeRef, focused: editBadgeFocused } = useFocusable({
@@ -303,6 +361,7 @@ function EditProfileView() {
               value={name}
               className={styles.nameInput}
               readOnly
+              maxLength={15}
             />
           </div>
 
@@ -311,7 +370,7 @@ function EditProfileView() {
             <div className={styles.keyboardWrapper}>
               <OnScreenKeyboard
                 focusKeyPrefix="PROFILE-KB"
-                onInput={(char) => setName((prev) => prev + char)}
+                onInput={(char) => setName((prev) => (prev.length < 15 ? prev + char : prev))}
                 onDelete={() => setName((prev) => prev.slice(0, -1))}
                 onEscapeLeft={() => setFocus('edit-profile-avatar-btn')}
               />
@@ -332,7 +391,6 @@ function EditProfileView() {
             focusKey="edit-profile-save"
             variant="secondary"
             onPress={handleSubmit}
-            className={styles.saveBtn}
           >
             {isSubmitting ? 'Guardando...' : isCreateMode ? 'Crear perfil' : 'Guardar cambios'}
           </Button>
@@ -342,7 +400,6 @@ function EditProfileView() {
               focusKey="edit-profile-delete"
               variant="tertiary"
               onPress={() => setShowDeleteModal(true)}
-              className={styles.deleteBtn}
             >
               Eliminar perfil
             </Button>
@@ -352,30 +409,15 @@ function EditProfileView() {
 
       {/* ── Delete Modal ── */}
       {showDeleteModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <p className={styles.modalText}>
-              ¿Quieres borrar el perfil de {name || existingProfile?.name_perfil}?
-            </p>
-            <div className={styles.modalActions}>
-              <ActionButton
-                focusKey="modal-cancel"
-                label="Cancelar"
-                onPress={() => setShowDeleteModal(false)}
-                baseClass={`${styles.modalBtn} ${styles.modalCancelBtn}`}
-                focusedClass={styles.modalBtnFocused}
-              />
-              <ActionButton
-                focusKey="modal-delete"
-                label={isDeleting ? 'Borrando...' : 'Borrar'}
-                onPress={handleDelete}
-                disabled={isDeleting}
-                baseClass={`${styles.modalBtn} ${styles.modalDeleteBtn}`}
-                focusedClass={styles.modalBtnFocused}
-              />
-            </div>
-          </div>
-        </div>
+        <DeleteModal
+          name={name || existingProfile?.name_perfil || ''}
+          isDeleting={isDeleting}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setFocus('edit-profile-delete'); // Restaurar foco
+          }}
+          onDelete={handleDelete}
+        />
       )}
     </FocusContext.Provider>
   );

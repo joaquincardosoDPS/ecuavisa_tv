@@ -118,8 +118,11 @@
 .pip-info-buttons {
     display: flex;
     flex-direction: row;
-    gap: 1.2vw;
     margin-top: 1vw;
+}
+
+.pip-info-buttons > * + * {
+    margin-left: 1.2vw;
 }
 
 .pip-countdown-number {

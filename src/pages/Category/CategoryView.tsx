@@ -75,11 +75,34 @@ function CategoryCard({
         onEnterPress: handlePress,
         onFocus: () => {
             onProgramFocus?.(program);
-            (ref.current as HTMLElement)?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'nearest',
-            });
+            const el = ref.current as HTMLElement;
+            if (!el) return;
+            
+            const container = el.closest('[class*="container"]') as HTMLElement;
+            const banner = document.querySelector('[class*="stickyBanner"]') as HTMLElement;
+
+            if (container && banner) {
+                const bannerHeight = banner.getBoundingClientRect().height;
+                const elRect = el.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                const availableSpace = containerRect.height - bannerHeight;
+                const targetCenter = bannerHeight + (availableSpace / 2);
+                const currentCenter = (elRect.top - containerRect.top) + (elRect.height / 2);
+                
+                const offset = currentCenter - targetCenter;
+                
+                container.scrollBy({
+                    top: offset,
+                    behavior: 'smooth'
+                });
+            } else {
+                el.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'nearest',
+                });
+            }
         },
     });
 

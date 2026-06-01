@@ -46,11 +46,14 @@
 .carouselsWrapper {
     display: flex;
     flex-direction: column;
-    gap: 32px;
     padding-right: 32px;
     padding-bottom: 32px;
     margin-top: 53vh;
     margin-bottom: 32px;
+}
+
+.carouselsWrapper > * + * {
+    margin-top: 32px;
 }
 
 .section {

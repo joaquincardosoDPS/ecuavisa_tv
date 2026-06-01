@@ -56,11 +56,23 @@
     border-radius: 1.5rem;
 }
 
-/* Image border on focus */
-.card.focused .image,
-.card:hover .image {
-    border: 4px solid #ffe500;
+/* Pseudo-elemento para el borde de la imagen */
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 4px solid transparent;
+    pointer-events: none;
+    z-index: 15;
+    transition: border-color 0.2s ease;
     box-sizing: border-box;
+}
+
+/* Image border on focus */
+.card.focused::after,
+.card:hover::after {
+    border-color: var(--foc-primary);
 }
 
 /* ── Fallback (sin imagen) ── */
@@ -202,9 +214,12 @@
 .track {
     display: flex;
     flex-direction: row;
-    gap: 18px;
     transition: transform 0.3s ease;
     will-change: transform;
+}
+
+.track > * + * {
+    margin-left: 18px;
 }
 
 .viewMore {
@@ -214,8 +229,21 @@
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
+    position: relative;
     box-sizing: border-box;
     transition: all 0.3s ease;
+}
+
+.viewMore::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 0.3rem solid transparent;
+    pointer-events: none;
+    z-index: 15;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 .viewMore.horizontal {
@@ -232,10 +260,14 @@
     background-color: rgba(0, 0, 0, 0.3);
 }
 
+.viewMore.focused::after,
+.viewMore:hover::after {
+    border-color: var(--foc-primary);
+}
+
 .viewMore.focused,
 .viewMore:hover {
     z-index: 10;
-    border: 0.3rem solid #ffe500;
 }
 
 .viewMoreText {
@@ -245,7 +277,10 @@
     font-family: Archia, Arial, Helvetica, sans-serif;
     display: flex;
     align-items: center;
-    gap: 8px;
+}
+
+.viewMoreText > * + * {
+    margin-left: 8px;
 }
 
 .viewMoreArrow {

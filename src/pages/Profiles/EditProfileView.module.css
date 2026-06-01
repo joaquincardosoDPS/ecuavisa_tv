@@ -182,25 +182,7 @@
   opacity: 0.5;
 }
 
-.saveBtn {
-  background: var(--foc-primary);
-  color: #fff;
-}
-
-.saveBtnFocused {
-  border-color: #fff;
-  transform: scale(1.03);
-}
-
-.deleteBtn {
-  background: var(--clr-secondary);
-  color: var(--clr-primary-text);
-}
-
-.deleteBtnFocused {
-  border-color: var(--foc-primary);
-  transform: scale(1.03);
-}
+/* Botones utilizan estilos nativos del componente UI/Button */
 
 .errorText {
   color: #fca5a5;
@@ -285,7 +267,7 @@
 
 .modalDeleteBtn {
   background: var(--foc-primary);
-  color: #fff;
+  color: var(--clr-text-secondary-button);
 }
 
 .modalBtnFocused {

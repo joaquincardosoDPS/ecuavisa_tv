@@ -30,9 +30,12 @@
 .track {
     display: flex;
     flex-direction: row;
-    gap: 18px;
     transition: transform 0.3s ease;
     will-change: transform;
+}
+
+.track > * + * {
+    margin-left: 18px;
 }
 
 /* ── Card wrapper (column: card + title) ── */

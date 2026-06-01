@@ -11,6 +11,8 @@ interface TabsProps {
     setActiveSegment: (segment: Segment) => void;
     showDetails: boolean;
     setShowDetails: (show: boolean) => void;
+    showRelated: boolean;
+    setShowRelated: (show: boolean) => void;
     onTabsFocused?: (details: FocusDetails) => void;
 }
 
@@ -89,6 +91,8 @@ function Tabs({
     setActiveSegment,
     showDetails,
     setShowDetails,
+    showRelated,
+    setShowRelated,
     onTabsFocused,
 }: TabsProps) {
     const trackRef = useRef<HTMLDivElement>(null);
@@ -132,12 +136,18 @@ function Tabs({
      */
     const handleTabArrowDown = useCallback(() => {
         const hasSeasons = activeSegment && activeSegment.all_temp.length > 1;
-        if (!hasSeasons && !showDetails) {
+        if (!hasSeasons && !showDetails && !showRelated) {
             setFocus('PROGRAM-CHAPTERS');
             return false;
         }
         return true;
-    }, [activeSegment, showDetails]);
+    }, [activeSegment, showDetails, showRelated]);
+
+    /** Flecha abajo desde tab Recomendados → grid de relacionados */
+    const handleRelatedArrowDown = useCallback(() => {
+        setFocus('PROGRAM-RELATED');
+        return false;
+    }, []);
 
     return (
         <FocusContext.Provider value={focusKey}>
@@ -146,12 +156,13 @@ function Tabs({
                     {(() => {
                         const allFocusKeys = [
                             ...validSegments.map((s) => `program-tab-${s.key}`),
+                            'program-tab-related',
                             'program-tab-details',
                         ];
                         return (
                             <>
                                 {validSegments.map((segment, idx) => {
-                                    const isActive = !showDetails && activeSegment?.id === segment.id;
+                                    const isActive = !showDetails && !showRelated && activeSegment?.id === segment.id;
                                     const tabKey = `program-tab-${segment.key}`;
                                     return (
                                         <TabButton
@@ -164,6 +175,7 @@ function Tabs({
                                             onPress={() => {
                                                 setActiveSegment(segment);
                                                 setShowDetails(false);
+                                                setShowRelated(false);
                                             }}
                                             onTabFocus={() => scrollToTab(tabKey)}
                                             onArrowDown={handleTabArrowDown}
@@ -172,12 +184,29 @@ function Tabs({
                                 })}
 
                                 <TabButton
+                                    label="Recomendados"
+                                    focusKey="program-tab-related"
+                                    isActive={showRelated}
+                                    index={validSegments.length}
+                                    allFocusKeys={allFocusKeys}
+                                    onPress={() => {
+                                        setShowRelated(true);
+                                        setShowDetails(false);
+                                    }}
+                                    onTabFocus={() => scrollToTab('program-tab-related')}
+                                    onArrowDown={handleRelatedArrowDown}
+                                />
+
+                                <TabButton
                                     label="Detalles"
                                     focusKey="program-tab-details"
                                     isActive={showDetails}
-                                    index={validSegments.length}
+                                    index={validSegments.length + 1}
                                     allFocusKeys={allFocusKeys}
-                                    onPress={() => setShowDetails(true)}
+                                    onPress={() => {
+                                        setShowDetails(true);
+                                        setShowRelated(false);
+                                    }}
                                     onTabFocus={() => scrollToTab('program-tab-details')}
                                 />
                             </>
