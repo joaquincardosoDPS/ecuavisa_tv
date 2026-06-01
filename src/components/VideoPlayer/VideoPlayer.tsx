@@ -278,15 +278,19 @@ const VideoPlayerComponent = ({
         // Buscar siguiente episodio si existe
         let hasNext = false;
         if (episodes && episodes.length > 0 && currentEpisodeKey) {
-          const currentIndex = episodes.findIndex(
+          const current = episodes.find(
             (ep: any) => ep.key === currentEpisodeKey,
           );
-          const nextIndex = currentIndex + 1;
-          if (currentIndex >= 0 && nextIndex < episodes.length) {
-            const next = episodes[nextIndex];
-            nextEpisodeRef.current = next;
-            setNextEpisode(next);
-            hasNext = true;
+          if (current) {
+            // Buscar el siguiente capítulo por número, sin importar el orden del array
+            const next = episodes.find(
+              (ep: any) => ep.season === current.season && ep.chapter === current.chapter + 1,
+            );
+            if (next) {
+              nextEpisodeRef.current = next;
+              setNextEpisode(next);
+              hasNext = true;
+            }
           }
         }
 

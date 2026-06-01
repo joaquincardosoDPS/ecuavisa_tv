@@ -123,10 +123,12 @@ function InfoBanner({ program, onBannerFocused }: InfoBannerProps) {
 
             {/* Barra de progreso */}
             {continueWatchingItem && (
-                <ProgressBar
-                    duration={continueWatchingItem.duration}
-                    time={continueWatchingItem.time}
-                />
+                <div className={styles.progressUnderAction}>
+                    <ProgressBar
+                        duration={continueWatchingItem.duration}
+                        time={continueWatchingItem.time}
+                    />
+                </div>
             )}
         </div>
     );
