@@ -199,6 +199,14 @@
     left: 2vw;
 }
 
+.progressTitle {
+    color: var(--clr-primary-text);
+    font-size: 0.85rem;
+    margin: 0 0 0.3vh 0;
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
 .progressBarContainer {
     display: flex;
     align-items: center;
@@ -660,15 +668,13 @@
 
 /* ── Chapter TimeBar ── */
 .chapterTimeBar {
-    width: 18vw;
-    margin-top: 4px;
+    width: 100%;
 }
 
 .chapterTimeBarInner {
     width: 100%;
     height: 4px;
     background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 2px;
     overflow: hidden;
 }
 

@@ -3,6 +3,7 @@ import styles from '../ProgramPage.module.css';
 interface ProgressBarProps {
     duration: string;
     time: number;
+    subtitle?: string;
 }
 
 /** Formatea segundos a "Xh Xmin" o "Xmin" */
@@ -18,7 +19,7 @@ function formatRemaining(seconds: number): string {
  * Barra de progreso para "Seguir Viendo".
  * duration viene en formato "hh:mm:ss", time es segundos reproducidos.
  */
-function ProgressBar({ duration, time }: ProgressBarProps) {
+function ProgressBar({ duration, time, subtitle }: ProgressBarProps) {
     const parts = duration.split(':').map(Number);
     const totalSeconds =
         (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
@@ -37,7 +38,7 @@ function ProgressBar({ duration, time }: ProgressBarProps) {
                 />
             </div>
             <span className={styles.progressRemaining}>
-                {formatRemaining(remaining)} restantes
+                {formatRemaining(remaining)} restantes{subtitle ? ` · ${subtitle}` : ''}
             </span>
         </div>
     );

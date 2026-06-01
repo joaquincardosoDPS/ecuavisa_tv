@@ -7,6 +7,7 @@ import {
 import type { Program, Segment } from "@/interfaces/catalog.interface";
 import { usePageScroll } from "@/hooks/usePageScroll";
 import { useRelatedPrograms } from "@/hooks/useRelatedPrograms";
+import { useContinueWatching } from "@/hooks/useContinueWatching";
 import Banner, { BannerBackground } from "./components/Banner";
 import Tabs from "./components/Tabs";
 import DetailsProgram from "./components/DetailsProgram";
@@ -53,6 +54,14 @@ function ProgramView({
     fetchNextPage,
   } = useRelatedPrograms(programDetail.key, programDetail.name_category);
 
+  // Historial "Seguir viendo" para el banner — sin filtro de segment/season
+  const { item: continueWatchingItem } = useContinueWatching(programDetail.key);
+
+  // Historial filtrado por segment/season — para barras de progreso en chapters
+  const { progressMap } = useContinueWatching(
+    programDetail.key, activeSegment?.key, activeSeason,
+  );
+
   const { ref, focusKey } = useFocusable({
     focusKey: "PROGRAM-VIEW",
     saveLastFocusedChild: true,
@@ -90,6 +99,7 @@ function ProgramView({
           <Banner
             program={programDetail}
             onBannerFocused={scrollToTop}
+            continueWatchingItem={continueWatchingItem}
           />
 
           <div data-section="tabs" className={styles.mainContent}>
@@ -131,6 +141,7 @@ function ProgramView({
                   setActiveSeason={setActiveSeason}
                   onLoaded={handleChaptersLoaded}
                   showChapter={programDetail.active_number}
+                  progressMap={progressMap}
                 />
               )}
             </div>

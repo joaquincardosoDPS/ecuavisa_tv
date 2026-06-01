@@ -11,6 +11,7 @@ interface ChapterCardProps {
     focusKey: string;
     showChapter?: boolean;
     onCardFocus?: () => void;
+    resumeTime?: number;
 }
 
 /** Convierte "HH:MM:SS" o "MM:SS" a minutos */
@@ -38,6 +39,7 @@ function ChapterCard({
     focusKey,
     showChapter = true,
     onCardFocus,
+    resumeTime,
 }: ChapterCardProps) {
     const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
@@ -45,6 +47,7 @@ function ChapterCard({
     const handlePress = () => {
         navigate(
             `/play/${programKey}/${chapter.key_segment}/${chapter.season}/${chapter.chapter}`,
+            resumeTime ? { state: { resumeTime } } : undefined,
         );
     };
 
@@ -93,9 +96,9 @@ function ChapterCard({
                 {showTimeBar && (
                     <div className={styles.chapterTimeBar} style={{
                         position: 'absolute',
-                        left: '50%',
-                        bottom: 2,
-                        transform: 'translateX(-50%)',
+                        left: 0,
+                        bottom: 0,
+                        width: '100%',
                     }}>
                         <div className={styles.chapterTimeBarInner}>
                             <div

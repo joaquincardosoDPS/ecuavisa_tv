@@ -1,4 +1,5 @@
 import type { Chapter, Program } from "@/interfaces/catalog.interface";
+import type { HistoryItem } from "@/interfaces/history.interface";
 import InfoBanner from "./InfoBanner";
 import InfoBannerSingle from "./InfoBannerSingle";
 import styles from "../ProgramPage.module.css";
@@ -54,6 +55,7 @@ interface BannerProps {
   isSingle?: boolean;
   chapter?: Chapter;
   onBannerFocused?: () => void;
+  continueWatchingItem?: HistoryItem | null;
 }
 
 /** Contenido del banner (info + botones) — dentro del pageScroller */
@@ -62,11 +64,12 @@ function Banner({
   isSingle = false,
   chapter,
   onBannerFocused,
+  continueWatchingItem,
 }: BannerProps) {
   return (
     <>
       {!isSingle ? (
-        <InfoBanner program={program} onBannerFocused={onBannerFocused} />
+        <InfoBanner program={program} onBannerFocused={onBannerFocused} continueWatchingItem={continueWatchingItem} />
       ) : (
         <InfoBannerSingle
           program={program}

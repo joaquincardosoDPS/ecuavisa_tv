@@ -254,6 +254,7 @@ const VideoPlayerComponent = ({
   const autoNavigateToNext = useCallback(() => {
     if (autoNavFiredRef.current) return;
     autoNavFiredRef.current = true;
+    saveProgress(1); // Marcar episodio actual como finalizado
     const ep = nextEpisodeRef.current;
     if (ep && onEpisodeSelect) {
       onEpisodeSelect(ep);
@@ -261,7 +262,7 @@ const VideoPlayerComponent = ({
       // No hay siguiente episodio: volver al programa
       onBack();
     }
-  }, [onEpisodeSelect, onBack]);
+  }, [onEpisodeSelect, onBack, saveProgress]);
 
   // Chequear tiempo restante para transición PiP de fin de episodio
   useEffect(() => {
@@ -274,6 +275,7 @@ const VideoPlayerComponent = ({
       if (!endingTriggeredRef.current) {
         endingTriggeredRef.current = true;
         setIsEndingTransition(true);
+        saveProgress(1); // Marcar episodio como finalizado al minimizar
 
         // Buscar siguiente episodio si existe
         let hasNext = false;
@@ -319,6 +321,7 @@ const VideoPlayerComponent = ({
     episodes,
     currentEpisodeKey,
     autoNavigateToNext,
+    saveProgress,
   ]);
 
   // Fallback: auto-navegar cuando el video emite 'ended'
@@ -331,10 +334,11 @@ const VideoPlayerComponent = ({
 
   const handleNextEpisodeSelect = useCallback(
     (ep: any) => {
+      saveProgress(1); // Marcar episodio actual como finalizado
       setIsEndingTransition(false);
       if (onEpisodeSelect) onEpisodeSelect(ep);
     },
-    [onEpisodeSelect],
+    [onEpisodeSelect, saveProgress],
   );
 
   // Callbacks de VAST
@@ -551,7 +555,7 @@ const VideoPlayerComponent = ({
         {/* Info estilo ShrunkBackdrop (replica del web) */}
         {isEndingTransition && (
           <div className="pip-info">
-            <h1 className="pip-info-program-title">{nextEpisode.title}</h1>
+            <h1 className="pip-info-program-title">{nextEpisode?.title || description}</h1>
             {nextEpisode?.description && (
               <p className="pip-info-description">{nextEpisode.description}</p>
             )}

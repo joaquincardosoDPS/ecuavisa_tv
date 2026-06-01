@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavorite } from '@/hooks/useFavorite';
 import type { Program } from '@/interfaces/catalog.interface';
+import type { HistoryItem } from '@/interfaces/history.interface';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useContinueWatching } from '@/hooks/useContinueWatching';
 import FavoriteButton from './FavoriteButton';
 import ProgressBar from './ProgressBar';
 import styles from '../ProgramPage.module.css';
@@ -11,12 +11,12 @@ import styles from '../ProgramPage.module.css';
 interface InfoBannerProps {
     program: Program;
     onBannerFocused?: () => void;
+    continueWatchingItem?: HistoryItem | null;
 }
 
-function InfoBanner({ program, onBannerFocused }: InfoBannerProps) {
+function InfoBanner({ program, onBannerFocused, continueWatchingItem }: InfoBannerProps) {
     const navigate = useNavigate();
     const { isFavorited, isToggling, isEnabled, toggleFavorite } = useFavorite(program.key);
-    const { item: continueWatchingItem } = useContinueWatching(program.key);
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'PROGRAM-BANNER-ACTIONS',
@@ -127,6 +127,7 @@ function InfoBanner({ program, onBannerFocused }: InfoBannerProps) {
                     <ProgressBar
                         duration={continueWatchingItem.duration}
                         time={continueWatchingItem.time}
+                        subtitle={continueWatchingItem.title_complete}
                     />
                 </div>
             )}

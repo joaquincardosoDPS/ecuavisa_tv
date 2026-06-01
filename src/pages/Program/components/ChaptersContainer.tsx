@@ -4,6 +4,7 @@ import {
   useFocusable,
 } from "@noriginmedia/norigin-spatial-navigation";
 import type { Segment } from "@/interfaces/catalog.interface";
+import type { HistoryItem } from "@/interfaces/history.interface";
 import { useChapters } from "@/hooks/useChapters";
 import ChapterCard from "./ChapterCard";
 import SeasonSelector from "./SeasonSelector";
@@ -21,6 +22,7 @@ interface ChaptersContainerProps {
   onLoaded?: () => void;
   showChapter?: boolean;
   onContentFocused?: () => void;
+  progressMap?: Map<string, HistoryItem>;
 }
 
 function ChaptersContainer({
@@ -32,6 +34,7 @@ function ChaptersContainer({
   onLoaded,
   showChapter = true,
   onContentFocused,
+  progressMap,
 }: ChaptersContainerProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -107,15 +110,20 @@ function ChaptersContainer({
             <div ref={listRef} className={styles.chaptersTrack}>
               {chapters.map((chapter: any, index: number) => {
                 const cardKey = `PROGRAM-CHAPTERS-${chapter.key}-${index}`;
+                const historyItem = progressMap?.get(chapter.key);
+                const enrichedChapter = historyItem
+                  ? { ...chapter, time: historyItem.time, duration_seg: historyItem.duration_seg }
+                  : chapter;
                 return (
                   <ChapterCard
                     key={cardKey}
-                    chapter={chapter}
+                    chapter={enrichedChapter}
                     index={index + 1}
                     programKey={programKey}
                     focusKey={cardKey}
                     showChapter={showChapter}
                     onCardFocus={() => handleCardFocus(cardKey, index)}
+                    resumeTime={historyItem?.end === 0 ? historyItem.time : undefined}
                   />
                 );
               })}
