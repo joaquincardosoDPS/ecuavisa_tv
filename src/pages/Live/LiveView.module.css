@@ -46,7 +46,6 @@
   width: 100% !important;
   height: 100% !important;
   border-radius: 0 !important;
-  aspect-ratio: auto !important;
 }
 
 .videoPreviewFullscreen video {
@@ -56,8 +55,7 @@
 /* Video preview (left, height-driven) */
 .videoPreview {
   height: 100%;
-  width: auto;
-  aspect-ratio: 16 / 9;
+  width: calc((43vh - 16px) * 16 / 9);
   border-radius: 3rem;
   overflow: hidden;
   position: relative;

@@ -132,7 +132,19 @@ function AccountInfoView() {
         }
     }, [isLoading]);
 
-    // Back lo maneja el global useBackHandler (navigate(-1) para sub-vistas)
+    // Keyboard: Back navega atrás explícitamente a /mi-latina
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const code = e.keyCode;
+            if (code === 27 || code === 8 || code === 10009 || code === 461) {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate('/mi-latina', { replace: true });
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => window.removeEventListener('keydown', handleKeyDown, true);
+    }, [navigate]);
 
     if (isLoading) {
         return <div className={styles.loading}>Cargando...</div>;

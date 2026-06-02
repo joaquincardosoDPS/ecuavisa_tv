@@ -9,6 +9,9 @@
     "build:webos": "tsc -b && node scripts/build-platform.mjs webos",
     "build:tizen": "tsc -b && node scripts/build-platform.mjs tizen",
     "build:hisense": "tsc -b && node scripts/build-platform.mjs hisense",
+    "install:webos5": "ares-install --device grande com.digitalproserver.milatina_1.0.0_all.ipk",
+    "inspect:webos5": "ares-inspect --device grande --app com.digitalproserver.milatina --open",
+    "deploy:tizen": "cd apps/tizen && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz pack && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz install -p Debug/tizen.wgt",
     "lint": "eslint .",
     "preview": "vite preview"
   },

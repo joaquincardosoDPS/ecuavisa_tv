@@ -6,7 +6,6 @@
  * vs. nuevos (ndvc=1).
  */
 
-import axios from "axios";
 
 export interface HlsSessionParams {
     dpssid: string;
