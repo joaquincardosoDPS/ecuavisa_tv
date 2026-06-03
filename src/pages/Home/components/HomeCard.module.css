@@ -30,7 +30,7 @@
 .vertical {
     width: 12.5vw;
     height: 37vh;
-    border-radius: 2rem;
+    border-radius: 32px;
     background-color: #00604e;
 }
 
@@ -49,11 +49,11 @@
 }
 
 .horizontal .image {
-    border-radius: 28px;
+    border-radius: 32px;
 }
 
 .vertical .image {
-    border-radius: 1.5rem;
+    border-radius: 32px;
 }
 
 /* Pseudo-elemento para el borde de la imagen */
@@ -104,12 +104,12 @@
     white-space: nowrap;
 }
 
-.horizontal + .cardTitle,
+.horizontal+.cardTitle,
 .cardTitleHorizontal {
     font-size: 18px;
 }
 
-.vertical + .cardTitle,
+.vertical+.cardTitle,
 .cardTitleVertical {
     font-size: 1.2rem;
     margin-top: 16px;
@@ -218,7 +218,7 @@
     will-change: transform;
 }
 
-.track > * + * {
+.track>*+* {
     margin-left: 18px;
 }
 
@@ -256,7 +256,7 @@
 .viewMore.vertical {
     width: 12.5vw;
     height: 37vh;
-    border-radius: 2rem;
+    border-radius: 32px;
     background-color: rgba(0, 0, 0, 0.3);
 }
 
@@ -279,7 +279,7 @@
     align-items: center;
 }
 
-.viewMoreText > * + * {
+.viewMoreText>*+* {
     margin-left: 8px;
 }
 

@@ -56,10 +56,12 @@ function getBannerImage(program: Program): string {
 function CategoryCard({
     program,
     focusKey,
+    isFirstRow,
     onProgramFocus,
 }: {
     program: Program;
     focusKey: string;
+    isFirstRow?: boolean;
     onProgramFocus?: (p: Program) => void;
 }) {
     const navigate = useNavigate();
@@ -81,27 +83,25 @@ function CategoryCard({
             const container = el.closest('[class*="container"]') as HTMLElement;
             const banner = document.querySelector('[class*="stickyBanner"]') as HTMLElement;
 
-            if (container && banner) {
+            if (isFirstRow) {
+                // Primera fila: volver al tope para mostrar el título
+                container?.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (container && banner) {
                 const bannerHeight = banner.getBoundingClientRect().height;
                 const elRect = el.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
                 
-                const availableSpace = containerRect.height - bannerHeight;
-                const targetCenter = bannerHeight + (availableSpace / 2);
-                const currentCenter = (elRect.top - containerRect.top) + (elRect.height / 2);
+                // Posicionar la fila justo debajo del banner (fila anterior queda oculta)
+                const targetTop = bannerHeight + 10;
+                const currentTop = elRect.top - containerRect.top;
+                const offset = currentTop - targetTop;
                 
-                const offset = currentCenter - targetCenter;
-                
-                container.scrollBy({
-                    top: offset,
-                    behavior: 'smooth'
-                });
-            } else {
-                el.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest',
-                    inline: 'nearest',
-                });
+                if (Math.abs(offset) > 20) {
+                    container.scrollBy({
+                        top: offset,
+                        behavior: 'smooth'
+                    });
+                }
             }
         },
     });
@@ -291,7 +291,7 @@ function CategoryView() {
                                 key={program.id || program.key}
                                 program={program}
                                 focusKey={`CAT-GRID-${i}`}
-
+                                isFirstRow={i < 4}
                                 onProgramFocus={(p) => {
                                     setSelectedProgram(p);
                                     setBannerImageUrl(getBannerImage(p));

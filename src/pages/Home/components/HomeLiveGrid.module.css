@@ -27,7 +27,7 @@
     width: 12.6vw;
     height: 13.5vh;
     margin-right: 17.5px;
-    border-radius: 2rem;
+    border-radius: 32px;
     background-color: #00604e;
     box-sizing: border-box;
     cursor: pointer;
@@ -50,14 +50,13 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 2rem;
 }
 
 /* Inner overlay for logo + badge */
 .channelInner {
     width: 100%;
     height: 100%;
-    border-radius: 1.7rem;
+    border-radius: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,7 +94,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 3rem;
+    border-radius: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
