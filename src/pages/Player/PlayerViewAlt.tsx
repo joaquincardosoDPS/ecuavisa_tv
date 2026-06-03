@@ -194,15 +194,6 @@ function PlayerViewAlt() {
     autoNavigateToNext();
   }, [autoNavigateToNext]);
 
-  /** Cancelar la transición card (cerrar el card) */
-  const handleCancelTransition = useCallback(() => {
-    endingTriggeredRef.current = false;
-    autoNavFiredRef.current = false;
-    setIsEndingTransition(false);
-    setNextEpisode(null);
-    setTimeout(() => setFocus("PLAYER-BTN-PLAYPAUSE"), 50);
-  }, []);
-
   if (loading) {
     return (
       <div className={styles.playerPage}>

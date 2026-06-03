@@ -84,6 +84,8 @@ function LiveView() {
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [isFullscreen, handleExitFullscreen]);
 
+  console.log('currentEvent', currentEvent)
+
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={containerRef} className={styles.liveContainer}>
@@ -115,9 +117,9 @@ function LiveView() {
               {currentEvent && (
                 <>
                   <p className={styles.channelProgram}>{currentEvent.title}</p>
-                  {currentEvent.description && (
+                  {currentEvent.synopsis && (
                     <p className={styles.channelDescription}>
-                      {currentEvent.description}
+                      {currentEvent.synopsis}
                     </p>
                   )}
                 </>
