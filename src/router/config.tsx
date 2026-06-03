@@ -8,9 +8,13 @@ const HomeView = lazy(() => import("@/pages/Home/HomeView"));
 const SearchView = lazy(() => import("@/pages/Search/SearchView"));
 const ProgramsView = lazy(() => import("@/pages/Programs/ProgramsView"));
 const ProgramPage = lazy(() => import("@/pages/Program/index"));
-const PlayerView = lazy(() => import("@/pages/Player/PlayerView"));
+// Vista original con PiP shrink:
+// const PlayerView = lazy(() => import("@/pages/Player/PlayerView"));
+// Vista alternativa con card overlay:
+const PlayerView = lazy(() => import("@/pages/Player/PlayerViewAlt"));
 const LoginView = lazy(() => import("@/pages/Auth/LoginView"));
 const RegisterView = lazy(() => import("@/pages/Auth/RegisterView"));
+const WhoIsThereView = lazy(() => import("@/pages/Profiles/WhoIsThereView"));
 const ProfilesView = lazy(() => import("@/pages/Profiles/ProfilesView"));
 const EditProfileView = lazy(() => import("@/pages/Profiles/EditProfileView"));
 const AvatarSelectView = lazy(() => import("@/pages/Profiles/AvatarSelectView"));
@@ -28,14 +32,23 @@ const Lazy = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const APP_ROUTES: RouteObject[] = [
-    /* Rutas públicas standalone (sin sidebar) */
     { path: "auth/register", element: <Lazy><RegisterView /></Lazy> },
     { path: "auth/login", element: <Lazy><LoginView /></Lazy> },
+    {
+        element: <ProtectedRoute />,
+        children: [
+            { path: "whoisthere", element: <Lazy><WhoIsThereView /></Lazy> },
+        ],
+    },
     {
         id: "root",
         element: <MainLayout />,
         children: [
-            { index: true, element: <Navigate to="/live" replace /> },
+            { index: true, element: <Navigate to="/whoisthere" replace /> },
+            {
+                path: "play/:program/:segment/:season/:chapter",
+                element: <Lazy><PlayerView /></Lazy>,
+            },
             /* Rutas protegidas — requieren token */
             {
                 element: <ProtectedRoute />,
@@ -56,15 +69,6 @@ export const APP_ROUTES: RouteObject[] = [
                 ],
             },
         ],
-    },
-    {
-        element: <ProtectedRoute />,
-        children: [
-            {
-                path: "play/:program/:segment/:season/:chapter",
-                element: <Lazy><PlayerView /></Lazy>,
-            },
-        ],
-    },
+    }
 ];
 

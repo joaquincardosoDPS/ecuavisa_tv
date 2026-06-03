@@ -133,7 +133,7 @@ function LoginView() {
                     console.warn('[Auth] Could not fetch profiles after login:', err);
                 }
 
-                navigate('/mi-latina', { replace: true });
+                navigate('/whoisthere', { replace: true });
             }
         } catch {
             /* Silenciar errores de polling */

@@ -62,15 +62,19 @@ export interface VideoPlayerProps {
     rudoKey?: string;
     autoplay?: boolean;
     onBack?: () => void;
-    episodes?: Chapter[];
-    currentEpisodeKey?: string;
-    onEpisodeSelect?: (episode: Chapter) => void;
     hideUI?: boolean;
     onQualitiesChange?: (qualities: { value: string; label: string }[]) => void;
     onQualityChange?: (quality: string) => void;
     onAdsPlaying?: () => void;
     onAdsFinished?: () => void;
-    programBackgroundImage?: string;
+    /** Callback en cada timeupdate con currentTime y duration */
+    onTimeUpdate?: (currentTime: number, duration: number) => void;
+    /** Callback cuando el video termina naturalmente */
+    onEnded?: () => void;
+    /** Activa el modo PiP visual (video encogido a esquina) */
+    pipMode?: boolean;
+    /** Fuerza los controles (TopBar + Controls) a permanecer visibles */
+    forceControlsVisible?: boolean;
     initialSeconds?: number;
     /** Slug del capítulo para guardado de historial "Seguir viendo" */
     vodSlug?: string;

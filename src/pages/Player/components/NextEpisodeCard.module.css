@@ -1,0 +1,130 @@
+/* NextEpisodeCard — Card flotante "A continuación" */
+
+.card {
+    position: fixed;
+    bottom: 9vw;
+    right: 3vw;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    width: 28vw;
+    padding: 1vw;
+    border-radius: 0.8vw;
+    background: rgba(10, 10, 10, 0.92);
+    border: 0.15vw solid rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+    cursor: pointer;
+    /* Animación de entrada — solo transform + opacity (REGLA 1.2) */
+    animation: cardSlideIn 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateY(2vw);
+    /* Transición de borde para foco (REGLA 1.2) */
+    transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+/* Foco y hover comparten estilo (REGLA F6.1) */
+.card.focused,
+.card:hover {
+    border-color: var(--foc-primary);
+    box-shadow: 0 0 1.5vw var(--foc-primary);
+}
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(2vw);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Header "A continuación" --- */
+.header {
+    font-size: 0.8vw;
+    font-weight: 700;
+    color: var(--clr-primary);
+    margin-bottom: 0.6vw;
+    letter-spacing: 0.05vw;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* --- Cuerpo: thumbnail + título --- */
+.body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 0.6vw;
+}
+
+/* --- Thumbnail --- */
+.thumbnailWrapper {
+    position: relative;
+    width: 14vw;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.4vw;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* --- Countdown overlay sobre el thumbnail --- */
+.countdownOverlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.2vw 0.4vw 0.3vw 0.4vw;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    text-align: center;
+    font-size: 0.75vw;
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Roboto', sans-serif;
+}
+
+.countdownNumber {
+    display: inline-block;
+    min-width: 2ch;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--clr-primary);
+}
+
+/* --- Título del episodio --- */
+.episodeTitle {
+    margin-left: 0.8vw;
+    font-size: 0.85vw;
+    color: var(--clr-primary-text, #fff);
+    font-weight: 600;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* --- Barra de progreso countdown --- */
+.progressBar {
+    width: 100%;
+    height: 0.15vw;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.1vw;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--clr-primary);
+    border-radius: 0.1vw;
+    transition: width 1s linear;
+}

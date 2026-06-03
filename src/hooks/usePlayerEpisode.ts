@@ -113,20 +113,14 @@ export function usePlayerEpisode() {
         const seasonNum = parseInt(season, 10);
         const chapterNum = parseInt(chapter, 10);
 
-        // Obtener detalle del programa para saber si es single_episode
-        const programDetail = program
-          ? (await catalogService.getProgramDetail(program))?.data
-          : null;
-        // Detectar single_episode: por flag del programa, o por season=0/chapter=0
-        const isNoSegments = programDetail?.single_episode === true
-          || (seasonNum === 0 && chapterNum === 0);
+        // Optimización: si season > 0 o chapter > 0, NO es single_episode.
+        // season=0 Y chapter=0 es la ruta usada para single_episode.
+        const isNoSegments = seasonNum === 0 && chapterNum === 0;
 
         // Cargar capítulo actual
         let chapterData: Chapter | undefined;
 
         if (isNoSegments) {
-          // Programa single_episode: obtener primer capítulo sin segment/season
-          // Idéntico al original: {page:1, limit:1}
           const response = await catalogService.getChapters({
             program: program!,
             page: 1,
@@ -134,7 +128,6 @@ export function usePlayerEpisode() {
           });
           chapterData = response?.data?.[0];
         } else {
-          // Programa con segmentos: obtener capítulo específico
           const response = await catalogService.getChapterBySlug({
             program,
             segment,
@@ -152,51 +145,62 @@ export function usePlayerEpisode() {
           return;
         }
 
-        if (!cancelled) {
-          setCurrentKey(chapterData.key);
-          setEpisodeTitle(chapterData.name_program || chapterData.title || "");
-          setProgramTitle(isNoSegments ? "" : `T${chapterData.season}:E${chapterData.chapter}`);
-          setVodSlug(chapterData.slug);
-          setM3u8(chapterData.m3u8);
-          setChapterImage(chapterData.image_land?.big || "");
-          setProgramKey(chapterData.key_program || "");
+        if (cancelled) return;
 
-          // Obtener VAST URL para ads
-          try {
-            const vmapData = await adsService.getVodAds(chapterData.key);
-            if (vmapData) {
-              const prerollVast = adsService.getPrerollVastUrl(vmapData);
-              setVastUrl(prerollVast);
-            }
-          } catch {
-            // Ads not available, continue without
+        // Setear datos esenciales del capítulo
+        setCurrentKey(chapterData.key);
+        setEpisodeTitle(chapterData.name_program || chapterData.title || "");
+        setProgramTitle(isNoSegments ? "" : `T${chapterData.season}:E${chapterData.chapter}`);
+        setVodSlug(chapterData.slug);
+        setM3u8(chapterData.m3u8);
+        setChapterImage(chapterData.image_land?.big || "");
+        setProgramKey(chapterData.key_program || "");
+
+        // Obtener VAST URL para ads (esencial antes de montar el player)
+        try {
+          const vmapData = await adsService.getVodAds(chapterData.key);
+          if (!cancelled && vmapData) {
+            const prerollVast = adsService.getPrerollVastUrl(vmapData);
+            setVastUrl(prerollVast);
           }
+        } catch {
+          // Ads not available, continue without
+        }
 
-          // Obtener progreso de reproducción previo
-          let resolvedInitialSeconds: number | undefined;
-          if (token && activeProfile) {
+        if (cancelled) return;
+
+        // Data esencial + ads lista → desbloquear el player
+        setLoading(false);
+
+        // Cargar historial, siguiente capítulo y episodios en paralelo
+        // (no bloquean el montaje del player)
+        const promises: Promise<void>[] = [];
+
+        if (token && activeProfile) {
+          promises.push((async () => {
             try {
               const timelineRes = await historyService.getTimeline(
                 token,
                 activeProfile.id,
-                [chapterData.slug],
+                [chapterData!.slug],
               );
               const timelineItem = timelineRes.data?.[0];
               if (
+                !cancelled &&
                 timelineItem &&
                 timelineItem.end === 0 &&
                 timelineItem.time > 0
               ) {
-                resolvedInitialSeconds = timelineItem.time;
+                setInitialSeconds(timelineItem.time);
               }
             } catch {
               // Timeline not available, start from beginning
             }
-          }
-          setInitialSeconds(resolvedInitialSeconds);
+          })());
+        }
 
-          // Intentar cargar el siguiente capítulo (solo si tiene segmentos)
-          if (!isNoSegments) {
+        if (!isNoSegments) {
+          promises.push((async () => {
             try {
               const nextRes = await catalogService.getChapterBySlug({
                 program,
@@ -212,12 +216,9 @@ export function usePlayerEpisode() {
             } catch {
               if (!cancelled) setNextChapter(null);
             }
-          } else {
-            if (!cancelled) setNextChapter(null);
-          }
+          })());
 
-          // Cargar lista de episodios del segmento para la sidebar
-          if (!isNoSegments) {
+          promises.push((async () => {
             try {
               const chaptersRes = await catalogService.getChapters({
                 program: program!,
@@ -231,10 +232,12 @@ export function usePlayerEpisode() {
             } catch {
               // Episodes list not critical
             }
-          }
-
-          setLoading(false);
+          })());
+        } else {
+          if (!cancelled) setNextChapter(null);
         }
+
+        await Promise.all(promises);
       } catch {
         if (!cancelled) {
           setError("Error al cargar el episodio");

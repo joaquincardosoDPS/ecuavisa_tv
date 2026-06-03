@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
-import { useHlsPlayer } from "./hooks/useHlsPlayer";
+import { useHlsStream } from "@/hooks/player/useHlsStream";
+import { usePlayerKeyboard } from "@/hooks/player/usePlayerKeyboard";
+import { useUIVisibility } from "@/hooks/player/useUIVisibility";
 import { useAdsPolicy } from "./hooks/useAdsPolicy";
 import { usePlayerAnalytics } from "./hooks/usePlayerAnalytics";
 import { useWatchHistory } from "./hooks/useWatchHistory";
 import { VastPlayer } from "./ads/VastPlayer";
-import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { PlayerTopBar } from "./UI/PlayerTopBar";
 import { PlayerControls } from "./UI/PlayerControls";
@@ -14,7 +15,8 @@ import { keepScreenAwake } from "@/utils/platform";
 import "./VideoPlayer.css";
 
 /**
- * Componente orquestador del reproductor de video
+ * Componente orquestador del reproductor de video (VOD/OTT).
+ * Usa hooks compartidos con LivePlayer: useHlsStream, usePlayerKeyboard, useUIVisibility.
  */
 const VideoPlayerComponent = ({
   src,
@@ -26,14 +28,14 @@ const VideoPlayerComponent = ({
   rudoKey,
   autoplay = true,
   onBack,
-  episodes = [],
-  currentEpisodeKey,
-  onEpisodeSelect,
   hideUI = false,
   onQualitiesChange,
   onAdsPlaying,
   onAdsFinished,
-  programBackgroundImage,
+  onTimeUpdate,
+  onEnded,
+  pipMode = false,
+  forceControlsVisible = false,
   initialSeconds,
   vodSlug,
   userToken,
@@ -55,21 +57,27 @@ const VideoPlayerComponent = ({
     };
   }, []);
 
-  const [playingAds, setPlayingAds] = useState(false);
+  // Evaluar política de ads (síncrono — evaluated siempre es true)
+  const { shouldPlayAds, effectiveVastUrl } = useAdsPolicy({
+    vastUrl,
+  });
 
-  // UI Overlay state
-  const [isUIVisible, setIsUIVisible] = useState(true);
+  // Estado de ads: inicializado sincrónicamente con shouldPlayAds
+  // para evitar que HLS arranque con autoplay antes de saber si hay ads.
+  const [playingAds, setPlayingAds] = useState(shouldPlayAds);
+
+  // Si vastUrl llega después del mount (carga paralela), activar ads
+  useEffect(() => {
+    if (shouldPlayAds && effectiveVastUrl && !playingAds) {
+      setPlayingAds(true);
+    }
+  }, [shouldPlayAds, effectiveVastUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── UI Visibility (hook compartido) ──
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const controlsJustShownRef = useRef(false);
-
-  // End-of-episode PiP transition state
-  const [isEndingTransition, setIsEndingTransition] = useState(false);
-  const [nextEpisode, setNextEpisode] = useState<any>(null);
-  const [endingCountdown, setEndingCountdown] = useState(30);
-  const endingTriggeredRef = useRef(false);
-  const nextEpisodeRef = useRef<any>(null);
-  const autoNavFiredRef = useRef(false);
+  const { isUIVisible, setIsUIVisible, resetUIVisibility } = useUIVisibility({
+    preventHide: isSidebarOpen || forceControlsVisible,
+  });
 
   // Hold-to-seek state
   const [keySeekPreview, setKeySeekPreview] = useState<number | null>(null);
@@ -78,51 +86,29 @@ const VideoPlayerComponent = ({
   );
   const seekTargetRef = useRef<number | null>(null);
 
-  // Focus para el video en miniatura (PiP)
-  const { ref: pipVideoRef, focused: pipVideoFocused } = useFocusable({
-    focusKey: "PIP-VIDEO",
-    focusable: isEndingTransition,
-    onEnterPress: () => {
-      if (isEndingTransition) {
-        setIsEndingTransition(false);
-        setNextEpisode(null);
-        setTimeout(() => setFocus("PLAYER-BTN-PLAYPAUSE"), 50);
-      }
-    },
-    onArrowPress: (dir) => {
-      if (dir === 'left') {
-        setTimeout(() => setFocus("PIP-BTN-EPISODES"), 0);
-        return false;
-      }
-      if (dir === 'up' || dir === 'down' || dir === 'right') return false;
-      return true;
-    }
+  // ── Ref para el <video> (propiedad del componente) ──
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // ── HLS (hook compartido) ──
+  const hlsStream = useHlsStream({
+    videoRef,
+    src,
+    autoplay: autoplay && !shouldPlayAds,
+    isLive,
+    livetoken,
+    initialSeconds,
   });
 
-  // Resetear transición al cambiar capítulo
-  useEffect(() => {
-    endingTriggeredRef.current = false;
-    autoNavFiredRef.current = false;
-    nextEpisodeRef.current = null;
-    setIsEndingTransition(false);
-    setNextEpisode(null);
-    setEndingCountdown(30);
-  }, [currentEpisodeKey]);
-
-  // Evaluar política de ads
-  const { shouldPlayAds, effectiveVastUrl, evaluated } = useAdsPolicy({
-    vastUrl,
-  });
-
-  // console.log('[VideoPlayer] Ads debug:', { vastUrl, effectiveVastUrl, shouldPlayAds, evaluated, playingAds });
-
-  // Activar ads al inicio si corresponde
-  useEffect(() => {
-    if (evaluated && shouldPlayAds && effectiveVastUrl) {
-      // console.log("[VideoPlayer] Ads detectados, activando playingAds");
-      setPlayingAds(true);
-    }
-  }, [evaluated, shouldPlayAds, effectiveVastUrl]);
+  const {
+    levels: hlsLevels,
+    isPlaying,
+    isLoading,
+    currentTime,
+    duration,
+    loadedTime,
+    play,
+    pause,
+  } = hlsStream;
 
   // Foco inicial al botón Play/Pause al montar
   useEffect(() => {
@@ -134,59 +120,25 @@ const VideoPlayerComponent = ({
     }
   }, [playingAds]);
 
-  // Inicializar HLS (no autoplay si hay ads pendientes)
-  const hlsPlayer = useHlsPlayer({
-    src,
-    autoplay: autoplay && !playingAds,
-    isLive,
-    livetoken,
-    initialSeconds: initialSeconds,
-  });
-
-  const {
-    levels: hlsLevels,
-    videoRef,
-    isPlaying,
-    isLoading,
-    currentTime,
-    duration,
-    play,
-    pause,
-  } = hlsPlayer;
-
   // Forzar pausa del video HLS cuando las ads están reproduciéndose
   useEffect(() => {
     if (playingAds && videoRef.current) {
       videoRef.current.pause();
       videoRef.current.muted = true;
     }
-  }, [playingAds, videoRef]);
+  }, [playingAds]);
 
-  // Overlay Mouse / Key visibility logic
-  const resetUIVisibility = useCallback(() => {
-    setIsUIVisible(true);
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-
-    if (!isSidebarOpen) {
-      hideTimeoutRef.current = setTimeout(() => {
-        setIsUIVisible(false);
-      }, 4000);
-    }
-  }, [isSidebarOpen]);
-
-  useEffect(() => {
-    // Start the timeout on mount natively without forcing a state update
-    if (isUIVisible && !hideTimeoutRef.current) {
-      resetUIVisibility();
-    }
-
-    window.addEventListener("mousemove", resetUIVisibility);
-
-    return () => {
-      window.removeEventListener("mousemove", resetUIVisibility);
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-    };
-  }, [resetUIVisibility, isUIVisible]);
+  // ── Keyboard (hook compartido) ──
+  usePlayerKeyboard({
+    onBack: onBack || (() => {}),
+    isUIVisible,
+    showUI: resetUIVisibility,
+    isLive,
+    playingAds,
+    pipMode,
+    isPlaying,
+    pause,
+  });
 
   // Notificar calidades disponibles al padre
   useEffect(() => {
@@ -207,12 +159,9 @@ const VideoPlayerComponent = ({
   }, [hlsLevels, onQualitiesChange]);
 
   // Analytics y Tracking de VOD
-  const currentEpisodeDetails = episodes?.find(
-    (e: any) => e.key === currentEpisodeKey,
-  );
   const analytics = usePlayerAnalytics(
     rudoKey,
-    currentEpisodeDetails,
+    undefined,
     description,
   );
 
@@ -243,107 +192,24 @@ const VideoPlayerComponent = ({
     }
   }, [currentTime, keySeekPreview]);
 
-  // Reportar progreso en cada timeupdate
+  // Reportar progreso en cada timeupdate y notificar al padre
   useEffect(() => {
     if (!isLive && !playingAds && currentTime > 0 && duration > 0) {
       analytics.onPlaybackProgress(currentTime, duration);
+      if (onTimeUpdate) onTimeUpdate(currentTime, duration);
     }
-  }, [currentTime, duration, playingAds, isLive, analytics]);
+  }, [currentTime, duration, playingAds, isLive, analytics, onTimeUpdate]);
 
-  // Función para auto-navegar al siguiente episodio o volver al programa
-  const autoNavigateToNext = useCallback(() => {
-    if (autoNavFiredRef.current) return;
-    autoNavFiredRef.current = true;
-    saveProgress(1); // Marcar episodio actual como finalizado
-    const ep = nextEpisodeRef.current;
-    if (ep && onEpisodeSelect) {
-      onEpisodeSelect(ep);
-    } else if (onBack) {
-      // No hay siguiente episodio: volver al programa
-      onBack();
-    }
-  }, [onEpisodeSelect, onBack, saveProgress]);
-
-  // Chequear tiempo restante para transición PiP de fin de episodio
+  // Notificar al padre cuando el video termina naturalmente
   useEffect(() => {
-    if (isLive || duration <= 0) return;
-
-    const timeLeft = duration - currentTime;
-    const PIP_THRESHOLD = 30;
-
-    if (timeLeft <= PIP_THRESHOLD && timeLeft >= -1) {
-      if (!endingTriggeredRef.current) {
-        endingTriggeredRef.current = true;
-        setIsEndingTransition(true);
-        saveProgress(1); // Marcar episodio como finalizado al minimizar
-
-        // Buscar siguiente episodio si existe
-        let hasNext = false;
-        if (episodes && episodes.length > 0 && currentEpisodeKey) {
-          const current = episodes.find(
-            (ep: any) => ep.key === currentEpisodeKey,
-          );
-          if (current) {
-            // Buscar el siguiente capítulo por número, sin importar el orden del array
-            const next = episodes.find(
-              (ep: any) => ep.season === current.season && ep.chapter === current.chapter + 1,
-            );
-            if (next) {
-              nextEpisodeRef.current = next;
-              setNextEpisode(next);
-              hasNext = true;
-            }
-          }
-        }
-
-        // Foco imperativo al botón principal (REGLA F4.1)
-        setTimeout(() => {
-          setFocus(hasNext ? "PIP-BTN-NEXT" : "PIP-BTN-EPISODES");
-        }, 200);
-      }
-      setEndingCountdown(Math.max(0, Math.ceil(timeLeft)));
-
-      // Auto-navegar cuando timeLeft llega a 0
-      if (timeLeft <= 0) {
-        autoNavigateToNext();
-      }
-    } else if (endingTriggeredRef.current && timeLeft > PIP_THRESHOLD) {
-      endingTriggeredRef.current = false;
-      autoNavFiredRef.current = false;
-      nextEpisodeRef.current = null;
-      setIsEndingTransition(false);
-      setNextEpisode(null);
-    }
-  }, [
-    currentTime,
-    duration,
-    isLive,
-    episodes,
-    currentEpisodeKey,
-    autoNavigateToNext,
-    saveProgress,
-  ]);
-
-  // Fallback: auto-navegar cuando el video emite 'ended'
-  useEffect(() => {
-    if (hlsPlayer.isEnded) {
+    if (hlsStream.isEnded) {
       saveProgress(1); // Marcar episodio actual como finalizado
-      autoNavigateToNext();
+      if (onEnded) onEnded();
     }
-  }, [hlsPlayer.isEnded, autoNavigateToNext, saveProgress]);
-
-  const handleNextEpisodeSelect = useCallback(
-    (ep: any) => {
-      saveProgress(1); // Marcar episodio actual como finalizado
-      setIsEndingTransition(false);
-      if (onEpisodeSelect) onEpisodeSelect(ep);
-    },
-    [onEpisodeSelect, saveProgress],
-  );
+  }, [hlsStream.isEnded, saveProgress, onEnded]);
 
   // Callbacks de VAST
   const handleAdsPlaying = useCallback(() => {
-    // console.log("[VideoPlayer] Ads reproduciendo");
     setPlayingAds(true);
     pause();
     analytics.onAdStarted();
@@ -351,7 +217,6 @@ const VideoPlayerComponent = ({
   }, [pause, analytics, onAdsPlaying]);
 
   const handleAdsFinished = useCallback(() => {
-    // console.log("[VideoPlayer] Ads finalizados");
     setPlayingAds(false);
     if (videoRef.current) {
       videoRef.current.muted = false;
@@ -359,13 +224,10 @@ const VideoPlayerComponent = ({
     play();
     analytics.onAdCompleted();
     if (onAdsFinished) onAdsFinished();
-  }, [play, analytics, onAdsFinished, videoRef]);
-
-  // (Manejo de Back ahora integrado en el keydown principal para evitar conflictos de listeners)
+  }, [play, analytics, onAdsFinished]);
 
   const handleBackgroundClick = useCallback(
     (e: React.MouseEvent) => {
-      // Ignorar clics en botones interactivos, barra de progreso o menú lateral
       const target = e.target as Element;
       if (
         target.closest(
@@ -375,17 +237,13 @@ const VideoPlayerComponent = ({
         return;
       }
 
-      // No pausar durante la transición PiP de fin de episodio
-      if (isEndingTransition) return;
-
-      // No interactuar durante los ads
+      if (pipMode) return;
       if (playingAds) return;
 
-      // Click central pausa o reanuda
       if (isPlaying) pause();
       else play();
     },
-    [isLive, isPlaying, play, pause, isEndingTransition, playingAds],
+    [isPlaying, play, pause, pipMode, playingAds],
   );
 
   // --- Volume / Skip / Fullscreen handlers ---
@@ -399,128 +257,12 @@ const VideoPlayerComponent = ({
         videoRef.current.currentTime = newTime;
       }
     },
-    [videoRef, duration],
+    [duration],
   );
-
-  // Refs estables para keyboard (evitar que el effect se re-ejecute cada frame)
-  const currentTimeRef = useRef(currentTime);
-  const durationRef = useRef(duration);
-  currentTimeRef.current = currentTime;
-  durationRef.current = duration;
-
-  // Keyboard controls: solo Back y Enter/Flechas para mostrar UI + dar foco
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const code = e.keyCode;
-      if (playingAds) return;
-
-      // Back: ESC(27), Backspace(8), Samsung Return(10009)
-      if (code === 27 || code === 8 || code === 10009) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (onBack) onBack();
-        return;
-      }
-
-      // Si estamos en la transición PiP de fin de episodio, dejar que Norigin 
-      // maneje el 100% de la navegación (arriba ya cubrimos el botón Back)
-      if (isEndingTransition) {
-        return;
-      }
-
-      // Si la UI NO está visible, cualquier tecla la muestra
-      if (!isUIVisible) {
-        // Marcar que los controles acaban de aparecer (bloquear primera navegación Norigin)
-        const showAndGuard = () => {
-          controlsJustShownRef.current = true;
-          setIsUIVisible(true);
-          resetUIVisibility();
-          setTimeout(() => { controlsJustShownRef.current = false; }, 150);
-        };
-
-        // Enter (13) / Espacio (32): mostrar UI + pausar + foco en Play/Pause
-        if (code === 13 || code === 32) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (isPlaying) pause();
-          showAndGuard();
-          setTimeout(() => setFocus("PLAYER-BTN-PLAYPAUSE"), 50);
-          return;
-        }
-
-        // Flechas Izq (37) / Der (39): mostrar UI + foco en seekbar
-        if ((code === 37 || code === 39) && !isLive) {
-          e.preventDefault();
-          e.stopPropagation();
-          showAndGuard();
-          setTimeout(() => setFocus("PLAYER-SEEKBAR-THUMB"), 50);
-          return;
-        }
-
-        // Arriba (38): mostrar UI + foco en PlayPause (no Back, para evitar doble salto)
-        if (code === 38) {
-          e.preventDefault();
-          e.stopPropagation();
-          showAndGuard();
-          setTimeout(() => setFocus("PLAYER-BTN-PLAYPAUSE"), 50);
-          return;
-        }
-
-        // Abajo (40): mostrar UI + foco en controles
-        if (code === 40) {
-          e.preventDefault();
-          e.stopPropagation();
-          showAndGuard();
-          setTimeout(() => setFocus("PLAYER-BTN-PLAYPAUSE"), 50);
-          return;
-        }
-      }
-
-      // Guard: si los controles acaban de aparecer, consumir la tecla
-      // para evitar que Norigin procese el mismo keypress que mostró la UI
-      if (controlsJustShownRef.current) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-
-      // Si la UI está visible, dejar que Norigin maneje la navegación
-      // pero resetear el timer de auto-hide
-      resetUIVisibility();
-    };
-
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown, true);
-    };
-  }, [
-    resetUIVisibility,
-    onBack,
-    isLive,
-    isPlaying,
-    pause,
-    playingAds,
-    isUIVisible,
-    isEndingTransition,
-  ]);
 
   return (
     <FocusContext.Provider value={focusKey}>
-      <div ref={playerFocusRef} className="video-player-container" onClick={handleBackgroundClick}>
-        {/* Fondo durante transición PiP */}
-        {isEndingTransition && (
-          <div className="pip-background">
-            {programBackgroundImage && (
-              <img
-                src={programBackgroundImage}
-                alt=""
-                className="pip-background-image"
-              />
-            )}
-            <div className="pip-background-overlay" />
-          </div>
-        )}
-
+      <div ref={playerFocusRef} className={`video-player-container${pipMode ? " pip-active" : ""}`} onClick={handleBackgroundClick}>
         {/* VAST Ads overlay */}
         {playingAds && effectiveVastUrl && (
           <VastPlayer
@@ -530,82 +272,20 @@ const VideoPlayerComponent = ({
           />
         )}
 
-        {/* Video principal — se achica a PiP cuando isEndingTransition */}
+        {/* Video principal — pipMode controlado por el padre */}
         <video
           id="hls-video-player"
-          ref={(el) => {
-            if (videoRef) videoRef.current = el;
-            if (pipVideoRef) pipVideoRef.current = el;
-          }}
-          className={`${playingAds ? "hidden" : ""} ${isEndingTransition && !playingAds ? "pip-mode" : ""} ${pipVideoFocused ? "focused" : ""}`}
+          ref={videoRef}
+          className={`${playingAds ? "hidden" : ""} ${pipMode && !playingAds ? "pip-mode" : ""}`}
           playsInline
           autoPlay={autoplay && !playingAds}
           controls={false}
           muted={playingAds}
           tabIndex={-1}
-          onClick={(e) => {
-            if (isEndingTransition) {
-              e.stopPropagation();
-              setIsEndingTransition(false);
-              setNextEpisode(null);
-            }
-          }}
         />
 
-        {/* Info estilo ShrunkBackdrop (replica del web) */}
-        {isEndingTransition && (
-          <div className="pip-info">
-            <h1 className="pip-info-program-title">{nextEpisode?.title || description}</h1>
-            {nextEpisode?.description && (
-              <p className="pip-info-description">{nextEpisode.description}</p>
-            )}
-            <div className="pip-info-buttons">
-              {nextEpisode && (
-                <Button
-                  focusKey="PIP-BTN-NEXT"
-                  variant="primary"
-                  showArrow
-                  onPress={() => handleNextEpisodeSelect(nextEpisode)}
-                  onArrowPress={(dir) => {
-                    if (dir === 'right') {
-                      setTimeout(() => setFocus("PIP-BTN-EPISODES"), 0);
-                      return false;
-                    }
-                    if (dir === 'up' || dir === 'down' || dir === 'left') return false;
-                    return true;
-                  }}
-                >
-                  Siguiente episodio en <span className="pip-countdown-number">{endingCountdown}</span>s
-                </Button>
-              )}
-              <Button
-                focusKey="PIP-BTN-EPISODES"
-                variant="tertiary"
-                onPress={() => { if (onBack) onBack(); }}
-                onArrowPress={(dir) => {
-                  if (dir === 'left' && nextEpisode) {
-                    setTimeout(() => setFocus("PIP-BTN-NEXT"), 0);
-                    return false;
-                  }
-                  if (dir === 'right') {
-                    setTimeout(() => setFocus("PIP-VIDEO"), 0);
-                    return false;
-                  }
-                  if (dir === 'up' || dir === 'down') return false;
-                  return true;
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '0.5vw' }}>
-                  <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
-                </svg>
-                Listado de episodios
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* UI Overlay (ocultar durante transición PiP) */}
-        {!playingAds && !hideUI && !isEndingTransition && (
+        {/* UI Overlay (ocultar durante modo PiP) */}
+        {!playingAds && !hideUI && (!pipMode || forceControlsVisible) && (
           <>
             <PlayerTopBar
               title={title}
@@ -615,23 +295,22 @@ const VideoPlayerComponent = ({
               onBackClick={onBack}
             />
             <PlayerControls
-              playing={hlsPlayer.isPlaying}
+              playing={isPlaying}
               visible={isUIVisible}
               isLive={isLive}
-              duration={hlsPlayer.duration}
-              seekTime={hlsPlayer.currentTime}
+              duration={duration}
+              seekTime={currentTime}
               previewSeekTime={keySeekPreview}
-              loadedTime={hlsPlayer.loadedTime}
+              loadedTime={loadedTime}
               onPlayButtonClick={
-                hlsPlayer.isPlaying ? hlsPlayer.pause : hlsPlayer.play
+                isPlaying ? pause : play
               }
               onSeek={(time) => {
-                if (hlsPlayer.videoRef.current) {
-                  hlsPlayer.videoRef.current.currentTime = time;
+                if (videoRef.current) {
+                  videoRef.current.currentTime = time;
                 }
               }}
               onSkip={handleSkip}
-              currentEpisodeKey={currentEpisodeKey}
               onHideControls={() => setIsUIVisible(false)}
               onSidebarVisibilityChange={setIsSidebarOpen}
             />

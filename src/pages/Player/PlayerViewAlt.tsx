@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { usePlayerEpisode } from "@/hooks/usePlayerEpisode";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
-import { EndOfEpisodeScreen } from "./components/EndOfEpisodeScreen";
+import { NextEpisodeCard } from "./components/NextEpisodeCard";
 import type { Chapter as VideoPlayerChapter } from "@/components/VideoPlayer/types";
 import type { Chapter } from "@/interfaces/catalog.interface";
 import styles from "./PlayerView.module.css";
@@ -36,7 +36,12 @@ function toVideoPlayerChapter(ch: Chapter): VideoPlayerChapter {
 
 const PIP_THRESHOLD = 30;
 
-function PlayerView() {
+/**
+ * PlayerViewAlt — Vista alternativa del reproductor.
+ * En vez de reducir el video (PiP shrink), muestra un card flotante
+ * "A continuación" sobre el video a tamaño completo con los controles visibles.
+ */
+function PlayerViewAlt() {
   const navigate = useNavigate();
 
   const {
@@ -53,7 +58,6 @@ function PlayerView() {
     goBack,
     token,
     activeProfile,
-    chapterImage,
     programKey,
     segment,
   } = usePlayerEpisode();
@@ -88,7 +92,7 @@ function PlayerView() {
     }
   }, [loading, error]);
 
-  // Back key handler for loading/error states (REGLA 4.1)
+  // Back key handler for loading/error states
   useEffect(() => {
     if (!loading && !error) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -138,10 +142,9 @@ function PlayerView() {
       if (timeLeft <= PIP_THRESHOLD && timeLeft >= -1) {
         if (!endingTriggeredRef.current) {
           endingTriggeredRef.current = true;
-          setIsEndingTransition(true);
 
           // Buscar siguiente episodio si existe
-          let hasNext = false;
+          let foundNext: VideoPlayerChapter | null = null;
           if (videoPlayerEpisodes.length > 0 && currentKey) {
             const current = videoPlayerEpisodes.find(
               (ep) => ep.key === currentKey,
@@ -151,17 +154,24 @@ function PlayerView() {
                 (ep) => ep.season === current.season && ep.chapter === current.chapter + 1,
               );
               if (next) {
-                setNextEpisode(next);
-                hasNext = true;
+                foundNext = next;
               }
             }
           }
 
-          // Foco imperativo al botón principal (REGLA F4.1)
-          setTimeout(() => {
-            setFocus(hasNext ? "PIP-BTN-NEXT" : "PIP-BTN-EPISODES");
-          }, 200);
+          // Solo activar transición si hay siguiente episodio
+          // (en modo card no hay pantalla de "Listado de episodios" como fallback)
+          if (foundNext) {
+            setNextEpisode(foundNext);
+            setIsEndingTransition(true);
+
+            // Foco imperativo al card
+            setTimeout(() => {
+              setFocus("CARD-NEXT-EP");
+            }, 200);
+          }
         }
+
         setEndingCountdown(Math.max(0, Math.ceil(timeLeft)));
 
         // Auto-navegar cuando timeLeft llega a 0
@@ -184,7 +194,7 @@ function PlayerView() {
     autoNavigateToNext();
   }, [autoNavigateToNext]);
 
-  /** Cancelar la transición PiP (click en el video miniatura) */
+  /** Cancelar la transición card (cerrar el card) */
   const handleCancelTransition = useCallback(() => {
     endingTriggeredRef.current = false;
     autoNavFiredRef.current = false;
@@ -214,7 +224,7 @@ function PlayerView() {
   return (
     <FocusContext.Provider value={viewFocusKey}>
       <div ref={viewFocusRef} className={styles.playerPage}>
-        {/* Reproductor de video */}
+        {/* Reproductor de video — NUNCA en modo PiP en esta vista */}
         <VideoPlayer
           src={m3u8}
           title={episodeTitle}
@@ -223,7 +233,8 @@ function PlayerView() {
           vastUrl={vastUrl}
           autoplay
           onBack={goBack}
-          pipMode={isEndingTransition}
+          pipMode={false}
+          forceControlsVisible={isEndingTransition}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
           initialSeconds={initialSeconds}
@@ -232,17 +243,14 @@ function PlayerView() {
           userProfile={activeProfile?.id || undefined}
         />
 
-        {/* Pantalla de fin de episodio (background + info) — se renderiza 
-            encima del VideoPlayer cuyo fondo es transparente en pip-active */}
-        {isEndingTransition && (
-          <EndOfEpisodeScreen
-            backgroundImage={chapterImage}
-            nextEpisode={nextEpisode}
-            programTitle={programTitle}
+        {/* Card flotante "A continuación" — se renderiza
+            sobre el video a tamaño completo con controles visibles */}
+        {isEndingTransition && nextEpisode && (
+          <NextEpisodeCard
+            episode={nextEpisode}
             countdown={endingCountdown}
+            threshold={PIP_THRESHOLD}
             onNextEpisode={handleEpisodeSelect}
-            onBack={goBack}
-            onCancelTransition={handleCancelTransition}
           />
         )}
       </div>
@@ -250,4 +258,4 @@ function PlayerView() {
   );
 }
 
-export default PlayerView;
+export default PlayerViewAlt;
