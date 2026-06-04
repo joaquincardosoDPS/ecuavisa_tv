@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { getEventStatus } from '@/utils/eventStatus';
 import type { Event } from '@/interfaces/catalog.interface';
@@ -8,21 +7,15 @@ interface EventCardProps {
   event: Event;
   focusKey: string;
   onCardFocus?: () => void;
+  onPress?: (eventKey: string) => void;
 }
 
-/**
- * Tarjeta de evento focusable.
- * REGLA F4.2: focused se consume solo aquí (nivel más bajo).
- * REGLA F6.1: hover = focused
- * REGLA F6.2: click = enter
- */
-function EventCard({ event, focusKey, onCardFocus }: EventCardProps) {
-  const navigate = useNavigate();
+function EventCard({ event, focusKey, onCardFocus, onPress }: EventCardProps) {
   const imageSrc = event.image_land?.small;
   const eventStatus = getEventStatus(event);
 
   const handleSelect = () => {
-    navigate(`/eventos/${event.key}`);
+    onPress?.(event.key);
   };
 
   const { ref, focused } = useFocusable({

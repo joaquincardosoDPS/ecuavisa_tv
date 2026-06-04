@@ -9,7 +9,7 @@
     transition: transform 0.2s ease;
 }
 
-/* F6.1: hover = focused (REGLA 2.3: visible a 3m) */
+/* F6.1: hover = focused*/
 .card.focused,
 .card:hover {
     z-index: 10;

@@ -41,7 +41,7 @@ export function BannerBackground({ program, scrollY = 0 }: BannerBackgroundProps
           style={{ backgroundImage: `url(${bgImg})` }}
         />
       )}
-      {/* Overlay dinámico — REGLA 1.2: solo opacity para animar */}
+      {/* Overlay dinámico — solo opacity para animar */}
       <div
         className={styles.bannerOverlay}
         style={{ opacity: overlayOpacity }}
@@ -56,6 +56,7 @@ interface BannerProps {
   chapter?: Chapter;
   onBannerFocused?: () => void;
   continueWatchingItem?: HistoryItem | null;
+  onPlay?: () => void;
 }
 
 /** Contenido del banner (info + botones) — dentro del pageScroller */
@@ -65,16 +66,23 @@ function Banner({
   chapter,
   onBannerFocused,
   continueWatchingItem,
+  onPlay,
 }: BannerProps) {
   return (
     <>
       {!isSingle ? (
-        <InfoBanner program={program} onBannerFocused={onBannerFocused} continueWatchingItem={continueWatchingItem} />
+        <InfoBanner
+          program={program}
+          onBannerFocused={onBannerFocused}
+          continueWatchingItem={continueWatchingItem}
+          onPlay={onPlay}
+        />
       ) : (
         <InfoBannerSingle
           program={program}
           chapter={chapter}
           onBannerFocused={onBannerFocused}
+          onPlay={onPlay}
         />
       )}
     </>

@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import type { Program } from '@/interfaces/catalog.interface';
 import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
@@ -14,14 +13,14 @@ interface BannerInfoProps {
     onSlidePrev?: () => void;
     /** true si estamos en el primer slide */
     isFirstSlide?: boolean;
+    /** Callback de navegación — inyectado desde el padre */
+    onPress?: () => void;
 }
 
-export function BannerInfo({ program, onPlayFocused, onSlideNext, onSlidePrev, isFirstSlide }: BannerInfoProps) {
-    const navigate = useNavigate();
-
+export function BannerInfo({ program, onPlayFocused, onSlideNext, onSlidePrev, isFirstSlide, onPress }: BannerInfoProps) {
     const { ref, focused } = useFocusable({
         focusKey: 'BANNER-PLAY',
-        onEnterPress: () => navigate(`/programas/${program.key}`),
+        onEnterPress: () => onPress?.(),
         onFocus: () => onPlayFocused?.(),
         onArrowPress: (dir: string) => {
             if (dir === 'left') {
@@ -96,7 +95,7 @@ export function BannerInfo({ program, onPlayFocused, onSlideNext, onSlidePrev, i
                 ref={ref}
                 type="button"
                 className={`${styles.playButton} ${focused ? styles.focused : ''}`}
-                onClick={() => navigate(`/programas/${program.key}`)}
+                onClick={onPress}
             >
                 <span className={styles.playButtonContent}>
                     <img src={PlayIcon} alt="" className={styles.playIcon} />
@@ -106,4 +105,3 @@ export function BannerInfo({ program, onPlayFocused, onSlideNext, onSlidePrev, i
         </>
     );
 }
-

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import {
     useFocusable,
     FocusContext,
     setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
+import { useAuthNavigation } from '@/hooks/auth/useAuthNavigation';
 import { useConfigStore } from '@/features/config/useConfigStore';
 import { useAuthStore } from '@/features/auth/authStore';
 import { isInputAction } from '@/utils/keycodes';
@@ -15,7 +15,6 @@ import styles from './RegisterView.module.css';
 const REGISTER_FOCUS_KEY = 'sn:register';
 
 function RegisterView() {
-    const navigate = useNavigate();
     const configLogo = useConfigStore((s) => s.config?.logo);
     const activationUrl = useConfigStore(
         (s) => s.config?.['url-tv-vincular'] || 'https://latina.pe/activacion',
@@ -25,12 +24,13 @@ function RegisterView() {
     const [showExitDialog, setShowExitDialog] = useState(false);
     const [exitSelection, setExitSelection] = useState<'cancel' | 'exit'>('cancel');
 
+    /* ── Hook de navegación ── */
+    const { goToLogin, goToLive } = useAuthNavigation();
+
     // If already authenticated, redirect away
     useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/live', { replace: true });
-        }
-    }, [isAuthenticated, navigate]);
+        if (isAuthenticated) goToLive();
+    }, [isAuthenticated, goToLive]);
 
     // Focus context for the page
     const { ref: containerRef, focusKey } = useFocusable({
@@ -42,7 +42,7 @@ function RegisterView() {
     // "Iniciar sesión" button
     const { ref: loginBtnRef, focused: loginBtnFocused } = useFocusable({
         focusKey: 'sn:register-login-btn',
-        onEnterPress: () => navigate('/auth/login'),
+        onEnterPress: goToLogin,
     });
 
     // Auto-focus login button on mount
@@ -51,7 +51,7 @@ function RegisterView() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Back key → show exit dialog (REGLA 4.1)
+    // Back key → show exit dialog 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             if (showExitDialog) {
@@ -121,7 +121,7 @@ function RegisterView() {
                         <button
                             ref={loginBtnRef}
                             className={loginBtnClass}
-                            onClick={() => navigate('/auth/login')}
+                            onClick={goToLogin}
                             onMouseEnter={() => setFocus('sn:register-login-btn')}
                         >
                             Iniciar sesión
@@ -129,7 +129,7 @@ function RegisterView() {
                     </div>
                 </div>
 
-                {/* ── Body (DeviceCodeAuth + QrAuth) — NO divider ── */}
+                {/* ── Body (text + QR) ── */}
                 <div className={styles.body}>
                     {/* Left — text */}
                     <div className={styles.textColumn}>

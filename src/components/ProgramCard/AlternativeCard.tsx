@@ -1,5 +1,4 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
 import type { Program } from '@/interfaces/catalog.interface';
 import styles from './ProgramCard.module.css';
 
@@ -7,15 +6,14 @@ interface AlternativeCardProps {
     program: Program;
     focusKey: string;
     onCardFocus?: () => void;
+    onPress?: (programKey: string) => void;
 }
 
-function AlternativeCard({ program, focusKey, onCardFocus }: AlternativeCardProps) {
-    const navigate = useNavigate();
-
+function AlternativeCard({ program, focusKey, onCardFocus, onPress }: AlternativeCardProps) {
     const imageSrc = program?.image_land?.small;
 
     const handlePress = () => {
-        navigate(`/programas/${program.key}`);
+        onPress?.(program.key);
     };
 
     const { ref, focused } = useFocusable({

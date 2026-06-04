@@ -14,8 +14,6 @@ interface FavoriteButtonProps {
 
 /**
  * Botón de favorito circular para TV con navegación espacial.
- * REGLA F6.1: hover = focused
- * REGLA F6.2: onClick = onEnterPress
  */
 function FavoriteButton({
     focusKey,

@@ -29,7 +29,7 @@ const NextEpisodeCardComponent = ({
     onNextEpisode(episode);
   }, [onNextEpisode, episode]);
 
-  // Card completo como elemento focusable (REGLA F6.1 / F6.2)
+  // Card completo como elemento focusable
   const { ref: cardRef, focused } = useFocusable({
     focusKey: "CARD-NEXT-EP",
     onEnterPress: handleSelect,

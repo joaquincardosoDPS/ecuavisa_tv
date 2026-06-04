@@ -1,11 +1,5 @@
 import { useRef, useCallback, useEffect } from 'react';
 
-/**
- * Opciones para el scroll vertical de página.
- * REGLA F5.1: scroll via transform: translateY (sin scrollbar nativo).
- * REGLA 1.2: solo transform para animaciones.
- * REGLA F6.1: soporte para Magic Mouse (wheel).
- */
 interface UsePageScrollOptions {
     /** Si true, se registra el listener de wheel en el parent del scrollRef (default: true) */
     enableWheel?: boolean;
@@ -113,7 +107,7 @@ export function usePageScroll(options: UsePageScrollOptions = {}): UsePageScroll
         applyScroll(0);
     }, [applyScroll]);
 
-    /** Wheel listener para Magic Mouse (REGLA F6.1) */
+    /** Wheel listener para Magic Mouse */
     useEffect(() => {
         if (!enableWheel) return;
 

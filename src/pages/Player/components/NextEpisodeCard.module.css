@@ -14,15 +14,15 @@
     border: 0.15vw solid rgba(255, 255, 255, 0.08);
     box-sizing: border-box;
     cursor: pointer;
-    /* Animación de entrada — solo transform + opacity (REGLA 1.2) */
+    /* Animación de entrada — solo transform + opacity */
     animation: cardSlideIn 0.5s ease-out forwards;
     opacity: 0;
     transform: translateY(2vw);
-    /* Transición de borde para foco (REGLA 1.2) */
+    /* Transición de borde para foco */
     transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
-/* Foco y hover comparten estilo (REGLA F6.1) */
+/* Foco y hover comparten estilo */
 .card.focused,
 .card:hover {
     border-color: var(--foc-primary);
@@ -34,6 +34,7 @@
         opacity: 0;
         transform: translateY(2vw);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

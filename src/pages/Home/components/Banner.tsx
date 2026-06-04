@@ -9,9 +9,11 @@ interface BannerProps {
     scrollY?: number;
     /** Callback cuando el botón Play recibe foco */
     onPlayFocused?: () => void;
+    /** Callback de navegación al programa — inyectado desde el padre */
+    onProgramPress?: (program: Program) => void;
 }
 
-function Banner({ slider, onPlayFocused }: BannerProps) {
+function Banner({ slider, onPlayFocused, onProgramPress }: BannerProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     if (!slider || slider.length === 0) return null;
@@ -53,6 +55,7 @@ function Banner({ slider, onPlayFocused }: BannerProps) {
                     onSlideNext={isLast ? undefined : goNext}
                     onSlidePrev={isFirst ? undefined : goPrev}
                     isFirstSlide={isFirst}
+                    onPress={() => onProgramPress?.(mainProgram)}
                 />
             </div>
 

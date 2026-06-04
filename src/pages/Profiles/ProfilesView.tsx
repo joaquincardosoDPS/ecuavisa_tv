@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   FocusContext,
   useFocusable,
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
-import { useAuthStore } from '@/features/auth/authStore';
-import { profileService } from '@/services/profileService';
-import { useFetch } from '@/hooks/useFetch';
+import { useProfilesData } from '@/hooks/profiles/useProfilesData';
+import { useProfilesNavigation } from '@/hooks/profiles/useProfilesNavigation';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { Button } from '@/components/ui/Button';
 import { useConfigStore } from '@/features/config/useConfigStore';
@@ -114,16 +112,14 @@ function ProfileCard({
 
 // ── Add Profile Card (focusable) ──
 
-function AddProfileCard({ focusKey, disabled }: { focusKey: string; disabled?: boolean }) {
-  const navigate = useNavigate();
-
-  const goToCreate = () => {
-    if (!disabled) navigate('/mi-latina/nuevo', { replace: true });
+function AddProfileCard({ focusKey, disabled, onPress }: { focusKey: string; disabled?: boolean; onPress?: () => void }) {
+  const handlePress = () => {
+    if (!disabled) onPress?.();
   };
 
   const { ref, focused } = useFocusable({
     focusKey,
-    onEnterPress: goToCreate,
+    onEnterPress: handlePress,
     focusable: !disabled,
     onArrowPress: (direction) => {
       if (direction === 'down') {
@@ -138,7 +134,7 @@ function AddProfileCard({ focusKey, disabled }: { focusKey: string; disabled?: b
     <button
       ref={ref}
       className={styles.profileCard}
-      onClick={goToCreate}
+      onClick={handlePress}
     >
       <div className={`${styles.avatarWrapper} ${focused ? styles.avatarWrapperFocused : ''}`}>
         <span className={`${styles.addIcon} ${focused ? styles.addIconFocused : ''}`}>+</span>
@@ -160,24 +156,16 @@ function getAvatarUrl(profile: Profile): string | null {
 // ── Main View ──
 
 function ProfilesView() {
-  const navigate = useNavigate();
   const logo = useConfigStore((s) => s.config?.logo) || fallbackLogo;
-  const token = useAuthStore((s) => s.token);
   const [editMode, setEditMode] = useState(false);
 
+  /* ── Hooks de datos y navegación ── */
+  const { token, profiles, isLoading, isError, selectProfile, logout } = useProfilesData();
+  const { goToHome, goToCreateProfile, goToEditProfile, goToAccountInfo } = useProfilesNavigation();
+
   useEffect(() => {
-    if (!token) {
-      navigate('/home', { replace: true });
-    }
-  }, [token, navigate]);
-
-  const { data: profilesResponse, isLoading, isError } = useFetch(
-    () => profileService.getAll(token!),
-    [token],
-    { enabled: !!token },
-  );
-
-  const profiles = profilesResponse?.data || [];
+    if (!token) goToHome();
+  }, [token, goToHome]);
 
   const { ref: containerRef, focusKey } = useFocusable({
     focusKey: 'PROFILES-VIEW',
@@ -205,22 +193,18 @@ function ProfilesView() {
         if (editMode) {
           setEditMode(false);
         } else {
-          navigate('/home', { replace: true });
+          goToHome();
         }
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [navigate, editMode]);
+  }, [editMode, goToHome]);
 
   const handleSelectProfile = (profile: Profile) => {
     console.log('[Profiles] Selected:', profile.name_perfil, profile.id);
-    useAuthStore.getState().setActiveProfile(profile);
-    navigate('/home', { replace: true });
-  };
-
-  const handleEditProfile = (profile: Profile) => {
-    navigate(`/mi-latina/${profile.id}`, { replace: true });
+    selectProfile(profile);
+    goToHome();
   };
 
   return (
@@ -253,14 +237,14 @@ function ProfilesView() {
                       focusKey={`profile-${profile.id}`}
                       onSelect={() => handleSelectProfile(profile)}
                       editMode={editMode}
-                      onEdit={() => handleEditProfile(profile)}
+                      onEdit={() => goToEditProfile(profile.id)}
                       prevFocusKey={prevKey}
                       nextFocusKey={nextKey}
                     />
                   );
                 })}
                 {profiles.length < 4 && (
-                  <AddProfileCard focusKey="profile-add" disabled={editMode} />
+                  <AddProfileCard focusKey="profile-add" disabled={editMode} onPress={goToCreateProfile} />
                 )}
               </div>
             </FocusContext.Provider>
@@ -276,6 +260,10 @@ function ProfilesView() {
                     setFocus('PROFILES-GRID');
                     return false;
                   }
+                  if (direction === 'down') {
+                    setFocus('profiles-account-btn');
+                    return false;
+                  }
                   return true;
                 }}
               >
@@ -284,10 +272,14 @@ function ProfilesView() {
               <Button
                 focusKey="profiles-account-btn"
                 variant="secondary"
-                onPress={() => navigate('/mi-latina/cuenta', { replace: true })}
+                onPress={goToAccountInfo}
                 onArrowPress={(direction) => {
                   if (direction === 'up') {
-                    setFocus('PROFILES-GRID');
+                    setFocus('profiles-edit-btn');
+                    return false;
+                  }
+                  if (direction === 'down') {
+                    setFocus('profiles-logout-btn');
                     return false;
                   }
                   return true;
@@ -299,12 +291,12 @@ function ProfilesView() {
                 focusKey="profiles-logout-btn"
                 variant="tertiary"
                 onPress={() => {
-                  useAuthStore.getState().logout();
-                  navigate('/home', { replace: true });
+                  logout();
+                  goToHome();
                 }}
                 onArrowPress={(direction) => {
                   if (direction === 'up') {
-                    setFocus('PROFILES-GRID');
+                    setFocus('profiles-account-btn');
                     return false;
                   }
                   return true;

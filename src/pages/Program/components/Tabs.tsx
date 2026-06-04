@@ -105,7 +105,7 @@ function Tabs({
         onFocus: (_layout, _props, details) => onTabsFocused?.(details),
     });
 
-    /** REGLA F5.1: centra el tab enfocado horizontalmente */
+    /** R centra el tab enfocado horizontalmente */
     const scrollToTab = useCallback((tabFocusKey: string) => {
         const track = trackRef.current;
         if (!track) return;

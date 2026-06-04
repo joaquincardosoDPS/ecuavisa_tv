@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useAvatarSelectNavigation } from '@/hooks/profiles/useProfilesNavigation';
 import {
   FocusContext,
   useFocusable,
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
 import { profileService } from '@/services/profileService';
-import { useFetch } from '@/hooks/useFetch';
+import { useFetch } from '@/hooks/shared/useFetch';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { isInputAction } from '@/utils/keycodes';
 import type { AvatarItem } from '@/interfaces/profile.interface';
@@ -124,7 +125,7 @@ function AvatarRow({
 // ── Main View ──
 
 function AvatarSelectView() {
-  const navigate = useNavigate();
+  const { goBackWithAvatar } = useAvatarSelectNavigation();
   const location = useLocation();
 
   // Receive current avatar from navigation state
@@ -161,11 +162,8 @@ function AvatarSelectView() {
 
   const goBack = useCallback(() => {
     const returnTo = stateData.returnTo || '/mi-latina/nuevo';
-    navigate(returnTo, {
-      replace: true,
-      state: { selectedAvatar, currentName: stateData.currentName },
-    });
-  }, [navigate, selectedAvatar, stateData.returnTo, stateData.currentName]);
+    goBackWithAvatar(returnTo, selectedAvatar, stateData.currentName);
+  }, [goBackWithAvatar, selectedAvatar, stateData.returnTo, stateData.currentName]);
 
   // Back key → go back with selected avatar
   useEffect(() => {
@@ -198,10 +196,7 @@ function AvatarSelectView() {
                 setSelectedAvatar(id);
                 // Auto-return after selecting
                 const returnTo = stateData.returnTo || '/mi-latina/nuevo';
-                navigate(returnTo, {
-                  replace: true,
-                  state: { selectedAvatar: id, selectedAvatarUrl: url, currentName: stateData.currentName },
-                });
+                goBackWithAvatar(returnTo, id, stateData.currentName, url);
               }}
               focusKeyPrefix={`avatar-row-${idx}`}
             />

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useProgramDetail } from '@/hooks/useProgramDetail';
+import { useProgramDetail } from '@/hooks/program/useProgramDetail';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import ProgramSingleView from './ProgramSingleView';
 import ProgramView from './ProgramView';

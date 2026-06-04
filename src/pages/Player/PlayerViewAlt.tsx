@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
-import { useNavigate } from "react-router-dom";
-import { usePlayerEpisode } from "@/hooks/usePlayerEpisode";
+import { usePlayerEpisode } from "@/hooks/player/usePlayerEpisode";
+import { usePlayerNavigation } from "@/hooks/player/usePlayerNavigation";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import { NextEpisodeCard } from "./components/NextEpisodeCard";
@@ -42,7 +42,7 @@ const PIP_THRESHOLD = 30;
  * "A continuación" sobre el video a tamaño completo con los controles visibles.
  */
 function PlayerViewAlt() {
-  const navigate = useNavigate();
+  const { goToEpisode } = usePlayerNavigation();
 
   const {
     loading,
@@ -113,11 +113,9 @@ function PlayerViewAlt() {
   const handleEpisodeSelect = useCallback(
     (ep: VideoPlayerChapter) => {
       setIsEndingTransition(false);
-      const prog = programKey || '';
-      const seg = ep.key_segment || segment || '';
-      navigate(`/play/${prog}/${seg}/${ep.season}/${ep.chapter}`);
+      goToEpisode(programKey || '', ep, segment);
     },
-    [navigate, programKey, segment],
+    [goToEpisode, programKey, segment],
   );
 
   /** Auto-navegar al siguiente episodio o volver al programa */

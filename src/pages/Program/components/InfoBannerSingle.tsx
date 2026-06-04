@@ -1,9 +1,8 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useFavorite } from '@/hooks/useFavorite';
+import { useFavorite } from '@/hooks/program/useFavorite';
 import type { Chapter, Program } from '@/interfaces/catalog.interface';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useContinueWatching } from '@/hooks/useContinueWatching';
+import { useContinueWatching } from '@/hooks/program/useContinueWatching';
 import { formatDuration } from '@/utils/formatDuration';
 import FavoriteButton from './FavoriteButton';
 import ProgressBar from './ProgressBar';
@@ -13,14 +12,15 @@ interface InfoBannerSingleProps {
   program: Program;
   chapter?: Chapter;
   onBannerFocused?: () => void;
+  onPlay?: () => void;
 }
 
 function InfoBannerSingle({
   program,
   chapter,
   onBannerFocused,
+  onPlay,
 }: InfoBannerSingleProps) {
-  const navigate = useNavigate();
   const { isFavorited, isToggling, isEnabled, toggleFavorite } = useFavorite(program.key);
   const { item: continueWatchingItem } = useContinueWatching(program.key);
 
@@ -33,17 +33,8 @@ function InfoBannerSingle({
   });
 
   const handlePlay = useCallback(() => {
-    if (continueWatchingItem) {
-      navigate(
-        `/play/${program.key}/${continueWatchingItem.key_segment}/${continueWatchingItem.season}/${continueWatchingItem.chapter}`,
-        { state: { resumeTime: continueWatchingItem.time } },
-      );
-    } else if (chapter) {
-      // Single episode: buscar el primer capítulo directamente (sin segment/season explícitos)
-      // Idéntico al original: getVodChapters({page:1, limit:1}) → data[0]
-      navigate(`/play/${program.key}/${chapter.key_segment}/${chapter.season}/${chapter.chapter}`);
-    }
-  }, [continueWatchingItem, program.key, chapter, navigate]);
+    onPlay?.();
+  }, [onPlay]);
 
   const logoImg = program?.image_logo?.big;
   const genderNames = program.genders?.map((g) => g.name).join(', ');

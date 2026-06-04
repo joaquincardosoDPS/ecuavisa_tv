@@ -1,5 +1,4 @@
 import { useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import type { Program } from '@/interfaces/catalog.interface';
 import styles from '../ProgramPage.module.css';
@@ -11,15 +10,15 @@ interface RelatedCardProps {
     program: Program;
     focusKey: string;
     onCardFocus?: () => void;
+    onPress?: (programKey: string) => void;
 }
 
 /** Card individual de programa recomendado — layout horizontal como el original */
-function RelatedCard({ program, focusKey, onCardFocus }: RelatedCardProps) {
-    const navigate = useNavigate();
+function RelatedCard({ program, focusKey, onCardFocus, onPress }: RelatedCardProps) {
     const imageSrc = program.image_land?.small;
 
     const handleSelect = () => {
-        navigate(`/programas/${program.key}`);
+        onPress?.(program.key);
     };
 
     const { ref, focused } = useFocusable({
@@ -59,6 +58,7 @@ interface RelatedProgramsContainerProps {
     hasNextPage?: boolean;
     fetchNextPage?: () => void;
     onRowFocused?: () => void;
+    onProgramPress?: (programKey: string) => void;
 }
 
 function RelatedProgramsContainer({
@@ -67,6 +67,7 @@ function RelatedProgramsContainer({
     isFetchingNextPage = false,
     hasNextPage = false,
     fetchNextPage,
+    onProgramPress,
 }: RelatedProgramsContainerProps) {
     const gridRef = useRef<HTMLDivElement>(null);
 
@@ -77,7 +78,7 @@ function RelatedProgramsContainer({
         isFocusBoundary: false,
     });
 
-    /** REGLA F5.1: scroll al card enfocado con margen inferior + prefetch */
+    /** scroll al card enfocado con margen inferior + prefetch */
     const handleCardFocus = useCallback((index: number) => {
         const grid = gridRef.current;
         const scrollContainer = grid?.parentElement;
@@ -131,6 +132,7 @@ function RelatedProgramsContainer({
                             program={program}
                             focusKey={`PROGRAM-RELATED-${program.id}-${index}`}
                             onCardFocus={() => handleCardFocus(index)}
+                            onPress={onProgramPress}
                         />
                     ))}
                     {isFetchingNextPage && (

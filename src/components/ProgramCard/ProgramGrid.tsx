@@ -1,7 +1,7 @@
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import type { Program } from '@/interfaces/catalog.interface';
 import type { FavoriteItem } from '@/interfaces/favorites.interface';
-import { useTrackScroll } from '@/hooks/useTrackScroll';
+import { useTrackScroll } from '@/hooks/shared/useTrackScroll';
 import { Button } from '@/components/ui/Button';
 import AlternativeCard from './AlternativeCard';
 import styles from './ProgramGrid.module.css';
@@ -30,6 +30,8 @@ interface ProgramGridProps {
     hasMore?: boolean;
     isLoadingMore?: boolean;
     onLoadMore?: () => void;
+    /** Callback al presionar un card */
+    onProgramPress?: (programKey: string) => void;
 }
 
 function ProgramGrid({
@@ -43,6 +45,7 @@ function ProgramGrid({
     hasMore = false,
     isLoadingMore = false,
     onLoadMore,
+    onProgramPress,
 }: ProgramGridProps) {
     const { trackRef, scrollToChild } = useTrackScroll({
         direction: 'vertical',
@@ -84,6 +87,7 @@ function ProgramGrid({
                                 program={program}
                                 focusKey={cardKey}
                                 onCardFocus={() => scrollToChild(cardKey)}
+                                onPress={onProgramPress}
                             />
                         );
                     })}

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useBackHandler } from '@/hooks/useBackHandler';
+import { useBackHandler } from '@/hooks/shared/useBackHandler';
 import { exitApp } from '@/utils/platform';
 import { Sidebar } from './sidebar/Sidebar';
 import { ExitModal } from './sidebar/ExitModal';

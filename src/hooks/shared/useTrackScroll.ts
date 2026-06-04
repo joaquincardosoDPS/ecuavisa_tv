@@ -2,10 +2,6 @@ import { useRef, useCallback, useEffect } from 'react';
 
 type ScrollDirection = 'vertical' | 'horizontal';
 
-/**
- * REGLA F5.1: scroll via transform (sin scrollbar nativo).
- * REGLA 1.2: solo transform para animaciones.
- */
 interface UseTrackScrollOptions {
     /** Dirección del scroll: 'vertical' (default) o 'horizontal' */
     direction?: ScrollDirection;
@@ -93,7 +89,7 @@ export function useTrackScroll(options: UseTrackScrollOptions = {}): UseTrackScr
         applyScroll(targetOffset);
     }, [isHorizontal, applyScroll]);
 
-    /** Wheel listener opcional (REGLA F6.1) */
+    /** Wheel listener opcional */
     useEffect(() => {
         if (!enableWheel) return;
 

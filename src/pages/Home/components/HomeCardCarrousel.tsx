@@ -1,31 +1,24 @@
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
 import type { Program, Event } from '@/interfaces/catalog.interface';
 import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
+import { useHorizontalScroll } from '@/hooks/shared/useHorizontalScroll';
 import HomeCardHorizontal from './HomeCardHorizontal';
 import HomeCardVertical from './HomeCardVertical';
 import styles from './HomeCard.module.css';
 
 interface ViewMoreCardProps {
     focusKey: string;
-    categorySlug: string;
-    categoryTitle?: string;
     isVertical: boolean;
     onCardFocus: () => void;
+    onPress: () => void;
 }
 
 /** Componente extraído para evitar re-mount en cada render */
-function ViewMoreCard({ focusKey, categorySlug, categoryTitle, isVertical, onCardFocus }: ViewMoreCardProps) {
-    const navigate = useNavigate();
-
-    const goToCategory = () => navigate(`/categoria/${categorySlug}`, {
-        state: { title: categoryTitle },
-    });
-
+function ViewMoreCard({ focusKey, isVertical, onCardFocus, onPress }: ViewMoreCardProps) {
     const { ref, focused } = useFocusable({
         focusKey,
-        onEnterPress: goToCategory,
+        onEnterPress: onPress,
         onFocus: () => onCardFocus(),
     });
 
@@ -40,7 +33,7 @@ function ViewMoreCard({ focusKey, categorySlug, categoryTitle, isVertical, onCar
             ref={ref}
             className={classList}
             data-focuskey={focusKey}
-            onClick={goToCategory}
+            onClick={onPress}
             onMouseEnter={() => setFocus(focusKey)}
         >
             <span className={styles.viewMoreText}>
@@ -61,6 +54,10 @@ interface HomeCardCarrouselProps {
     onRowFocused?: () => void;
     /** Callback cuando un card individual recibe foco */
     onProgramFocused?: (program?: Program | Event) => void;
+    /** Callback de navegación para cards — inyectado desde el padre */
+    onProgramPress?: (program: Program | Event, format?: string) => void;
+    /** Callback de navegación para "Ver Más" */
+    onViewMorePress?: () => void;
 }
 
 function HomeCardCarrousel({
@@ -72,8 +69,10 @@ function HomeCardCarrousel({
     focusKeyPrefix,
     onRowFocused,
     onProgramFocused,
+    onProgramPress,
+    onViewMorePress,
 }: HomeCardCarrouselProps) {
-    const trackRef = useRef<HTMLDivElement>(null);
+    const { trackRef, scrollToCard } = useHorizontalScroll();
 
     const isVertical = orientation === 'vertical';
 
@@ -85,31 +84,13 @@ function HomeCardCarrousel({
         onFocus: () => onRowFocused?.(),
     });
 
-    /** centra el card enfocado horizontalmente en el track */
-    const scrollToCard = useCallback((cardFocusKey: string) => {
-        const track = trackRef.current;
-        if (!track) return;
-
-        const wrapper = track.parentElement;
-        if (!wrapper) return;
-
-        const child = track.querySelector(
-            `[data-focuskey="${cardFocusKey}"]`,
-        ) as HTMLElement | null;
-        if (!child) return;
-
-        const wrapperWidth = wrapper.offsetWidth;
-        const childLeft = child.offsetLeft;
-        const childWidth = child.offsetWidth;
-
-        const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-        const maxScroll = track.scrollWidth - wrapperWidth;
-        const clampedX = Math.max(0, Math.min(targetX, maxScroll));
-
-        track.style.transform = `translateX(-${clampedX}px)`;
-    }, []);
-
     const viewMoreKey = `${focusKeyPrefix}-viewmore`;
+
+    const handleViewMorePress = useCallback(() => {
+        if (onViewMorePress) {
+            onViewMorePress();
+        }
+    }, [onViewMorePress]);
 
     return (
         <FocusContext.Provider value={focusKey}>
@@ -124,6 +105,9 @@ function HomeCardCarrousel({
                             scrollToCard(cardKey);
                             onProgramFocused?.(program);
                         };
+                        const handlePress = () => {
+                            onProgramPress?.(program, format);
+                        };
                         return isVertical ? (
                             <HomeCardVertical
                                 key={program.id}
@@ -133,6 +117,7 @@ function HomeCardCarrousel({
                                 focusKey={cardKey}
                                 onCardFocus={handleCardFocus}
                                 onArrowLeft={goToSidebar}
+                                onPress={handlePress}
                             />
                         ) : (
                             <HomeCardHorizontal
@@ -142,6 +127,7 @@ function HomeCardCarrousel({
                                 focusKey={cardKey}
                                 onCardFocus={handleCardFocus}
                                 onArrowLeft={goToSidebar}
+                                onPress={handlePress}
                             />
                         );
                     })}
@@ -149,13 +135,12 @@ function HomeCardCarrousel({
                     {categorySlug && categorySlug !== "recomendados" && (
                         <ViewMoreCard
                             focusKey={viewMoreKey}
-                            categorySlug={categorySlug}
-                            categoryTitle={categoryTitle}
                             isVertical={isVertical}
                             onCardFocus={() => {
                                 scrollToCard(viewMoreKey);
                                 onProgramFocused?.();
                             }}
+                            onPress={handleViewMorePress}
                         />
                     )}
 

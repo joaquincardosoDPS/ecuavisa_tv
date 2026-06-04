@@ -1,7 +1,7 @@
 /**
  * Mapa global de teclas por acción lógica.
  * Cada plataforma (Tizen, webOS, Hisense, navegador) usa códigos distintos.
- * Nunca se deben usar números mágicos en los componentes. (REGLA 3.1)
+ * Nunca se deben usar números mágicos en los componentes. 
  */
 
 export type InputAction =

@@ -1,11 +1,13 @@
 import { catalogService } from '@/services/catalogService';
 import { historyService } from '@/services/historyService';
 import { useAuthStore } from '@/features/auth/authStore';
-import { useFetch } from './useFetch';
+import { useConfigStore } from '@/features/config/useConfigStore';
+import { useFetch } from '../shared/useFetch';
 
 export const useHomeData = () => {
     const token = useAuthStore((s) => s.token);
     const activeProfile = useAuthStore((s) => s.activeProfile);
+    const config = useConfigStore((s) => s.config);
 
     const sliderQuery = useFetch(
         () => catalogService.getSlider(),
@@ -44,6 +46,8 @@ export const useHomeData = () => {
         recommended: recommendedQuery.data?.data || [],
         liveSignals: liveSignalsQuery.data?.data || [],
         continueWatching: continueWatchingQuery.data?.data || [],
+        /** Título de la sección recomendados (antes se leía desde useAppInitialization en la vista) */
+        recommendedTitle: config?.nombre_recomendados || 'Destacados',
         isLoading: sliderQuery.isLoading || categoriesQuery.isLoading || recommendedQuery.isLoading,
         isError: sliderQuery.isError || categoriesQuery.isError || recommendedQuery.isError,
     };

@@ -1,67 +1,47 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 import {
   FocusContext,
   useFocusable,
   setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
-import { useLiveData } from "@/hooks/useLiveData";
+import { useLiveData } from "@/hooks/live/useLiveData";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import { LivePlayer } from "@/components/LivePlayer/LivePlayer";
 import { LiveStatusBar } from "./components/LiveStatusBar";
 import { LiveGrid } from "./components/LiveGrid";
-import { getCurrentEvent } from "./utils";
 
 import styles from "./LiveView.module.css";
 
 function LiveView() {
-  const location = useLocation();
-  const { playlistPremium, epg, isLoading } = useLiveData();
+  /* ── Hook de datos ── */
+  const {
+    playlistPremium,
+    epg,
+    isLoading,
+    selectedSignal,
+    selectedKeyLive,
+    currentEvent,
+    now,
+    selectSignal,
+    setSelectedKeyLive,
+  } = useLiveData();
 
-  // Leer señal preseleccionada desde Home (si existe)
-  const initialKeyLive = (location.state as any)?.selectedKeyLive || null;
-
-  const [selectedKeyLive, setSelectedKeyLive] = useState<string | null>(initialKeyLive);
+  /* ── Estado UI (fullscreen) ── */
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Norigin: contenedor principal
+  /* ── Foco ── */
   const { ref: containerRef, focusKey } = useFocusable({
     focusKey: "LIVE-VIEW",
     saveLastFocusedChild: true,
     trackChildren: true,
   });
 
-  // Seleccionar primera señal al cargar (solo si no viene preseleccionada)
-  useEffect(() => {
-    if (playlistPremium.length > 0 && !selectedKeyLive) {
-      const firstActive = playlistPremium.find((s) => s.active);
-      if (firstActive) setSelectedKeyLive(firstActive.key_live);
-    }
-  }, [playlistPremium, selectedKeyLive]);
-
-  // Señal seleccionada
-  const selectedSignal = useMemo(
-    () =>
-      playlistPremium.find((s) => s.key_live === selectedKeyLive) ??
-      playlistPremium.find((s) => s.active) ??
-      null,
-    [playlistPremium, selectedKeyLive],
-  );
-
-  // Evento EPG actual
-  const currentEvent = useMemo(
-    () => getCurrentEvent(selectedSignal, epg),
-    [selectedSignal, epg],
-  );
-
-  const now = useMemo(() => new Date(), [epg]);
-
   // Seleccionar señal → fullscreen directo
   const handleSelectSignal = useCallback((keyLive: string) => {
-    setSelectedKeyLive(keyLive);
+    selectSignal(keyLive);
     setIsFullscreen(true);
     setTimeout(() => setFocus("LIVE-BTN-BACK"), 200);
-  }, []);
+  }, [selectSignal]);
 
   // Callback de salida de fullscreen
   const handleExitFullscreen = useCallback(() => {
@@ -83,8 +63,6 @@ function LiveView() {
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [isFullscreen, handleExitFullscreen]);
-
-  console.log('currentEvent', currentEvent)
 
   return (
     <FocusContext.Provider value={focusKey}>

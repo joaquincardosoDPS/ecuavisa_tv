@@ -1,22 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useCallback } from 'react';
 import {
     FocusContext,
     useFocusable,
     setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
-import axios from 'axios';
-import { CLIENT, RUDO_SESSION } from '@/config-global';
+import { useAccountData } from '@/hooks/milatina/useAccountData';
+import { useMiLatinaNavigation } from '@/hooks/milatina/useMiLatinaNavigation';
 import { useAuthStore } from '@/features/auth/authStore';
 import type { Profile } from '@/interfaces/profile.interface';
 import styles from './MiLatinaView.module.css';
-
-interface SessionData {
-    name: string;
-    last_name: string;
-    email: string;
-    gender?: string;
-}
 
 function getProfileAvatarUrl(profile: Profile): string | null {
     if (Array.isArray(profile.images)) return null;
@@ -57,13 +49,12 @@ function FocusableButton({
 // ── AccountInfoView ──
 
 function AccountInfoView() {
-    const navigate = useNavigate();
     const activeProfile = useAuthStore((s) => s.activeProfile);
     const logout = useAuthStore((s) => s.logout);
 
-    const [session, setSession] = useState<SessionData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
+    /* ── Hooks de datos y navegación ── */
+    const { session, isLoading, error } = useAccountData();
+    const { goToMiLatina, goToHomeAfterLogout } = useMiLatinaNavigation();
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'ACCOUNT-INFO-VIEW',
@@ -75,55 +66,10 @@ function AccountInfoView() {
 
     const avatarUrl = activeProfile ? getProfileAvatarUrl(activeProfile) : null;
 
-    // Fetch session data
-    useEffect(() => {
-        let cancelled = false;
-        const token = localStorage.getItem('auth_token') || '';
-
-        if (!token) {
-            setIsLoading(false);
-            setError('No hay sesión activa.');
-            return;
-        }
-
-        setIsLoading(true);
-        setError('');
-
-        axios
-            .post(RUDO_SESSION, `client=${CLIENT}&token=${token}&_t=${Date.now()}`, {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            })
-            .then((response) => {
-                if (cancelled) return;
-                const data = response.data;
-                if (data.status === 'error') {
-                    setError(data.msj || 'Error al cargar la sesión.');
-                } else if (data.user) {
-                    setSession({
-                        name: data.user.name || '',
-                        last_name: data.user.last_name || '',
-                        email: data.user.email || '',
-                        gender: data.user.gender || '',
-                    });
-                }
-            })
-            .catch((err) => {
-                if (cancelled) return;
-                setError(err instanceof Error ? err.message : 'Error al cargar la sesión.');
-            })
-            .finally(() => {
-                if (!cancelled) setIsLoading(false);
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
     const handleLogout = useCallback(() => {
         logout();
-        navigate('/', { replace: true });
-    }, [logout, navigate]);
+        goToHomeAfterLogout();
+    }, [logout, goToHomeAfterLogout]);
 
     // Foco inicial
     useEffect(() => {
@@ -132,19 +78,19 @@ function AccountInfoView() {
         }
     }, [isLoading]);
 
-    // Keyboard: Back navega atrás explícitamente a /mi-latina
+    // Keyboard: Back navega a /mi-latina
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const code = e.keyCode;
             if (code === 27 || code === 8 || code === 10009 || code === 461) {
                 e.preventDefault();
                 e.stopPropagation();
-                navigate('/mi-latina', { replace: true });
+                goToMiLatina();
             }
         };
         window.addEventListener('keydown', handleKeyDown, true);
         return () => window.removeEventListener('keydown', handleKeyDown, true);
-    }, [navigate]);
+    }, [goToMiLatina]);
 
     if (isLoading) {
         return <div className={styles.loading}>Cargando...</div>;

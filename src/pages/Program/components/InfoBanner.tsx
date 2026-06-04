@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useFavorite } from '@/hooks/useFavorite';
+import { useFavorite } from '@/hooks/program/useFavorite';
 import type { Program } from '@/interfaces/catalog.interface';
 import type { HistoryItem } from '@/interfaces/history.interface';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
@@ -12,10 +11,10 @@ interface InfoBannerProps {
     program: Program;
     onBannerFocused?: () => void;
     continueWatchingItem?: HistoryItem | null;
+    onPlay?: () => void;
 }
 
-function InfoBanner({ program, onBannerFocused, continueWatchingItem }: InfoBannerProps) {
-    const navigate = useNavigate();
+function InfoBanner({ program, onBannerFocused, continueWatchingItem, onPlay }: InfoBannerProps) {
     const { isFavorited, isToggling, isEnabled, toggleFavorite } = useFavorite(program.key);
 
     const { ref, focusKey } = useFocusable({
@@ -27,19 +26,8 @@ function InfoBanner({ program, onBannerFocused, continueWatchingItem }: InfoBann
     });
 
     const handlePlay = useCallback(() => {
-        if (continueWatchingItem) {
-            navigate(
-                `/play/${program.key}/${continueWatchingItem.key_segment}/${continueWatchingItem.season}/${continueWatchingItem.chapter}`,
-                { state: { resumeTime: continueWatchingItem.time } },
-            );
-        } else {
-            const firstSegment = program.segments?.[0];
-            if (firstSegment) {
-                const firstSeason = firstSegment.all_temp?.[0] ?? 1;
-                navigate(`/play/${program.key}/${firstSegment.key}/${firstSeason}/1`);
-            }
-        }
-    }, [continueWatchingItem, program, navigate]);
+        onPlay?.();
+    }, [onPlay]);
 
     const logoImg = program?.image_logo?.big;
     const maxSeasons = program.segments?.[0]?.max_temp || 0;

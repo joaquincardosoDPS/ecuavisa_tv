@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
+import { useEditProfileNavigation } from '@/hooks/profiles/useProfilesNavigation';
 import {
   FocusContext,
   useFocusable,
@@ -7,7 +8,7 @@ import {
 } from '@noriginmedia/norigin-spatial-navigation';
 import { useAuthStore } from '@/features/auth/authStore';
 import { profileService } from '@/services/profileService';
-import { useFetch } from '@/hooks/useFetch';
+import { useFetch } from '@/hooks/shared/useFetch';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { OnScreenKeyboard } from '@/components/ui/OnScreenKeyboard';
 import { Button } from '@/components/ui/Button';
@@ -66,12 +67,12 @@ function DeleteModal({
 }) {
   const { ref, focusKey } = useFocusable({
     focusKey: 'DELETE-MODAL',
-    isFocusBoundary: true, // Trampa de foco (Regla F3.1)
+    isFocusBoundary: true,
     trackChildren: true,
   });
 
   useEffect(() => {
-    // Forzar foco al abrir (Regla F4.1)
+    // Forzar foco al abrir
     setTimeout(() => setFocus('modal-cancel'), 50);
   }, []);
 
@@ -109,7 +110,7 @@ function DeleteModal({
 
 function EditProfileView() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { goToProfiles, goToAvatarSelect } = useEditProfileNavigation();
   const token = useAuthStore((s) => s.token);
 
   const isCreateMode = !id || id === 'nuevo';
@@ -187,13 +188,13 @@ function EditProfileView() {
         if (showDeleteModal) {
           setShowDeleteModal(false);
         } else {
-          navigate('/mi-latina', { replace: true });
+          goToProfiles();
         }
       }
     };
     window.addEventListener('keydown', handleKey, true);
     return () => window.removeEventListener('keydown', handleKey, true);
-  }, [navigate, showDeleteModal]);
+  }, [goToProfiles, showDeleteModal]);
 
   const activeProfile = useAuthStore((s) => s.activeProfile);
   const setActiveProfile = useAuthStore((s) => s.setActiveProfile);
@@ -248,7 +249,7 @@ function EditProfileView() {
       }
 
       setSubmitSuccess(true);
-      setTimeout(() => navigate('/mi-latina', { replace: true }), 1200);
+      setTimeout(() => goToProfiles(), 1200);
     } catch (err) {
       console.error('[EditProfile] Error:', err);
       setSubmitError('Error de conexión. Intenta de nuevo.');
@@ -268,7 +269,7 @@ function EditProfileView() {
         setShowDeleteModal(false);
         return;
       }
-      navigate('/mi-latina', { replace: true });
+      goToProfiles();
     } catch (err) {
       console.error('[EditProfile] Delete error:', err);
       setSubmitError('Error de conexión.');
@@ -276,7 +277,7 @@ function EditProfileView() {
     } finally {
       setIsDeleting(false);
     }
-  }, [token, id, isCreateMode, navigate]);
+  }, [token, id, isCreateMode, goToProfiles]);
 
   // Avatar URL for preview — prefer selected avatar URL, fallback to existing profile images
   const getProfileAvatarUrl = (): string | null => {
@@ -288,16 +289,14 @@ function EditProfileView() {
 
   // Navigate to avatar selection
   const returnPath = isCreateMode ? '/mi-latina/nuevo' : `/mi-latina/${id}`;
-  const goToAvatarSelect = useCallback(() => {
-    navigate('/mi-latina/avatar', {
-      state: { currentAvatar: selectedAvatar, returnTo: returnPath, currentName: name },
-    });
-  }, [navigate, selectedAvatar, returnPath, name]);
+  const goToAvatarSelectPage = useCallback(() => {
+    goToAvatarSelect(selectedAvatar, returnPath, name);
+  }, [goToAvatarSelect, selectedAvatar, returnPath, name]);
 
   // Focusable avatar edit badge
   const { ref: editBadgeRef, focused: editBadgeFocused } = useFocusable({
     focusKey: 'edit-profile-avatar-btn',
-    onEnterPress: goToAvatarSelect,
+    onEnterPress: goToAvatarSelectPage,
     onArrowPress: (direction) => {
       if (direction === 'right') {
         setFocus('PROFILE-KB');
@@ -348,7 +347,7 @@ function EditProfileView() {
               <button
                 ref={editBadgeRef}
                 className={`${styles.avatarEditBadge} ${editBadgeFocused ? styles.avatarEditBadgeFocused : ''}`}
-                onClick={goToAvatarSelect}
+                onClick={goToAvatarSelectPage}
               >
                 <img src={iconEdit} alt="Editar" className={styles.avatarEditIcon} />
               </button>

@@ -59,7 +59,6 @@ export const HlsBackgroundVideo = ({ url, style }: HlsBackgroundVideoProps) => {
 
     return () => {
       if (hls) {
-        // Regla 4: Gestión Draconiana de la Memoria
         hls.destroy();
       }
     };

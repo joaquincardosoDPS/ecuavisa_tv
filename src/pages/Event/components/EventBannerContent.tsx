@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { Button } from '@/components/ui/Button';
 import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
@@ -9,12 +8,11 @@ import styles from '../EventView.module.css';
 interface EventBannerContentProps {
   event: Event;
   onBannerFocused?: () => void;
+  onPlay?: () => void;
 }
 
 /** Contenido del banner: status, logo, clasificación, play, categoría, título, sinopsis */
-function EventBannerContent({ event, onBannerFocused }: EventBannerContentProps) {
-  const navigate = useNavigate();
-
+function EventBannerContent({ event, onBannerFocused, onPlay }: EventBannerContentProps) {
   const logoCat = event.category?.image_logo?.default;
   const logoEvent = event.image_logo?.default;
   const classification = event.classification;
@@ -32,12 +30,8 @@ function EventBannerContent({ event, onBannerFocused }: EventBannerContentProps)
       : null;
 
   const handlePlay = useCallback(() => {
-    if (event.live_associated?.key) {
-      navigate('/live', { state: { signal: event.live_associated.key } });
-    } else if (event.program_associated?.key) {
-      navigate(`/programas/${event.program_associated.key}`);
-    }
-  }, [event, navigate]);
+    onPlay?.();
+  }, [onPlay]);
 
   return (
     <div className={styles.bannerContent}>

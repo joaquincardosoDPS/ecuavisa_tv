@@ -1,10 +1,10 @@
 import { useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     FocusContext,
     useFocusable,
     setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
+import { useMiLatinaNavigation } from '@/hooks/milatina/useMiLatinaNavigation';
 import { useAuthStore } from '@/features/auth/authStore';
 import type { Profile } from '@/interfaces/profile.interface';
 import styles from './MiLatinaView.module.css';
@@ -48,9 +48,11 @@ function FocusableButton({
 // ── MiLatinaView ──
 
 function MiLatinaView() {
-    const navigate = useNavigate();
     const activeProfile = useAuthStore((s) => s.activeProfile);
     const logout = useAuthStore((s) => s.logout);
+
+    /* ── Hook de navegación ── */
+    const { goToAccountInfo, goBack, goToHomeAfterLogout } = useMiLatinaNavigation();
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'MILATINA-VIEW',
@@ -62,14 +64,10 @@ function MiLatinaView() {
 
     const avatarUrl = activeProfile ? getProfileAvatarUrl(activeProfile) : null;
 
-    const handleAccountInfo = useCallback(() => {
-        navigate('/mi-latina/cuenta', { replace: true });
-    }, [navigate]);
-
     const handleLogout = useCallback(() => {
         logout();
-        navigate('/', { replace: true });
-    }, [logout, navigate]);
+        goToHomeAfterLogout();
+    }, [logout, goToHomeAfterLogout]);
 
     // Foco inicial
     useEffect(() => {
@@ -83,12 +81,12 @@ function MiLatinaView() {
             if (code === 27 || code === 8 || code === 10009) {
                 e.preventDefault();
                 e.stopPropagation();
-                navigate(-1);
+                goBack();
             }
         };
         window.addEventListener('keydown', handleKeyDown, true);
         return () => window.removeEventListener('keydown', handleKeyDown, true);
-    }, [navigate]);
+    }, [goBack]);
 
     return (
         <FocusContext.Provider value={focusKey}>
@@ -123,7 +121,7 @@ function MiLatinaView() {
                     <FocusableButton
                         focusKey="MILATINA-BTN-ACCOUNT"
                         label="Información de Cuenta"
-                        onPress={handleAccountInfo}
+                        onPress={goToAccountInfo}
                     />
                     <FocusableButton
                         focusKey="MILATINA-BTN-LOGOUT"

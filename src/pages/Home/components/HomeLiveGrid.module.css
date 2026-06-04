@@ -35,7 +35,7 @@
     transition: transform 0.2s ease;
 }
 
-/* Focus / hover — border + scale sutil (REGLA 2.3, F6.1) */
+/* Focus / hover — border + scale sutil  */
 .channelCard.focused,
 .channelCard:hover {
     border: 0.3rem solid #ffe500;

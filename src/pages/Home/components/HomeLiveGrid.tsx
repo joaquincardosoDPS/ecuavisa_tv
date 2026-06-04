@@ -1,5 +1,3 @@
-import { useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     FocusContext,
     useFocusable,
@@ -7,6 +5,7 @@ import {
 } from '@noriginmedia/norigin-spatial-navigation';
 import type { LiveSignal } from '@/interfaces/catalog.interface';
 import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
+import { useHorizontalScroll } from '@/hooks/shared/useHorizontalScroll';
 import styles from './HomeLiveGrid.module.css';
 
 /* ── Card individual de canal ── */
@@ -15,18 +14,14 @@ interface ChannelCardProps {
     focusKey: string;
     onCardFocus: () => void;
     onArrowLeft?: () => void;
+    /** Callback de navegación — inyectado desde el padre */
+    onPress?: () => void;
 }
 
-function ChannelCard({ signal, focusKey, onCardFocus, onArrowLeft }: ChannelCardProps) {
-    const navigate = useNavigate();
-
-    const handlePress = () => {
-        navigate('/live', { state: { selectedKeyLive: signal.key_live } });
-    };
-
+function ChannelCard({ signal, focusKey, onCardFocus, onArrowLeft, onPress }: ChannelCardProps) {
     const { ref, focused } = useFocusable({
         focusKey,
-        onEnterPress: handlePress,
+        onEnterPress: () => onPress?.(),
         onFocus: () => onCardFocus(),
         onArrowPress: (direction) => {
             if (direction === 'left' && onArrowLeft) {
@@ -47,7 +42,7 @@ function ChannelCard({ signal, focusKey, onCardFocus, onArrowLeft }: ChannelCard
             ref={ref}
             className={classList}
             data-focuskey={focusKey}
-            onClick={handlePress}
+            onClick={onPress}
             onMouseEnter={() => setFocus(focusKey)}
         >
             {/* Background image del canal */}
@@ -83,10 +78,12 @@ function ChannelCard({ signal, focusKey, onCardFocus, onArrowLeft }: ChannelCard
 interface HomeLiveGridProps {
     signals: LiveSignal[];
     onRowFocused?: () => void;
+    /** Callback de navegación — inyectado desde el padre */
+    onSignalPress?: (signal: LiveSignal) => void;
 }
 
-function HomeLiveGrid({ signals, onRowFocused }: HomeLiveGridProps) {
-    const trackRef = useRef<HTMLDivElement>(null);
+function HomeLiveGrid({ signals, onRowFocused, onSignalPress }: HomeLiveGridProps) {
+    const { trackRef, scrollToCard } = useHorizontalScroll();
 
     const { ref, focusKey } = useFocusable({
         focusKey: 'HOME-LIVE-GRID',
@@ -95,28 +92,6 @@ function HomeLiveGrid({ signals, onRowFocused }: HomeLiveGridProps) {
         isFocusBoundary: false,
         onFocus: () => onRowFocused?.(),
     });
-
-    const scrollToCard = useCallback((cardFocusKey: string) => {
-        const track = trackRef.current;
-        if (!track) return;
-        const wrapper = track.parentElement;
-        if (!wrapper) return;
-
-        const child = track.querySelector(
-            `[data-focuskey="${cardFocusKey}"]`,
-        ) as HTMLElement | null;
-        if (!child) return;
-
-        const wrapperWidth = wrapper.offsetWidth;
-        const childLeft = child.offsetLeft;
-        const childWidth = child.offsetWidth;
-
-        const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-        const maxScroll = track.scrollWidth - wrapperWidth;
-        const clampedX = Math.max(0, Math.min(targetX, maxScroll));
-
-        track.style.transform = `translateX(-${clampedX}px)`;
-    }, []);
 
     if (!signals || signals.length === 0) return null;
 
@@ -138,6 +113,7 @@ function HomeLiveGrid({ signals, onRowFocused }: HomeLiveGridProps) {
                                     focusKey={cardKey}
                                     onCardFocus={() => scrollToCard(cardKey)}
                                     onArrowLeft={goToSidebar}
+                                    onPress={() => onSignalPress?.(signal)}
                                 />
                             );
                         })}

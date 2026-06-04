@@ -1,13 +1,17 @@
-import type { Category } from '@/interfaces/catalog.interface';
+import type { Category, Program, Event } from '@/interfaces/catalog.interface';
 import HomeCardCarrousel from './HomeCardCarrousel';
 import styles from './CarrouselContainerHome.module.css';
 
 interface CarrouselContainerProps {
     category: Category;
     onRowFocused?: () => void;
+    /** Callback de navegación para cards */
+    onProgramPress?: (program: Program | Event, format?: string) => void;
+    /** Callback de navegación para "Ver Más" */
+    onViewMorePress?: (slug: string, title?: string) => void;
 }
 
-function CarrouselContainerHome({ category, onRowFocused }: CarrouselContainerProps) {
+function CarrouselContainerHome({ category, onRowFocused, onProgramPress, onViewMorePress }: CarrouselContainerProps) {
     const bgImage = category.image_background_category?.default;
     const iconImage = category.image_logo_category?.medium;
     const hasBgImage = Boolean(bgImage && bgImage !== '');
@@ -63,6 +67,8 @@ function CarrouselContainerHome({ category, onRowFocused }: CarrouselContainerPr
                         format={format}
                         focusKeyPrefix={`cat-${category.key}`}
                         onRowFocused={onRowFocused}
+                        onProgramPress={onProgramPress}
+                        onViewMorePress={() => onViewMorePress?.(category.key, category.title)}
                     />
                 </div>
             </div>

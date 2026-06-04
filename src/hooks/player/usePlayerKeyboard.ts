@@ -56,7 +56,7 @@ const DEFAULT_FOCUS_KEYS = {
  *   que mostró la UI
  */
 export function usePlayerKeyboard(options: UsePlayerKeyboardOptions): void {
-  // Refs estables para evitar re-suscripciones del event listener (REGLA F4.2)
+  // Refs estables para evitar re-suscripciones del event listener 
   const onBackRef = useRef(options.onBack);
   onBackRef.current = options.onBack;
 

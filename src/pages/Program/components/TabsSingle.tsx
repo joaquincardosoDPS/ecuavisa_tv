@@ -93,7 +93,7 @@ function TabsSingle({ activeTab, setActiveTab, onTabsFocused }: TabsSingleProps)
         onFocus: (_layout, _props, details) => onTabsFocused?.(details),
     });
 
-    /** REGLA F5.1: centra el tab enfocado */
+    /** centra el tab enfocado */
     const scrollToTab = useCallback((tabFocusKey: string) => {
         const track = trackRef.current;
         if (!track) return;

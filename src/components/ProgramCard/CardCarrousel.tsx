@@ -82,7 +82,7 @@ function CardCarrousel({
         onFocus: () => onRowFocused?.(),
     });
 
-    /** REGLA F5.1: centra el card enfocado horizontalmente en el track */
+    /** centra el card enfocado horizontalmente en el track */
     const scrollToCard = useCallback((cardFocusKey: string) => {
         const track = trackRef.current;
         if (!track) return;

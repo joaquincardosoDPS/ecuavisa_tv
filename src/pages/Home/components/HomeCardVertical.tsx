@@ -1,7 +1,7 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
 import type { Program, Event } from '@/interfaces/catalog.interface';
 import { getEventStatus } from '@/utils/eventStatus';
+import { formatEventDate } from '../homeHelpers';
 import RankingIcon from '@/assets/img/icons/iconos-ranking.svg';
 import styles from './HomeCard.module.css';
 
@@ -12,11 +12,11 @@ interface HomeCardVerticalProps {
     focusKey: string;
     onCardFocus?: () => void;
     onArrowLeft?: () => void;
+    /** Callback de navegación — inyectado desde el padre (useHomeNavigation) */
+    onPress?: () => void;
 }
 
-function HomeCardVertical({ program, format, index, focusKey, onCardFocus, onArrowLeft }: HomeCardVerticalProps) {
-    const navigate = useNavigate();
-
+function HomeCardVertical({ program, format, index, focusKey, onCardFocus, onArrowLeft, onPress }: HomeCardVerticalProps) {
     const isEvent = format === 'event';
     const isRanking = format === 'ranking';
     const eventData = isEvent ? (program as Event) : null;
@@ -29,22 +29,9 @@ function HomeCardVertical({ program, format, index, focusKey, onCardFocus, onArr
     const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
     const showDate = eventStatus !== null && eventStatus.label === 'Próximamente';
 
-    /* REGLA F6.2: click = Enter */
-    const handlePress = () => {
-        if (isEvent && eventData) {
-            if (eventData.skip_view && eventData.program_associated?.key) {
-                navigate(`/programas/${eventData.program_associated.key}`);
-            } else {
-                navigate(`/eventos/${eventData.key}`);
-            }
-        } else {
-            navigate(`/programas/${program.key}`);
-        }
-    };
-
     const { ref, focused } = useFocusable({
         focusKey,
-        onEnterPress: handlePress,
+        onEnterPress: () => onPress?.(),
         onFocus: () => onCardFocus?.(),
         onArrowPress: (direction) => {
             if (direction === 'left' && onArrowLeft) {
@@ -63,7 +50,7 @@ function HomeCardVertical({ program, format, index, focusKey, onCardFocus, onArr
 
     return (
         <div className={styles.cardWrapper}>
-            <div ref={ref} className={classList} data-focuskey={focusKey} onClick={handlePress}>
+            <div ref={ref} className={classList} data-focuskey={focusKey} onClick={onPress}>
                 {/* Ranking badge */}
                 {isRanking && index != null && (
                     <div className={styles.rankingBadge}>
@@ -85,12 +72,7 @@ function HomeCardVertical({ program, format, index, focusKey, onCardFocus, onArr
                 {/* Event date overlay at bottom */}
                 {showDate && eventData && (
                     <div className={styles.eventDateOverlay}>
-                        {(() => {
-                            const d = new Date(eventData.gmt0_unlocked.replace(' ', 'T') + 'Z');
-                            const date = d.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'long' });
-                            const time = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
-                            return `${date}, ${time} hrs`;
-                        })()}
+                        {formatEventDate(eventData.gmt0_unlocked)}
                     </div>
                 )}
 

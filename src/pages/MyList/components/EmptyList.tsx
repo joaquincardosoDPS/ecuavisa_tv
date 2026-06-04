@@ -1,14 +1,15 @@
-import { useNavigate } from "react-router-dom";
 import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import plusRaw from "@/assets/img/icons/plus.svg?raw";
 import styles from "../MyList.module.css";
 
-function EmptyList() {
-  const navigate = useNavigate();
+interface EmptyListProps {
+  onPress?: () => void;
+}
 
+function EmptyList({ onPress }: EmptyListProps) {
   const { ref, focused } = useFocusable({
     focusKey: "MYLIST-EMPTY-BTN",
-    onEnterPress: () => navigate("/buscar"),
+    onEnterPress: () => onPress?.(),
   });
 
   const btnClass = [
@@ -21,7 +22,7 @@ function EmptyList() {
       <button
         ref={ref}
         className={btnClass}
-        onClick={() => navigate("/buscar")}
+        onClick={() => onPress?.()}
         dangerouslySetInnerHTML={{
           __html: plusRaw
             .replace(/width="[^"]*"/, 'width="80"')

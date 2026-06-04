@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   FocusContext,
   useFocusable,
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
-import { eventService } from '@/services/eventService';
-import { useFetch } from '@/hooks/useFetch';
-import { usePageScroll } from '@/hooks/usePageScroll';
+import { useEventData } from '@/hooks/event/useEventData';
+import { useEventNavigation } from '@/hooks/event/useEventNavigation';
+import { usePageScroll } from '@/hooks/shared/usePageScroll';
+import { useHorizontalScroll } from '@/hooks/shared/useHorizontalScroll';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { isInputAction } from '@/utils/keycodes';
 import type { Event } from '@/interfaces/catalog.interface';
@@ -20,31 +21,13 @@ import styles from './EventView.module.css';
 
 function EventView() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabKey>('relacionados');
 
-  // ── Data fetching ──
-
-  const { data: eventResponse, isLoading: isLoadingEvent } = useFetch(
-    () => eventService.getEvent(slug!),
-    [slug],
-    { enabled: !!slug },
-  );
-
-  const event = eventResponse?.data ?? null;
-  const categorySlug = event?.category?.slug;
-
-  const { data: eventsResponse, isLoading: isLoadingEvents } = useFetch(
-    () => eventService.getAll({ slug_exclude: slug || '', category: categorySlug }),
-    [slug, categorySlug],
-    { enabled: !!categorySlug },
-  );
-
-  const events = eventsResponse?.data ?? [];
-  const isLoading = isLoadingEvent || isLoadingEvents;
+  // ── Hooks de datos y navegación ──
+  const { event, relatedEvents, isLoading } = useEventData(slug);
+  const { goToEventPlay, goToEvent, goBack } = useEventNavigation();
 
   // ── Focus container ──
-
   const { ref: containerRef, focusKey } = useFocusable({
     focusKey: 'EVENT-VIEW',
     saveLastFocusedChild: true,
@@ -52,11 +35,13 @@ function EventView() {
   });
 
   // ── Page scroll ──
-
   const [scrollY, setScrollY] = useState(0);
   const { scrollRef, scrollToTop, scrollToSection, scrollToElement } = usePageScroll({
     onScroll: setScrollY,
   });
+
+  // ── Horizontal scroll (reutilizable) ──
+  const { trackRef, scrollToCard } = useHorizontalScroll();
 
   // ── Effects ──
 
@@ -73,12 +58,12 @@ function EventView() {
       if (isInputAction(e, 'Back')) {
         e.preventDefault();
         e.stopPropagation();
-        navigate(-1);
+        goBack();
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [navigate]);
+  }, [goBack]);
 
   // ── Callbacks ──
 
@@ -86,28 +71,8 @@ function EventView() {
     scrollToSection('content', 'start', window.innerHeight * 0.25);
   }, [scrollToSection]);
 
-  const trackRef = useRef<HTMLDivElement>(null);
-
   const handleCardFocus = useCallback((cardFocusKey: string) => {
-    // Horizontal scroll within carousel track
-    const track = trackRef.current;
-    if (track) {
-      const wrapper = track.parentElement;
-      if (wrapper) {
-        const child = track.querySelector(
-          `[data-focuskey="${cardFocusKey}"]`,
-        ) as HTMLElement | null;
-        if (child) {
-          const wrapperWidth = wrapper.offsetWidth;
-          const childLeft = child.offsetLeft;
-          const childWidth = child.offsetWidth;
-          const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-          const maxScroll = track.scrollWidth - wrapperWidth;
-          const clampedX = Math.max(0, Math.min(targetX, maxScroll));
-          track.style.transform = `translateX(-${clampedX}px)`;
-        }
-      }
-    }
+    scrollToCard(cardFocusKey);
 
     // Vertical page scroll to keep cards visible
     const scroller = scrollRef.current;
@@ -117,7 +82,11 @@ function EventView() {
       ) as HTMLElement | null;
       scrollToElement(card);
     }
-  }, [scrollRef, scrollToElement]);
+  }, [scrollToCard, scrollRef, scrollToElement]);
+
+  const handlePlay = useCallback(() => {
+    if (event) goToEventPlay(event);
+  }, [event, goToEventPlay]);
 
   // ── Render ──
 
@@ -138,6 +107,7 @@ function EventView() {
               <EventBannerContent
                 event={event}
                 onBannerFocused={scrollToTop}
+                onPlay={handlePlay}
               />
 
               <EventTabs
@@ -148,10 +118,10 @@ function EventView() {
 
               <div className={styles.contentArea}>
                 {activeTab === 'relacionados' && (
-                  events.length > 0 ? (
+                  relatedEvents.length > 0 ? (
                     <div className={styles.eventsWrapper}>
                       <div ref={trackRef} className={styles.eventsTrack}>
-                        {events.map((ev: Event, idx: number) => {
+                        {relatedEvents.map((ev: Event, idx: number) => {
                           const cardKey = `EVENT-CARD-${idx}`;
                           return (
                             <EventCard
@@ -159,6 +129,7 @@ function EventView() {
                               event={ev}
                               focusKey={cardKey}
                               onCardFocus={() => handleCardFocus(cardKey)}
+                              onPress={goToEvent}
                             />
                           );
                         })}
@@ -192,4 +163,3 @@ function EventView() {
 }
 
 export default EventView;
-

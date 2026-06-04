@@ -34,7 +34,7 @@ const EndOfEpisodeScreenComponent = ({
   onBack,
   onCancelTransition,
 }: EndOfEpisodeScreenProps) => {
-  // Focus wrapper para el video PiP (REGLA F6.1 / F6.2)
+  // Focus wrapper para el video PiP
   const { ref: pipVideoRef, focused: pipVideoFocused } = useFocusable({
     focusKey: "PIP-VIDEO",
     onEnterPress: () => {

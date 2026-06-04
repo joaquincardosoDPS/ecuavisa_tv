@@ -1,7 +1,7 @@
-import { fetchAppConfig } from '../services/configService';
-import { useConfigStore } from '../features/config/useConfigStore';
-import { useAuthStore } from '../features/auth/authStore';
-import { registerTVKeys } from '../utils/platform';
+import { fetchAppConfig } from '../../services/configService';
+import { useConfigStore } from '../../features/config/useConfigStore';
+import { useAuthStore } from '../../features/auth/authStore';
+import { registerTVKeys } from '../../utils/platform';
 import { useEffect, useRef } from 'react';
 import { useFetch } from './useFetch';
 

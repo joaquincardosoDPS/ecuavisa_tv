@@ -1,7 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { appRouter } from "./router"
 import { FullScreenSpinner } from "./components/ui/FullScreenSpinner";
-import { useAppInitialization } from "./hooks/useAppInitilization";
+import { useAppInitialization } from "./hooks/shared/useAppInitilization";
 
 
 function App() {

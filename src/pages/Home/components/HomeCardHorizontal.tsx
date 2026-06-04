@@ -1,7 +1,7 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
 import type { Program, Event } from '@/interfaces/catalog.interface';
 import { getEventStatus } from '@/utils/eventStatus';
+import { formatEventDate } from '../homeHelpers';
 import styles from './HomeCard.module.css';
 
 interface HomeCardHorizontalProps {
@@ -10,11 +10,11 @@ interface HomeCardHorizontalProps {
     focusKey: string;
     onCardFocus?: () => void;
     onArrowLeft?: () => void;
+    /** Callback de navegación — inyectado desde el padre (useHomeNavigation) */
+    onPress?: () => void;
 }
 
-function HomeCardHorizontal({ program, format, focusKey, onCardFocus, onArrowLeft }: HomeCardHorizontalProps) {
-    const navigate = useNavigate();
-
+function HomeCardHorizontal({ program, format, focusKey, onCardFocus, onArrowLeft, onPress }: HomeCardHorizontalProps) {
     const isEvent = format === 'event';
     const eventData = isEvent ? (program as Event) : null;
     const programData = !isEvent ? (program as Program) : null;
@@ -26,22 +26,9 @@ function HomeCardHorizontal({ program, format, focusKey, onCardFocus, onArrowLef
     const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
     const showDate = eventStatus !== null && eventStatus.label === 'Próximamente';
 
-    /* REGLA F6.2: click = Enter */
-    const handlePress = () => {
-        if (isEvent && eventData) {
-            if (eventData.skip_view && eventData.program_associated?.key) {
-                navigate(`/programas/${eventData.program_associated.key}`);
-            } else {
-                navigate(`/eventos/${eventData.key}`);
-            }
-        } else {
-            navigate(`/programas/${program.key}`);
-        }
-    };
-
     const { ref, focused } = useFocusable({
         focusKey,
-        onEnterPress: handlePress,
+        onEnterPress: () => onPress?.(),
         onFocus: () => onCardFocus?.(),
         onArrowPress: (direction) => {
             if (direction === 'left' && onArrowLeft) {
@@ -60,7 +47,7 @@ function HomeCardHorizontal({ program, format, focusKey, onCardFocus, onArrowLef
 
     return (
         <div className={styles.cardWrapper}>
-            <div ref={ref} className={classList} data-focuskey={focusKey} onClick={handlePress}>
+            <div ref={ref} className={classList} data-focuskey={focusKey} onClick={onPress}>
                 {/* Event status badge */}
                 {eventStatus && (
                     <span
@@ -94,12 +81,7 @@ function HomeCardHorizontal({ program, format, focusKey, onCardFocus, onArrowLef
             {showDate && eventData && (
                 <div className={styles.eventDateInfo}>
                     <span className={styles.eventDateText}>
-                        {(() => {
-                            const d = new Date(eventData.gmt0_unlocked.replace(' ', 'T') + 'Z');
-                            const date = d.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'long' });
-                            const time = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
-                            return `${date}, ${time} hrs`;
-                        })()}
+                        {formatEventDate(eventData.gmt0_unlocked)}
                     </span>
                     <span className={styles.eventDateTitle}>{program.title}</span>
                 </div>

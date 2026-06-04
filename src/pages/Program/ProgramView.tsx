@@ -4,10 +4,11 @@ import {
   useFocusable,
   setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
-import type { Program, Segment } from "@/interfaces/catalog.interface";
-import { usePageScroll } from "@/hooks/usePageScroll";
-import { useRelatedPrograms } from "@/hooks/useRelatedPrograms";
-import { useContinueWatching } from "@/hooks/useContinueWatching";
+import type { Program, Segment, Chapter } from "@/interfaces/catalog.interface";
+import { usePageScroll } from "@/hooks/shared/usePageScroll";
+import { useRelatedPrograms } from "@/hooks/program/useRelatedPrograms";
+import { useContinueWatching } from "@/hooks/program/useContinueWatching";
+import { useProgramNavigation } from "@/hooks/program/useProgramNavigation";
 import Banner, { BannerBackground } from "./components/Banner";
 import Tabs from "./components/Tabs";
 import DetailsProgram from "./components/DetailsProgram";
@@ -62,6 +63,9 @@ function ProgramView({
     programDetail.key, activeSegment?.key, activeSeason,
   );
 
+  // Navegación centralizada
+  const { goToPlayerFromBanner, goToPlayer, goToProgram } = useProgramNavigation();
+
   const { ref, focusKey } = useFocusable({
     focusKey: "PROGRAM-VIEW",
     saveLastFocusedChild: true,
@@ -90,6 +94,14 @@ function ProgramView({
     setIsLoading(false);
   }, [setIsLoading]);
 
+  const handlePlay = useCallback(() => {
+    goToPlayerFromBanner(programDetail, continueWatchingItem);
+  }, [goToPlayerFromBanner, programDetail, continueWatchingItem]);
+
+  const handleChapterPress = useCallback((chapter: Chapter, resumeTime?: number) => {
+    goToPlayer(programDetail.key, chapter.key_segment, chapter.season, chapter.chapter, resumeTime);
+  }, [goToPlayer, programDetail.key]);
+
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} className={styles.pageWrapper}>
@@ -100,6 +112,7 @@ function ProgramView({
             program={programDetail}
             onBannerFocused={scrollToTop}
             continueWatchingItem={continueWatchingItem}
+            onPlay={handlePlay}
           />
 
           <div data-section="tabs" className={styles.mainContent}>
@@ -129,6 +142,7 @@ function ProgramView({
                   isFetchingNextPage={isFetchingNextPage}
                   hasNextPage={hasNextPage}
                   fetchNextPage={fetchNextPage}
+                  onProgramPress={goToProgram}
                 />
               ) : showDetails ? (
                 <DetailsProgram programDetail={programDetail} />
@@ -142,6 +156,7 @@ function ProgramView({
                   onLoaded={handleChaptersLoaded}
                   showChapter={programDetail.active_number}
                   progressMap={progressMap}
+                  onChapterPress={handleChapterPress}
                 />
               )}
             </div>

@@ -1,5 +1,5 @@
 import { catalogService } from '@/services/catalogService';
-import { useFetch } from './useFetch';
+import { useFetch } from '../shared/useFetch';
 
 export const useProgramDetail = (slug: string) => {
     const programQuery = useFetch(

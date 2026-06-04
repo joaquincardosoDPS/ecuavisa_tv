@@ -5,9 +5,10 @@ import {
   setFocus,
 } from "@noriginmedia/norigin-spatial-navigation";
 import type { Program } from "@/interfaces/catalog.interface";
-import { useFetch } from "@/hooks/useFetch";
-import { usePageScroll } from "@/hooks/usePageScroll";
-import { useRelatedPrograms } from "@/hooks/useRelatedPrograms";
+import { useFetch } from "@/hooks/shared/useFetch";
+import { usePageScroll } from "@/hooks/shared/usePageScroll";
+import { useRelatedPrograms } from "@/hooks/program/useRelatedPrograms";
+import { useProgramNavigation } from "@/hooks/program/useProgramNavigation";
 import { catalogService } from "@/services/catalogService";
 import Banner, { BannerBackground } from "./components/Banner";
 import TabsSingle, { type ActiveTab } from "./components/TabsSingle";
@@ -50,6 +51,9 @@ function ProgramSingleView({
   // Single episode: solo "Recomendados" y "Detalles"
   const [activeTab, setActiveTab] = useState<ActiveTab>("related");
 
+  // Navegación centralizada
+  const { goToPlayerFromBannerSingle, goToProgram } = useProgramNavigation();
+
   const { ref, focusKey } = useFocusable({
     focusKey: "PROGRAM-SINGLE-VIEW",
     saveLastFocusedChild: true,
@@ -58,7 +62,7 @@ function ProgramSingleView({
     autoRestoreFocus: true,
   });
 
-  // REGLA F4.1: foco imperativo al botón Play al montar
+  // foco imperativo al botón Play al montar
   useEffect(() => {
     setFocus("program-single-btn-play");
   }, []);
@@ -80,6 +84,10 @@ function ProgramSingleView({
     }
   }, [isLoadingChapters, isLoadingRelated, setIsLoading]);
 
+  const handlePlay = useCallback(() => {
+    goToPlayerFromBannerSingle(programDetail, chapter ?? undefined);
+  }, [goToPlayerFromBannerSingle, programDetail, chapter]);
+
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} className={styles.pageWrapper}>
@@ -91,6 +99,7 @@ function ProgramSingleView({
             isSingle={true}
             chapter={chapter ?? undefined}
             onBannerFocused={scrollToTop}
+            onPlay={handlePlay}
           />
 
           <div data-section="tabs" className={styles.mainContent}>
@@ -117,6 +126,7 @@ function ProgramSingleView({
                   isFetchingNextPage={isFetchingNextPage}
                   hasNextPage={hasNextPage}
                   fetchNextPage={fetchNextPage}
+                  onProgramPress={goToProgram}
                 />
               )}
             </div>

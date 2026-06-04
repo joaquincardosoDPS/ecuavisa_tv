@@ -34,7 +34,7 @@
     background-color: #00604e;
 }
 
-/* ── Focus / Hover: REGLA 2.3 visible a 3m, REGLA F6.1 hover = focus ── */
+
 .card.focused,
 .card:hover {
     z-index: 10;
@@ -209,6 +209,8 @@
     width: 100%;
     overflow: visible;
     padding-left: 16px;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }
 
 .track {

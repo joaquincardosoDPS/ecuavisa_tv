@@ -1,24 +1,30 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useDebounce } from '@/hooks/useDebounce';
-import { catalogService } from '@/services/catalogService';
+import { useSearchData } from '@/hooks/search/useSearchData';
+import { useSearchNavigation } from '@/hooks/search/useSearchNavigation';
 import { OnScreenKeyboard } from '@/components/ui/OnScreenKeyboard';
 import ProgramGrid from '@/components/ProgramCard/ProgramGrid';
-import type { Program } from '@/interfaces/catalog.interface';
 import styles from './SearchView.module.css';
 
-const SEARCH_LIMIT = 12;
-
 function SearchView() {
-    const [query, setQuery] = useState('');
-    const [programs, setPrograms] = useState<Program[]>([]);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [isError, setIsError] = useState(false);
-    const debouncedQuery = useDebounce(query, 500);
+    /* ── Hooks de datos y navegación ── */
+    const {
+        query,
+        debouncedQuery,
+        programs,
+        isLoading,
+        isLoadingMore,
+        isError,
+        hasMore,
+        loadMore,
+        appendChar,
+        deleteChar,
+        clearQuery,
+    } = useSearchData();
 
+    const { goToProgram } = useSearchNavigation();
+
+    /* ── UI / Foco ── */
     const { ref, focusKey } = useFocusable({
         focusKey: 'SEARCH',
         saveLastFocusedChild: true,
@@ -29,70 +35,6 @@ function SearchView() {
     useEffect(() => {
         setFocus('SEARCH-KB');
     }, []);
-
-    /* Búsqueda inicial con debounce — resetea paginación */
-    useEffect(() => {
-        if (debouncedQuery.trim().length === 0) {
-            setPrograms([]);
-            setPage(1);
-            setHasMore(false);
-            return;
-        }
-
-        let cancelled = false;
-        setIsLoading(true);
-        setIsError(false);
-        setPage(1);
-
-        catalogService
-            .searchPrograms({ search: debouncedQuery, limit: SEARCH_LIMIT, page: 1 })
-            .then((res) => {
-                if (!cancelled) {
-                    const results = res.data || [];
-                    setPrograms(results);
-                    setHasMore(results.length >= SEARCH_LIMIT);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) setIsError(true);
-            })
-            .finally(() => {
-                if (!cancelled) setIsLoading(false);
-            });
-
-        return () => { cancelled = true; };
-    }, [debouncedQuery]);
-
-    /* Cargar más resultados */
-    const loadMore = useCallback(() => {
-        if (isLoadingMore || !hasMore) return;
-
-        const nextPage = page + 1;
-        setIsLoadingMore(true);
-
-        catalogService
-            .searchPrograms({ search: debouncedQuery, limit: SEARCH_LIMIT, page: nextPage })
-            .then((res) => {
-                const results = res.data || [];
-                setPrograms((prev) => [...prev, ...results]);
-                setPage(nextPage);
-                setHasMore(results.length >= SEARCH_LIMIT);
-
-                /* Mover foco al primer resultado nuevo (REGLA F4.1) */
-                if (results.length > 0) {
-                    const firstNewId = results[0].id;
-                    setTimeout(() => {
-                        setFocus(`SEARCH-RESULTS-${firstNewId}`);
-                    }, 100);
-                }
-            })
-            .catch(() => {
-                /* silencioso — el usuario puede reintentar */
-            })
-            .finally(() => {
-                setIsLoadingMore(false);
-            });
-    }, [debouncedQuery, page, hasMore, isLoadingMore, programs.length]);
 
     return (
         <FocusContext.Provider value={focusKey}>
@@ -113,10 +55,10 @@ function SearchView() {
                     <div className={styles.keyboardPanel}>
                         <OnScreenKeyboard
                             focusKeyPrefix="SEARCH-KB"
-                            onInput={(char) => setQuery((prev) => prev + char)}
+                            onInput={appendChar}
                             onSearch={() => {/* ya busca con debounce */ }}
-                            onDelete={() => setQuery((prev) => prev.slice(0, -1))}
-                            onClear={() => setQuery('')}
+                            onDelete={deleteChar}
+                            onClear={clearQuery}
                         />
                     </div>
 
@@ -136,6 +78,7 @@ function SearchView() {
                                 hasMore={hasMore}
                                 isLoadingMore={isLoadingMore}
                                 onLoadMore={loadMore}
+                                onProgramPress={goToProgram}
                             />
                         )}
                     </div>

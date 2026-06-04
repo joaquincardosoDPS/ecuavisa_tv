@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
-import { useNavigate } from "react-router-dom";
-import { usePlayerEpisode } from "@/hooks/usePlayerEpisode";
+import { usePlayerEpisode } from "@/hooks/player/usePlayerEpisode";
+import { usePlayerNavigation } from "@/hooks/player/usePlayerNavigation";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import { EndOfEpisodeScreen } from "./components/EndOfEpisodeScreen";
@@ -37,7 +37,7 @@ function toVideoPlayerChapter(ch: Chapter): VideoPlayerChapter {
 const PIP_THRESHOLD = 30;
 
 function PlayerView() {
-  const navigate = useNavigate();
+  const { goToEpisode } = usePlayerNavigation();
 
   const {
     loading,
@@ -88,7 +88,7 @@ function PlayerView() {
     }
   }, [loading, error]);
 
-  // Back key handler for loading/error states (REGLA 4.1)
+  // Back key handler for loading/error states
   useEffect(() => {
     if (!loading && !error) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -109,11 +109,9 @@ function PlayerView() {
   const handleEpisodeSelect = useCallback(
     (ep: VideoPlayerChapter) => {
       setIsEndingTransition(false);
-      const prog = programKey || '';
-      const seg = ep.key_segment || segment || '';
-      navigate(`/play/${prog}/${seg}/${ep.season}/${ep.chapter}`);
+      goToEpisode(programKey || '', ep, segment);
     },
-    [navigate, programKey, segment],
+    [goToEpisode, programKey, segment],
   );
 
   /** Auto-navegar al siguiente episodio o volver al programa */
@@ -157,7 +155,7 @@ function PlayerView() {
             }
           }
 
-          // Foco imperativo al botón principal (REGLA F4.1)
+          // Foco imperativo al botón principal
           setTimeout(() => {
             setFocus(hasNext ? "PIP-BTN-NEXT" : "PIP-BTN-EPISODES");
           }, 200);

@@ -21,7 +21,7 @@ interface UseUIVisibilityReturn {
  * Usado por VideoPlayer (VOD) y LivePlayer (Live).
  *
  * Auto-oculta los controles después de `autoHideMs` milisegundos.
- * Se resetea con movimiento de mouse (Magic Mouse — REGLA F6.1).
+ * Se resetea con movimiento de mouse .
  */
 export function useUIVisibility(options?: UseUIVisibilityOptions): UseUIVisibilityReturn {
   const autoHideMs = (options && options.autoHideMs !== undefined) ? options.autoHideMs : 4000;
@@ -64,7 +64,7 @@ export function useUIVisibility(options?: UseUIVisibilityOptions): UseUIVisibili
     }
   }, [preventHide]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // On mount: iniciar auto-hide + escuchar mousemove (Magic Mouse — REGLA F6.1)
+  // On mount: iniciar auto-hide + escuchar mousemove
   useEffect(() => {
     if (isUIVisible && !hideTimeoutRef.current) {
       resetUIVisibility();

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
 import type { Chapter } from '@/interfaces/catalog.interface';
 import styles from '../ProgramPage.module.css';
 
@@ -12,6 +11,7 @@ interface ChapterCardProps {
     showChapter?: boolean;
     onCardFocus?: () => void;
     resumeTime?: number;
+    onPress?: (chapter: Chapter, resumeTime?: number) => void;
 }
 
 /** Convierte "HH:MM:SS" o "MM:SS" a minutos */
@@ -40,15 +40,12 @@ function ChapterCard({
     showChapter = true,
     onCardFocus,
     resumeTime,
+    onPress,
 }: ChapterCardProps) {
-    const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
 
     const handlePress = () => {
-        navigate(
-            `/play/${programKey}/${chapter.key_segment}/${chapter.season}/${chapter.chapter}`,
-            resumeTime ? { state: { resumeTime } } : undefined,
-        );
+        onPress?.(chapter, resumeTime);
     };
 
     const { ref, focused } = useFocusable({

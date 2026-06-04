@@ -5,7 +5,7 @@ import {
 } from "@noriginmedia/norigin-spatial-navigation";
 import type { Segment } from "@/interfaces/catalog.interface";
 import type { HistoryItem } from "@/interfaces/history.interface";
-import { useChapters } from "@/hooks/useChapters";
+import { useChapters } from "@/hooks/program/useChapters";
 import ChapterCard from "./ChapterCard";
 import SeasonSelector from "./SeasonSelector";
 import styles from "../ProgramPage.module.css";
@@ -23,6 +23,7 @@ interface ChaptersContainerProps {
   showChapter?: boolean;
   onContentFocused?: () => void;
   progressMap?: Map<string, HistoryItem>;
+  onChapterPress?: (chapter: any, resumeTime?: number) => void;
 }
 
 function ChaptersContainer({
@@ -35,6 +36,7 @@ function ChaptersContainer({
   showChapter = true,
   onContentFocused,
   progressMap,
+  onChapterPress,
 }: ChaptersContainerProps) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -124,6 +126,7 @@ function ChaptersContainer({
                     showChapter={showChapter}
                     onCardFocus={() => handleCardFocus(cardKey, index)}
                     resumeTime={historyItem?.end === 0 ? historyItem.time : undefined}
+                    onPress={onChapterPress}
                   />
                 );
               })}

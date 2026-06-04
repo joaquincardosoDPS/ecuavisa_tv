@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   FocusContext,
   useFocusable,
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation';
-import { useAuthStore } from '@/features/auth/authStore';
-import { profileService } from '@/services/profileService';
-import { useFetch } from '@/hooks/useFetch';
+import { useProfilesData } from '@/hooks/profiles/useProfilesData';
+import { useWhoIsThereNavigation } from '@/hooks/profiles/useProfilesNavigation';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { Button } from '@/components/ui/Button';
 import { useConfigStore } from '@/features/config/useConfigStore';
@@ -111,16 +109,14 @@ function ProfileCard({
 
 // ── Add Profile Card (focusable) ──
 
-function AddProfileCard({ focusKey, disabled }: { focusKey: string; disabled?: boolean }) {
-  const navigate = useNavigate();
-
-  const goToCreate = () => {
-    if (!disabled) navigate('/mi-latina/nuevo', { replace: true });
+function AddProfileCard({ focusKey, disabled, onPress }: { focusKey: string; disabled?: boolean; onPress?: () => void }) {
+  const handlePress = () => {
+    if (!disabled) onPress?.();
   };
 
   const { ref, focused } = useFocusable({
     focusKey,
-    onEnterPress: goToCreate,
+    onEnterPress: handlePress,
     focusable: !disabled,
     onArrowPress: (direction) => {
       if (direction === 'down') {
@@ -135,7 +131,7 @@ function AddProfileCard({ focusKey, disabled }: { focusKey: string; disabled?: b
     <button
       ref={ref}
       className={styles.profileCard}
-      onClick={goToCreate}
+      onClick={handlePress}
     >
       <div className={`${styles.avatarWrapper} ${focused ? styles.avatarWrapperFocused : ''}`}>
         <span className={`${styles.addIcon} ${focused ? styles.addIconFocused : ''}`}>+</span>
@@ -157,24 +153,16 @@ function getAvatarUrl(profile: Profile): string | null {
 // ── Main View ──
 
 function WhoIsThereView() {
-  const navigate = useNavigate();
   const logo = useConfigStore((s) => s.config?.logo) || fallbackLogo;
-  const token = useAuthStore((s) => s.token);
   const [editMode, setEditMode] = useState(false);
 
+  /* ── Hooks de datos y navegación ── */
+  const { token, profiles, isLoading, isError, selectProfile, logout } = useProfilesData();
+  const { goToLogin, goToLive, goToCreateProfile, goToEditProfile } = useWhoIsThereNavigation();
+
   useEffect(() => {
-    if (!token) {
-      navigate('/auth/login', { replace: true });
-    }
-  }, [token, navigate]);
-
-  const { data: profilesResponse, isLoading, isError } = useFetch(
-    () => profileService.getAll(token!),
-    [token],
-    { enabled: !!token },
-  );
-
-  const profiles = profilesResponse?.data || [];
+    if (!token) goToLogin();
+  }, [token, goToLogin]);
 
   const { ref: containerRef, focusKey } = useFocusable({
     focusKey: 'WHOISTHERE-VIEW',
@@ -217,13 +205,8 @@ function WhoIsThereView() {
 
   const handleSelectProfile = (profile: Profile) => {
     console.log('[WhoIsThere] Selected:', profile.name_perfil, profile.id);
-    useAuthStore.getState().setActiveProfile(profile);
-    // As in latest config, direct users into the app proper upon selection
-    navigate('/live', { replace: true });
-  };
-
-  const handleEditProfile = (profile: Profile) => {
-    navigate(`/mi-latina/${profile.id}`, { replace: true });
+    selectProfile(profile);
+    goToLive();
   };
 
   return (
@@ -256,14 +239,14 @@ function WhoIsThereView() {
                       focusKey={`whoisthere-profile-${profile.id}`}
                       onSelect={() => handleSelectProfile(profile)}
                       editMode={editMode}
-                      onEdit={() => handleEditProfile(profile)}
+                      onEdit={() => goToEditProfile(profile.id)}
                       prevFocusKey={prevKey}
                       nextFocusKey={nextKey}
                     />
                   );
                 })}
                 {profiles.length < 4 && (
-                  <AddProfileCard focusKey="whoisthere-profile-add" disabled={editMode} />
+                  <AddProfileCard focusKey="whoisthere-profile-add" disabled={editMode} onPress={goToCreateProfile} />
                 )}
               </div>
             </FocusContext.Provider>
@@ -288,8 +271,8 @@ function WhoIsThereView() {
                 focusKey="whoisthere-logout-btn"
                 variant="tertiary"
                 onPress={() => {
-                  useAuthStore.getState().logout();
-                  navigate('/auth/login', { replace: true });
+                  logout();
+                  goToLogin();
                 }}
                 onArrowPress={(direction) => {
                   if (direction === 'up') {

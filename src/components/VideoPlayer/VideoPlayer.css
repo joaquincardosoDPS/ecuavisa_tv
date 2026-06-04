@@ -22,7 +22,7 @@
     max-height: 100%;
     object-fit: contain;
     display: block;
-    /* Transición suave para PiP usando solo transform (REGLA 1.2) */
+    /* Transición suave para PiP usando solo transform  */
     transition: transform 0.6s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
     transform-origin: bottom right;
 }
@@ -59,12 +59,21 @@
 
 /* --- PiP Background (fadeIn animation used by parent) --- */
 @keyframes pipBgFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+    from {
+        opacity: 0;
+    }
 
+    to {
+        opacity: 1;
+    }
+}
