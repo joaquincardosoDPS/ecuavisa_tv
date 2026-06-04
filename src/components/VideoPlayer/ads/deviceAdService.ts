@@ -177,21 +177,32 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
 }
 
 /**
- * Pre-resuelve URLs de VMAP de Rudo a la URL VAST real de Google Ad Manager.
- * Esto evita el problema de CORS donde IMA SDK (en su iframe) no puede
- * acceder a rudo.video directamente desde HTTP (localhost).
- *
- * Si la URL NO es de rudo.video, la devuelve sin cambios.
- * Si el fetch falla, devuelve null (no hay ad disponible).
+ * Resultado de resolver una URL VAST.
+ * - `urls`: Array de URLs VAST a intentar (waterfall de prerolls del VMAP)
  */
-export async function resolveVastUrl(vastUrl: string): Promise<string | null> {
+export interface ResolvedVast {
+    urls: string[];
+}
+
+/**
+ * Pre-resuelve URLs de VMAP de Rudo.
+ *
+ * Si la URL es de rudo.video/ads/vmap/, fetcha el VMAP y extrae TODAS
+ * las AdTagURIs de preroll para que VastPlayer las pruebe en secuencia
+ * (waterfall). Esto evita:
+ * 1. El problema de CORS (IMA no puede acceder a rudo.video desde su iframe)
+ * 2. Perder el waterfall por solo tomar el primer AdTagURI
+ *
+ * Si la URL NO es de rudo.video, la devuelve como URL única.
+ */
+export async function resolveVastUrl(vastUrl: string): Promise<ResolvedVast | null> {
     if (!vastUrl || vastUrl.trim() === '' || vastUrl === 'none') {
         return null;
     }
 
     // Solo pre-resolver URLs de rudo.video/ads/vmap/
     if (vastUrl.indexOf('rudo.video/ads/vmap/') === -1) {
-        return vastUrl; // Ya es una URL directa (Google, etc.)
+        return { urls: [vastUrl] }; // Ya es una URL directa (Google, etc.)
     }
 
     try {
@@ -204,7 +215,7 @@ export async function resolveVastUrl(vastUrl: string): Promise<string | null> {
 
         const xmlText = await response.text();
 
-        // Parsear VMAP XML para extraer AdTagURI
+        // Parsear VMAP XML
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -214,22 +225,37 @@ export async function resolveVastUrl(vastUrl: string): Promise<string | null> {
             return null;
         }
 
-        // Buscar el primer AdTagURI (preroll)
-        const adTagUri = xmlDoc.querySelector(
-            'vmap\\:AdTagURI, AdTagURI'
+        // Extraer TODAS las AdTagURIs de prerolls (timeOffset="start")
+        const adBreaks = xmlDoc.querySelectorAll(
+            'vmap\\:AdBreak, AdBreak'
         );
+        const prerollUrls: string[] = [];
 
-        if (adTagUri && adTagUri.textContent) {
-            const resolvedUrl = adTagUri.textContent.trim();
-            console.log('[VAST Resolve] VAST tag resuelto:', resolvedUrl.substring(0, 100) + '...');
-            return resolvedUrl;
+        adBreaks.forEach((adBreak) => {
+            const timeOffset = adBreak.getAttribute('timeOffset');
+            if (timeOffset !== 'start') return; // Solo prerolls
+
+            const adTagUri = adBreak.querySelector(
+                'vmap\\:AdTagURI, AdTagURI'
+            );
+            if (adTagUri && adTagUri.textContent) {
+                const url = adTagUri.textContent.trim();
+                if (url) prerollUrls.push(url);
+            }
+        });
+
+        if (prerollUrls.length === 0) {
+            console.warn('[VAST Resolve] No se encontraron AdTagURIs de preroll en VMAP');
+            return null;
         }
 
-        console.warn('[VAST Resolve] No se encontró AdTagURI en VMAP');
-        return null;
+        console.log(`[VAST Resolve] ${prerollUrls.length} preroll URLs encontradas (waterfall)`);
+        return { urls: prerollUrls };
 
     } catch (error) {
         console.error('[VAST Resolve] Error pre-fetching VMAP:', error);
         return null;
     }
 }
+
+

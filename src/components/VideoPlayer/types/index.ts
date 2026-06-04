@@ -58,6 +58,8 @@ export interface VideoPlayerProps {
     description?: string;
     isLive?: boolean;
     vastUrl?: string;
+    /** Array de URLs VAST pre-resueltas (waterfall de prerolls) */
+    vastUrls?: string[];
     livetoken?: string;
     rudoKey?: string;
     autoplay?: boolean;

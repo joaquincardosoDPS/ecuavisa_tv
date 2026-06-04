@@ -30,6 +30,7 @@ export function usePlayerEpisode() {
   const [programKey, setProgramKey] = useState("");
   const [m3u8, setM3u8] = useState("");
   const [vastUrl, setVastUrl] = useState<string | undefined>(undefined);
+  const [vastUrls, setVastUrls] = useState<string[]>([]);
   const [initialSeconds, setInitialSeconds] = useState<number | undefined>(
     undefined,
   );
@@ -160,8 +161,11 @@ export function usePlayerEpisode() {
         try {
           const vmapData = await adsService.getVodAds(chapterData.key);
           if (!cancelled && vmapData) {
-            const prerollVast = adsService.getPrerollVastUrl(vmapData);
-            setVastUrl(prerollVast);
+            const allPrerollUrls = adsService.getAllPrerollVastUrls(vmapData);
+            if (allPrerollUrls.length > 0) {
+              setVastUrls(allPrerollUrls);
+              setVastUrl(allPrerollUrls[0]); // backward compat
+            }
           }
         } catch {
           // Ads not available, continue without
@@ -278,6 +282,7 @@ export function usePlayerEpisode() {
     episodes,
     m3u8,
     vastUrl,
+    vastUrls,
     segment,
 
     // Shrink

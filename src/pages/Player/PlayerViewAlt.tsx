@@ -53,6 +53,7 @@ function PlayerViewAlt() {
     vodSlug,
     m3u8,
     vastUrl,
+    vastUrls,
     initialSeconds,
     episodes,
     goBack,
@@ -220,6 +221,7 @@ function PlayerViewAlt() {
           description={programTitle}
           rudoKey={currentKey}
           vastUrl={vastUrl}
+          vastUrls={vastUrls}
           autoplay
           onBack={goBack}
           pipMode={false}

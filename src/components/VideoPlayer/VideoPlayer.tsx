@@ -24,6 +24,7 @@ const VideoPlayerComponent = ({
   description,
   isLive = false,
   vastUrl,
+  vastUrls,
   livetoken,
   rudoKey,
   autoplay = true,
@@ -58,20 +59,22 @@ const VideoPlayerComponent = ({
   }, []);
 
   // Evaluar política de ads (síncrono — evaluated siempre es true)
-  const { shouldPlayAds, effectiveVastUrl } = useAdsPolicy({
+  const { shouldPlayAds, effectiveVastUrl, effectiveVastUrls } = useAdsPolicy({
     vastUrl,
+    vastUrls,
   });
 
   // Estado de ads: inicializado sincrónicamente con shouldPlayAds
   // para evitar que HLS arranque con autoplay antes de saber si hay ads.
   const [playingAds, setPlayingAds] = useState(shouldPlayAds);
+  const adsCompletedRef = useRef(false);
 
   // Si vastUrl llega después del mount (carga paralela), activar ads
   useEffect(() => {
-    if (shouldPlayAds && effectiveVastUrl && !playingAds) {
+    if (shouldPlayAds && (effectiveVastUrl || effectiveVastUrls) && !playingAds && !adsCompletedRef.current) {
       setPlayingAds(true);
     }
-  }, [shouldPlayAds, effectiveVastUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [shouldPlayAds, effectiveVastUrl, effectiveVastUrls]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── UI Visibility (hook compartido) ──
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -210,15 +213,12 @@ const VideoPlayerComponent = ({
 
   // Callbacks de VAST
   const handleAdsPlaying = useCallback(() => {
-    // No llamamos setPlayingAds(true) ni pause() aquí porque:
-    // - playingAds ya es true desde el mount (el VastPlayer solo se monta si playingAds=true)
-    // - el useEffect de línea 124 ya pausó y muteó el video HLS
-    // Re-setear el state causa re-renders innecesarios que generan flickeo visual en TVs.
     analytics.onAdStarted();
     if (onAdsPlaying) onAdsPlaying();
   }, [analytics, onAdsPlaying]);
 
   const handleAdsFinished = useCallback(() => {
+    adsCompletedRef.current = true;
     setPlayingAds(false);
 
     const video = videoRef.current;
@@ -227,15 +227,12 @@ const VideoPlayerComponent = ({
     }
 
     // En TVs, HLS se inicializó con autoplay=false (por los ads).
-    // El manifest ya se parseó, pero el video nunca hizo su primer play().
-    // Forzamos startLoad en HLS para que el buffer esté listo,
-    // luego intentamos play con fallback a canplay.
+    // Forzamos startLoad + play para reanudar el contenido.
     const hls = hlsStream.hlsRef?.current;
     if (hls) {
       try { hls.startLoad(-1); } catch (_e) { /* ignore */ }
     }
 
-    // Intentar play — si el video no está listo, esperar canplay
     if (video) {
       if (video.readyState >= 2) {
         video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error:', err));
@@ -244,8 +241,6 @@ const VideoPlayerComponent = ({
           video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error (canplay):', err));
         };
         video.addEventListener('canplay', onReady, { once: true });
-
-        // Safety timeout: si canplay no llega en 5s, forzar play de todos modos
         setTimeout(() => {
           video.removeEventListener('canplay', onReady);
           video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error (timeout):', err));
@@ -295,9 +290,10 @@ const VideoPlayerComponent = ({
     <FocusContext.Provider value={focusKey}>
       <div ref={playerFocusRef} className={`video-player-container${pipMode ? " pip-active" : ""}`} onClick={handleBackgroundClick}>
         {/* VAST Ads overlay */}
-        {playingAds && effectiveVastUrl && (
+        {playingAds && (effectiveVastUrl || effectiveVastUrls) && (
           <VastPlayer
             url={effectiveVastUrl}
+            vastUrls={effectiveVastUrls}
             onAdsPlaying={handleAdsPlaying}
             onAdsFinished={handleAdsFinished}
           />

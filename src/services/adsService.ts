@@ -33,12 +33,13 @@ export const adsService = {
     },
 
     /**
-     * Extrae la primera URL VAST de preroll del VMAP parseado.
-     * Esta es la URL directa a Google Ad Manager que el IMA SDK puede consumir.
+     * Extrae TODAS las URLs VAST de preroll del VMAP parseado (waterfall).
+     * El VastPlayer las intentará en secuencia hasta encontrar una que tenga ads.
      */
-    getPrerollVastUrl: (parsed: ParsedVmapData): string | undefined => {
-        if (!parsed.hasAds || parsed.prerollAds.length === 0) return undefined;
-        const vastUrl = parsed.prerollAds[0].adSource.adTagUri;
-        return vastUrl || undefined;
+    getAllPrerollVastUrls: (parsed: ParsedVmapData): string[] => {
+        if (!parsed.hasAds || parsed.prerollAds.length === 0) return [];
+        return parsed.prerollAds
+            .map((ad) => ad.adSource.adTagUri)
+            .filter((url): url is string => !!url);
     },
 };
