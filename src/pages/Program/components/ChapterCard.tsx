@@ -6,7 +6,6 @@ import styles from '../ProgramPage.module.css';
 interface ChapterCardProps {
     chapter: Chapter;
     index: number;
-    programKey: string;
     focusKey: string;
     showChapter?: boolean;
     onCardFocus?: () => void;
@@ -35,7 +34,6 @@ function durationToMinutes(duration: any): string {
 
 function ChapterCard({
     chapter,
-    programKey,
     focusKey,
     showChapter = true,
     onCardFocus,

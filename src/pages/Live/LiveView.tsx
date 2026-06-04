@@ -49,7 +49,7 @@ function LiveView() {
     setTimeout(() => setFocus("LIVE-GRID"), 100);
   }, []);
 
-  // Keyboard: Back solo sale de fullscreen — en vista normal lo maneja el global (exit modal)
+  // Uso para salir de pantalla completa
   useEffect(() => {
     if (!isFullscreen) return;
     const handleKeyDown = (e: KeyboardEvent) => {

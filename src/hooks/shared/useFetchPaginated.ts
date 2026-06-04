@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface PaginatedResponse<T> {
-    data: T[];
+    data?: T[];
     last_page?: number;
 }
 

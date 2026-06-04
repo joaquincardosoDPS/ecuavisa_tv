@@ -15,7 +15,6 @@ const PREFETCH_THRESHOLD = 3;
 
 interface ChaptersContainerProps {
   slug: string;
-  programKey: string;
   activeSegment: Segment | null;
   activeSeason: number | null;
   setActiveSeason: (season: number) => void;
@@ -28,7 +27,6 @@ interface ChaptersContainerProps {
 
 function ChaptersContainer({
   slug,
-  programKey,
   activeSegment,
   activeSeason,
   setActiveSeason,
@@ -121,7 +119,6 @@ function ChaptersContainer({
                     key={cardKey}
                     chapter={enrichedChapter}
                     index={index + 1}
-                    programKey={programKey}
                     focusKey={cardKey}
                     showChapter={showChapter}
                     onCardFocus={() => handleCardFocus(cardKey, index)}

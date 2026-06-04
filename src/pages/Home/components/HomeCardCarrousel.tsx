@@ -47,7 +47,6 @@ interface HomeCardCarrouselProps {
     programs: (Program | Event)[];
     orientation?: 'horizontal' | 'vertical';
     categorySlug?: string;
-    categoryTitle?: string;
     format?: string;
     focusKeyPrefix: string;
     /** Callback cuando la fila recibe foco (para scroll vertical del padre) */
@@ -64,7 +63,6 @@ function HomeCardCarrousel({
     programs,
     orientation = 'horizontal',
     categorySlug,
-    categoryTitle,
     format,
     focusKeyPrefix,
     onRowFocused,

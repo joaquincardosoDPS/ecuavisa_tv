@@ -63,7 +63,6 @@ function CarrouselContainerHome({ category, onRowFocused, onProgramPress, onView
                         programs={category.programs}
                         orientation={finalOrientation}
                         categorySlug={category.key}
-                        categoryTitle={category.title}
                         format={format}
                         focusKeyPrefix={`cat-${category.key}`}
                         onRowFocused={onRowFocused}

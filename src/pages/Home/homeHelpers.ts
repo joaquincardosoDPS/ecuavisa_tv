@@ -1,4 +1,3 @@
-import type { Event } from '@/interfaces/catalog.interface';
 import type { HistoryItem } from '@/interfaces/history.interface';
 
 /**

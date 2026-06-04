@@ -88,7 +88,6 @@ function HomeView() {
                                         programs={recommended}
                                         orientation="vertical"
                                         categorySlug="recomendados"
-                                        categoryTitle={recommendedTitle}
                                         focusKeyPrefix="recommended"
                                         onRowFocused={makeRowFocusHandler('recommended')}
                                         onProgramPress={goToProgramOrEvent}

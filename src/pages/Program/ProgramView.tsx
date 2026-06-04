@@ -149,7 +149,6 @@ function ProgramView({
               ) : (
                 <ChaptersContainer
                   slug={slug || ""}
-                  programKey={programDetail.key}
                   activeSegment={activeSegment}
                   activeSeason={activeSeason}
                   setActiveSeason={setActiveSeason}

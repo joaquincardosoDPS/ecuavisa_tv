@@ -121,7 +121,6 @@ function ProgramsView() {
                                                 programs={category.programs}
                                                 orientation="horizontal"
                                                 categorySlug={category.key}
-                                                categoryTitle={category.title}
                                                 focusKeyPrefix={sectionId}
                                                 onRowFocused={() => handleCardFocused(sectionId, index)}
                                                 onProgramFocused={(p) => {
