@@ -303,20 +303,23 @@ const VastPlayerComponent = ({ url, portalTarget, onAdsPlaying, onAdsFinished }:
                 }}
                 playsInline
             />
-            {isLoading && (
-                <div
+            <div
+                    className="vast-loading-overlay"
                     style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        backgroundColor: '#000',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         zIndex: 10000,
+                        opacity: isLoading ? 1 : 0,
+                        pointerEvents: isLoading ? 'auto' : 'none',
+                        transition: 'opacity 0.3s ease-out',
                     }}
                 >
                     <div
@@ -335,7 +338,6 @@ const VastPlayerComponent = ({ url, portalTarget, onAdsPlaying, onAdsFinished }:
                     </span>
                     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 </div>
-            )}
         </div>,
         portalTarget || document.body
     );

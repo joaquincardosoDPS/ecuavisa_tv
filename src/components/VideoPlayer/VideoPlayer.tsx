@@ -210,11 +210,13 @@ const VideoPlayerComponent = ({
 
   // Callbacks de VAST
   const handleAdsPlaying = useCallback(() => {
-    setPlayingAds(true);
-    pause();
+    // No llamamos setPlayingAds(true) ni pause() aquí porque:
+    // - playingAds ya es true desde el mount (el VastPlayer solo se monta si playingAds=true)
+    // - el useEffect de línea 124 ya pausó y muteó el video HLS
+    // Re-setear el state causa re-renders innecesarios que generan flickeo visual en TVs.
     analytics.onAdStarted();
     if (onAdsPlaying) onAdsPlaying();
-  }, [pause, analytics, onAdsPlaying]);
+  }, [analytics, onAdsPlaying]);
 
   const handleAdsFinished = useCallback(() => {
     setPlayingAds(false);
