@@ -218,13 +218,42 @@ const VideoPlayerComponent = ({
 
   const handleAdsFinished = useCallback(() => {
     setPlayingAds(false);
-    if (videoRef.current) {
-      videoRef.current.muted = false;
+
+    const video = videoRef.current;
+    if (video) {
+      video.muted = false;
     }
-    play();
+
+    // En TVs, HLS se inicializó con autoplay=false (por los ads).
+    // El manifest ya se parseó, pero el video nunca hizo su primer play().
+    // Forzamos startLoad en HLS para que el buffer esté listo,
+    // luego intentamos play con fallback a canplay.
+    const hls = hlsStream.hlsRef?.current;
+    if (hls) {
+      try { hls.startLoad(-1); } catch (_e) { /* ignore */ }
+    }
+
+    // Intentar play — si el video no está listo, esperar canplay
+    if (video) {
+      if (video.readyState >= 2) {
+        video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error:', err));
+      } else {
+        const onReady = () => {
+          video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error (canplay):', err));
+        };
+        video.addEventListener('canplay', onReady, { once: true });
+
+        // Safety timeout: si canplay no llega en 5s, forzar play de todos modos
+        setTimeout(() => {
+          video.removeEventListener('canplay', onReady);
+          video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error (timeout):', err));
+        }, 5000);
+      }
+    }
+
     analytics.onAdCompleted();
     if (onAdsFinished) onAdsFinished();
-  }, [play, analytics, onAdsFinished]);
+  }, [hlsStream.hlsRef, analytics, onAdsFinished]);
 
   const handleBackgroundClick = useCallback(
     (e: React.MouseEvent) => {
