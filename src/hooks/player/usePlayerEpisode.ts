@@ -190,26 +190,38 @@ export function usePlayerEpisode() {
         const promises: Promise<void>[] = [];
 
         if (token && activeProfile) {
-          promises.push((async () => {
-            try {
-              const timelineRes = await historyService.getTimeline(
-                token,
-                activeProfile.id,
-                [chapterData!.slug],
-              );
-              const timelineItem = timelineRes.data?.[0];
-              if (
-                !cancelled &&
-                timelineItem &&
-                timelineItem.end === 0 &&
-                timelineItem.time > 0
-              ) {
-                setInitialSeconds(timelineItem.time);
-              }
-            } catch {
-              // Timeline not available, start from beginning
+          // Si se pasó resumeTime explícito en el state (incluso 0), usarlo
+          // sin consultar el historial. Esto permite reiniciar desde el inicio.
+          const navState = window.history.state?.usr as { resumeTime?: number } | undefined;
+          const explicitResume = navState?.resumeTime;
+
+          if (explicitResume !== undefined) {
+            if (!cancelled && explicitResume > 0) {
+              setInitialSeconds(explicitResume);
             }
-          })());
+            // Si es 0, no seteamos initialSeconds → el player inicia desde 0
+          } else {
+            promises.push((async () => {
+              try {
+                const timelineRes = await historyService.getTimeline(
+                  token,
+                  activeProfile.id,
+                  [chapterData!.slug],
+                );
+                const timelineItem = timelineRes.data?.[0];
+                if (
+                  !cancelled &&
+                  timelineItem &&
+                  timelineItem.end === 0 &&
+                  timelineItem.time > 0
+                ) {
+                  setInitialSeconds(timelineItem.time);
+                }
+              } catch {
+                // Timeline not available, start from beginning
+              }
+            })());
+          }
         }
 
         if (!isNoSegments) {

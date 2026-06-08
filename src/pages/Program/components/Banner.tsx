@@ -57,6 +57,7 @@ interface BannerProps {
   onBannerFocused?: () => void;
   continueWatchingItem?: HistoryItem | null;
   onPlay?: () => void;
+  onRestart?: () => void;
 }
 
 /** Contenido del banner (info + botones) — dentro del pageScroller */
@@ -67,6 +68,7 @@ function Banner({
   onBannerFocused,
   continueWatchingItem,
   onPlay,
+  onRestart,
 }: BannerProps) {
   return (
     <>
@@ -76,6 +78,7 @@ function Banner({
           onBannerFocused={onBannerFocused}
           continueWatchingItem={continueWatchingItem}
           onPlay={onPlay}
+          onRestart={onRestart}
         />
       ) : (
         <InfoBannerSingle

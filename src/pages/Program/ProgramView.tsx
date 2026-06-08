@@ -98,6 +98,20 @@ function ProgramView({
     goToPlayerFromBanner(programDetail, continueWatchingItem);
   }, [goToPlayerFromBanner, programDetail, continueWatchingItem]);
 
+  const handleRestart = useCallback(() => {
+    if (continueWatchingItem) {
+      goToPlayer(
+        programDetail.key,
+        continueWatchingItem.key_segment,
+        continueWatchingItem.season,
+        continueWatchingItem.chapter,
+        0,
+      );
+    } else {
+      goToPlayerFromBanner(programDetail);
+    }
+  }, [goToPlayer, goToPlayerFromBanner, programDetail, continueWatchingItem]);
+
   const handleChapterPress = useCallback((chapter: Chapter, resumeTime?: number) => {
     goToPlayer(programDetail.key, chapter.key_segment, chapter.season, chapter.chapter, resumeTime);
   }, [goToPlayer, programDetail.key]);
@@ -113,6 +127,7 @@ function ProgramView({
             onBannerFocused={scrollToTop}
             continueWatchingItem={continueWatchingItem}
             onPlay={handlePlay}
+            onRestart={handleRestart}
           />
 
           <div data-section="tabs" className={styles.mainContent}>

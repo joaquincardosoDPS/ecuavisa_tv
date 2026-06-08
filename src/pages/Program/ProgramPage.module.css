@@ -183,6 +183,45 @@
     font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
+/* Botón Reiniciar (circular, junto al Play cuando hay historial) */
+.restartBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    color: #ffffff;
+}
+
+.restartBtn.focused,
+.restartBtn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: #ffe500;
+    box-shadow: 0 0 12px rgba(255, 229, 0, 0.3);
+}
+
+.restartIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+}
+
+.restartIcon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.restartIcon svg circle {
+    fill: transparent;
+}
+
 /* ── Barra de progreso ── */
 .progressUnderAction {
     position: absolute;

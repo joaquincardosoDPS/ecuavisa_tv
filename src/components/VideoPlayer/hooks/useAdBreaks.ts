@@ -14,6 +14,8 @@ interface UseAdBreaksProps {
   isEnded: boolean;
   /** Si es contenido en vivo (no aplican ad breaks) */
   isLive: boolean;
+  /** Tiempo inicial de reanudación — los midrolls antes de este punto se ignoran */
+  initialSeconds?: number;
 }
 
 interface ActiveAdBreak {
@@ -46,6 +48,7 @@ export function useAdBreaks({
   duration,
   isEnded,
   isLive,
+  initialSeconds,
 }: UseAdBreaksProps): UseAdBreaksResult {
   const [activeAdBreak, setActiveAdBreak] = useState<ActiveAdBreak | null>(null);
 
@@ -61,12 +64,15 @@ export function useAdBreaks({
   // Reset cuando cambian los cuepoints (nuevo episodio)
   useEffect(() => {
     playedCuepointsRef.current = new Set();
-    lastCheckedTimeRef.current = 0;
     postrollPlayedRef.current = false;
     resumeAfterAdTimeRef.current = null;
     setActiveAdBreak(null);
     setPlayedCuepointsVersion(0);
-  }, [midrollCuepoints]);
+
+    // Inicializar lastCheckedTime al punto de reanudación para que
+    // los midrolls anteriores al resume no se disparen.
+    lastCheckedTimeRef.current = initialSeconds ?? 0;
+  }, [midrollCuepoints, initialSeconds]);
 
   // Array estable de cuepoints jugados para el seekbar
   const playedCuepointsArray = useMemo(() => {

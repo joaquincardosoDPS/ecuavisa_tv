@@ -152,6 +152,7 @@ const VideoPlayerComponent = ({
     duration,
     isEnded: hlsIsEnded,
     isLive,
+    initialSeconds,
   });
 
   // Pausar el video principal cuando hay un ad break activo

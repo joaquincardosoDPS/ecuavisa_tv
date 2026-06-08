@@ -5,7 +5,7 @@
     viewmodes="maximized">
     <tizen:application id="DigitalPS.latinatv" package="DigitalPS" required_version="2.3"/>
     <content src="index.html"/>
-    <icon src="favicon.svg"/>
+    <icon src="icon.png"/>
     <name>Latina TV</name>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/application.launch"/>

@@ -15,7 +15,7 @@ export function useProgramNavigation() {
     ) => {
         navigate(
             `/play/${programKey}/${segmentKey}/${season}/${chapter}`,
-            resumeTime ? { state: { resumeTime } } : undefined,
+            resumeTime !== undefined ? { state: { resumeTime } } : undefined,
         );
     };
 
