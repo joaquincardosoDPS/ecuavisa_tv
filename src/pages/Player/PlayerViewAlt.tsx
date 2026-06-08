@@ -54,6 +54,8 @@ function PlayerViewAlt() {
     m3u8,
     vastUrl,
     vastUrls,
+    midrollCuepoints,
+    postrollVastUrls,
     initialSeconds,
     episodes,
     goBack,
@@ -262,6 +264,8 @@ function PlayerViewAlt() {
           onRestartChapter={handleRestartChapter}
           onNextChapter={handleNextChapter}
           hasNextChapter={hasNextChapter}
+          midrollCuepoints={midrollCuepoints}
+          postrollVastUrls={postrollVastUrls}
         />
 
         {/* Card flotante "A continuación" — se renderiza

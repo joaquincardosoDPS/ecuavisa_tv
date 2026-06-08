@@ -2,6 +2,9 @@
 // All types used by the VideoPlayer module are defined here.
 // External consumers should import types from '@/components/VideoPlayer'.
 
+export type { AdBreakCuepoint } from '@/services/adsService';
+
+
 export interface ImageSet {
     small: string;
     medium: string;
@@ -90,6 +93,10 @@ export interface VideoPlayerProps {
     onNextChapter?: () => void;
     /** Si hay un capítulo siguiente disponible */
     hasNextChapter?: boolean;
+    /** Cuepoints de midroll con timestamps y URLs VAST */
+    midrollCuepoints?: AdBreakCuepoint[];
+    /** URLs VAST de postroll */
+    postrollVastUrls?: string[];
 }
 
 export interface VodMediaInfo {

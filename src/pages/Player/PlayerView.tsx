@@ -49,6 +49,8 @@ function PlayerView() {
     m3u8,
     vastUrl,
     vastUrls,
+    midrollCuepoints,
+    postrollVastUrls,
     initialSeconds,
     episodes,
     goBack,
@@ -260,6 +262,8 @@ function PlayerView() {
           onRestartChapter={handleRestartChapter}
           onNextChapter={handleNextChapter}
           hasNextChapter={hasNextChapter}
+          midrollCuepoints={midrollCuepoints}
+          postrollVastUrls={postrollVastUrls}
         />
 
         {/* Pantalla de fin de episodio (background + info) — se renderiza 

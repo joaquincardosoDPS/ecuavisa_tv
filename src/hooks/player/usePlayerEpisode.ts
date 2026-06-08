@@ -4,6 +4,7 @@ import { catalogService } from "@/services/catalogService";
 import { useAuthStore } from "@/features/auth/authStore";
 import { historyService } from "@/services/historyService";
 import { adsService } from "@/services/adsService";
+import type { AdBreakCuepoint } from "@/services/adsService";
 import type { Chapter } from "@/interfaces/catalog.interface";
 
 /** Segundos antes de terminar en los que el player se achica */
@@ -31,6 +32,8 @@ export function usePlayerEpisode() {
   const [m3u8, setM3u8] = useState("");
   const [vastUrl, setVastUrl] = useState<string | undefined>(undefined);
   const [vastUrls, setVastUrls] = useState<string[]>([]);
+  const [midrollCuepoints, setMidrollCuepoints] = useState<AdBreakCuepoint[]>([]);
+  const [postrollVastUrls, setPostrollVastUrls] = useState<string[]>([]);
   const [initialSeconds, setInitialSeconds] = useState<number | undefined>(
     undefined,
   );
@@ -166,6 +169,12 @@ export function usePlayerEpisode() {
               setVastUrls(allPrerollUrls);
               setVastUrl(allPrerollUrls[0]); // backward compat
             }
+
+            // Midroll y postroll
+            const midrolls = adsService.getMidrollAdBreaks(vmapData);
+            const postrolls = adsService.getPostrollVastUrls(vmapData);
+            setMidrollCuepoints(midrolls);
+            setPostrollVastUrls(postrolls);
           }
         } catch {
           // Ads not available, continue without
@@ -266,6 +275,8 @@ export function usePlayerEpisode() {
     setNextChapter(null);
     setRemainingSeconds(SHRINK_THRESHOLD_SECONDS);
     setInitialSeconds(undefined);
+    setMidrollCuepoints([]);
+    setPostrollVastUrls([]);
   }, [segment, season, chapter]);
 
   return {
@@ -283,6 +294,8 @@ export function usePlayerEpisode() {
     m3u8,
     vastUrl,
     vastUrls,
+    midrollCuepoints,
+    postrollVastUrls,
     segment,
 
     // Shrink

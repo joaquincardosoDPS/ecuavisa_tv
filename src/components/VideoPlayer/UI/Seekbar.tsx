@@ -26,6 +26,10 @@ interface SeekbarProps {
   onNextChapter?: () => void;
   /** Si hay un capítulo siguiente disponible */
   hasNextChapter?: boolean;
+  /** Cuepoints de midroll para marcadores visuales */
+  adCuepoints?: { timeSeconds: number }[];
+  /** Array de tiempos de cuepoints ya reproducidos */
+  playedCuepoints?: number[];
 }
 
 const formatTime = (seconds: number) => {
@@ -54,6 +58,8 @@ const SeekbarComponent = ({
   onRestartChapter,
   onNextChapter,
   hasNextChapter = false,
+  adCuepoints,
+  playedCuepoints,
 }: SeekbarProps) => {
   const [position, setPosition] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
@@ -411,7 +417,26 @@ const SeekbarComponent = ({
                 outline: "none",
               }}
             />
-          </div>
+              {adCuepoints?.map((cp) => {
+                const pos = duration > 0 ? (cp.timeSeconds / duration) * 100 : 0;
+                const isPlayed = playedCuepoints?.includes(cp.timeSeconds) ?? false;
+                return (
+                  <div
+                    key={cp.timeSeconds}
+                    style={{
+                      position: 'absolute',
+                      left: `${pos}%`,
+                      top: 0,
+                      width: '4px',
+                      height: '100%',
+                      backgroundColor: isPlayed ? '#666' : '#FFD700',
+                      zIndex: 2,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                );
+              })}
+            </div>
         </>
       )}
     </div>

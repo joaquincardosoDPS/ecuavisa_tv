@@ -4,6 +4,7 @@ import { useHlsStream } from "@/hooks/player/useHlsStream";
 import { usePlayerKeyboard } from "@/hooks/player/usePlayerKeyboard";
 import { useUIVisibility } from "@/hooks/player/useUIVisibility";
 import { useAdsPolicy } from "./hooks/useAdsPolicy";
+import { useAdBreaks } from "./hooks/useAdBreaks";
 import { usePlayerAnalytics } from "./hooks/usePlayerAnalytics";
 import { useWatchHistory } from "./hooks/useWatchHistory";
 import { VastPlayer } from "./ads/VastPlayer";
@@ -44,6 +45,8 @@ const VideoPlayerComponent = ({
   onRestartChapter,
   onNextChapter,
   hasNextChapter = false,
+  midrollCuepoints = [],
+  postrollVastUrls = [],
 }: VideoPlayerProps) => {
   // Norigin spatial navigation context for the player
   const { ref: playerFocusRef, focusKey } = useFocusable({
@@ -112,6 +115,7 @@ const VideoPlayerComponent = ({
     currentTime,
     duration,
     loadedTime,
+    isEnded: hlsIsEnded,
     play,
     pause,
   } = hlsStream;
@@ -133,6 +137,29 @@ const VideoPlayerComponent = ({
       videoRef.current.muted = true;
     }
   }, [playingAds]);
+
+  // ── Ad Breaks (midroll / postroll) ──
+  const {
+    activeAdBreak,
+    isAdBreakActive,
+    onAdBreakFinished,
+    playedCuepointsArray,
+    resumeAfterAdTime,
+  } = useAdBreaks({
+    midrollCuepoints,
+    postrollVastUrls,
+    currentTime,
+    duration,
+    isEnded: hlsIsEnded,
+    isLive,
+  });
+
+  // Pausar el video principal cuando hay un ad break activo
+  useEffect(() => {
+    if (isAdBreakActive && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isAdBreakActive]);
 
   // ── Keyboard (hook compartido) ──
   usePlayerKeyboard({
@@ -207,12 +234,16 @@ const VideoPlayerComponent = ({
   }, [currentTime, duration, playingAds, isLive, analytics, onTimeUpdate]);
 
   // Notificar al padre cuando el video termina naturalmente
+  // Si hay postroll, esperar a que termine antes de disparar onEnded
   useEffect(() => {
-    if (hlsStream.isEnded) {
+    if (hlsIsEnded) {
       saveProgress(1); // Marcar episodio actual como finalizado
-      if (onEnded) onEnded();
+      // Solo disparar onEnded si NO hay postroll pendiente
+      if (!isAdBreakActive && onEnded) {
+        onEnded();
+      }
     }
-  }, [hlsStream.isEnded, saveProgress, onEnded]);
+  }, [hlsIsEnded, isAdBreakActive, saveProgress, onEnded]);
 
   // Callbacks de VAST
   const handleAdsPlaying = useCallback(() => {
@@ -255,6 +286,46 @@ const VideoPlayerComponent = ({
     if (onAdsFinished) onAdsFinished();
   }, [hlsStream.hlsRef, analytics, onAdsFinished]);
 
+  // Handler para cuando termina un ad break de midroll/postroll
+  const handleMidPostAdFinished = useCallback(() => {
+    // Capturar resume time ANTES de limpiar el ad break (el hook lo resetea)
+    const seekResumeTo = resumeAfterAdTime;
+    onAdBreakFinished();
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = false;
+
+    // Si hay una posición de resume (seek-triggered midroll), hacer seek ahí
+    if (seekResumeTo !== null && seekResumeTo > 0) {
+      video.currentTime = seekResumeTo;
+    }
+
+    // Reanudar playback
+    if (video.readyState >= 2) {
+      video.play().catch(err => console.warn('[VideoPlayer] Post-midroll play error:', err));
+    } else {
+      const onReady = () => {
+        video.play().catch(err => console.warn('[VideoPlayer] Post-midroll play error (canplay):', err));
+      };
+      video.addEventListener('canplay', onReady, { once: true });
+      setTimeout(() => {
+        video.removeEventListener('canplay', onReady);
+        video.play().catch(err => console.warn('[VideoPlayer] Post-midroll play error (timeout):', err));
+      }, 5000);
+    }
+
+    // Si era postroll y el video ya terminó, disparar onEnded ahora
+    if (hlsIsEnded && onEnded) {
+      onEnded();
+    }
+  }, [onAdBreakFinished, resumeAfterAdTime, hlsIsEnded, onEnded]);
+
+  const handleMidPostAdPlaying = useCallback(() => {
+    analytics.onAdStarted();
+  }, [analytics]);
+
   const handleBackgroundClick = useCallback(
     (e: React.MouseEvent) => {
       const target = e.target as Element;
@@ -293,12 +364,22 @@ const VideoPlayerComponent = ({
     <FocusContext.Provider value={focusKey}>
       <div ref={playerFocusRef} className={`video-player-container${pipMode ? " pip-active" : ""}`} onClick={handleBackgroundClick}>
         {/* VAST Ads overlay */}
+        {/* Preroll ads overlay */}
         {playingAds && (effectiveVastUrl || effectiveVastUrls) && (
           <VastPlayer
             url={effectiveVastUrl}
             vastUrls={effectiveVastUrls}
             onAdsPlaying={handleAdsPlaying}
             onAdsFinished={handleAdsFinished}
+          />
+        )}
+
+        {/* Midroll / Postroll ads overlay */}
+        {isAdBreakActive && activeAdBreak && (
+          <VastPlayer
+            vastUrls={activeAdBreak.vastUrls}
+            onAdsPlaying={handleMidPostAdPlaying}
+            onAdsFinished={handleMidPostAdFinished}
           />
         )}
 
@@ -315,7 +396,7 @@ const VideoPlayerComponent = ({
         />
 
         {/* UI Overlay (ocultar durante modo PiP) */}
-        {!playingAds && !hideUI && (!pipMode || forceControlsVisible) && (
+        {!playingAds && !isAdBreakActive && !hideUI && (!pipMode || forceControlsVisible) && (
           <>
             <PlayerTopBar
               title={title}
@@ -346,12 +427,14 @@ const VideoPlayerComponent = ({
               onRestartChapter={onRestartChapter}
               onNextChapter={onNextChapter}
               hasNextChapter={hasNextChapter}
+              adCuepoints={midrollCuepoints}
+              playedCuepoints={playedCuepointsArray}
             />
           </>
         )}
 
         {/* Spinner de carga */}
-        {isLoading && !playingAds && (
+        {isLoading && !playingAds && !isAdBreakActive && (
           <div className="video-player-spinner">
             <Spinner />
           </div>

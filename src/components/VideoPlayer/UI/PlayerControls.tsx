@@ -172,6 +172,10 @@ interface PlayerControlsProps {
   onNextChapter?: () => void;
   /** Si hay un capítulo siguiente disponible */
   hasNextChapter?: boolean;
+  /** Cuepoints de midroll para marcadores en el seekbar */
+  adCuepoints?: { timeSeconds: number; vastUrls: string[] }[];
+  /** Array de tiempos de cuepoints ya reproducidos */
+  playedCuepoints?: number[];
 }
 
 const PlayerControlsComponent = ({
@@ -198,6 +202,8 @@ const PlayerControlsComponent = ({
   onRestartChapter,
   onNextChapter,
   hasNextChapter = false,
+  adCuepoints,
+  playedCuepoints,
 }: PlayerControlsProps) => {
   const [isChaptersSidebarOpen, setIsChaptersSidebarOpen] = useState(false);
 
@@ -264,6 +270,8 @@ const PlayerControlsComponent = ({
             onRestartChapter={onRestartChapter}
             onNextChapter={onNextChapter}
             hasNextChapter={hasNextChapter}
+            adCuepoints={adCuepoints}
+            playedCuepoints={playedCuepoints}
           />
         </div>
 
