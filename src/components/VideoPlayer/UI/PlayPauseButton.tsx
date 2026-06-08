@@ -27,6 +27,14 @@ const PlayPauseButtonComponent = ({
         setFocus("PLAYER-BTN-BACK");
         return false;
       }
+      if (direction === "left") {
+        setFocus("PLAYER-BTN-SKIP-REW");
+        return false;
+      }
+      if (direction === "right") {
+        setFocus("PLAYER-BTN-SKIP-FWD");
+        return false;
+      }
       return true;
     },
   });

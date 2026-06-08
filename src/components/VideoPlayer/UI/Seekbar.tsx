@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { SkipButton } from "./SkipButton";
 import { PlayPauseButton } from "./PlayPauseButton";
+import { ChapterButton } from "./ChapterButton";
 
 interface SeekbarProps {
   seekTime?: number;
@@ -19,6 +20,12 @@ interface SeekbarProps {
   onVolumeChange?: (volume: number) => void;
   onMuteToggle?: () => void;
   onFullscreen?: () => void;
+  /** Callback para reiniciar el capítulo actual */
+  onRestartChapter?: () => void;
+  /** Callback para pasar al siguiente capítulo */
+  onNextChapter?: () => void;
+  /** Si hay un capítulo siguiente disponible */
+  hasNextChapter?: boolean;
 }
 
 const formatTime = (seconds: number) => {
@@ -44,6 +51,9 @@ const SeekbarComponent = ({
   onSeek,
   onPlayPause,
   onSkip,
+  onRestartChapter,
+  onNextChapter,
+  hasNextChapter = false,
 }: SeekbarProps) => {
   const [position, setPosition] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
@@ -212,15 +222,18 @@ const SeekbarComponent = ({
   }, [duration]);
 
   const stopDpadSeeking = useCallback(() => {
+    const wasSeeking = seekIntervalRef.current !== null;
     if (seekIntervalRef.current) {
       clearInterval(seekIntervalRef.current);
       seekIntervalRef.current = null;
     }
-    // Aplicar la posición final
-    setPosition((prev) => {
-      applySeek(prev);
-      return prev;
-    });
+    // Solo aplicar seek si estábamos buscando activamente
+    if (wasSeeking) {
+      setPosition((prev) => {
+        applySeek(prev);
+        return prev;
+      });
+    }
   }, [applySeek]);
 
   // Cleanup on unmount
@@ -325,9 +338,11 @@ const SeekbarComponent = ({
               display: "flex",
               alignItems: "center",
             }}>
+              <ChapterButton action="restart" onClick={onRestartChapter} />
               <SkipButton seconds={-10} onClick={() => onSkip && onSkip(-10)} />
               <PlayPauseButton playing={playing} onClick={onPlayPause} />
               <SkipButton seconds={10} onClick={() => onSkip && onSkip(10)} />
+              <ChapterButton action="next" onClick={onNextChapter} disabled={!hasNextChapter} />
             </div>
           </div>
 

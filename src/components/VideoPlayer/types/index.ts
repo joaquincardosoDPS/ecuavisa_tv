@@ -84,6 +84,12 @@ export interface VideoPlayerProps {
     userToken?: string;
     /** ID del perfil activo */
     userProfile?: string;
+    /** Callback para reiniciar el capítulo actual */
+    onRestartChapter?: () => void;
+    /** Callback para pasar al siguiente capítulo */
+    onNextChapter?: () => void;
+    /** Si hay un capítulo siguiente disponible */
+    hasNextChapter?: boolean;
 }
 
 export interface VodMediaInfo {

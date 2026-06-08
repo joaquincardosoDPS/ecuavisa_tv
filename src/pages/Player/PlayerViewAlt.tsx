@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useState, useRef, useMemo } from "react";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { usePlayerEpisode } from "@/hooks/player/usePlayerEpisode";
 import { usePlayerNavigation } from "@/hooks/player/usePlayerNavigation";
@@ -119,6 +119,33 @@ function PlayerViewAlt() {
     [goToEpisode, programKey, segment],
   );
 
+  /** Determinar si hay un capítulo siguiente */
+  const computedNextEpisode = useMemo(() => {
+    if (videoPlayerEpisodes.length === 0 || !currentKey) return null;
+    const current = videoPlayerEpisodes.find((ep) => ep.key === currentKey);
+    if (!current) return null;
+    return videoPlayerEpisodes.find(
+      (ep) => ep.season === current.season && ep.chapter === current.chapter + 1,
+    ) || null;
+  }, [videoPlayerEpisodes, currentKey]);
+
+  const hasNextChapter = computedNextEpisode !== null;
+
+  /** Reiniciar el capítulo actual (seek a 0) */
+  const handleRestartChapter = useCallback(() => {
+    const video = document.getElementById('hls-video-player') as HTMLVideoElement | null;
+    if (video) {
+      video.currentTime = 0;
+    }
+  }, []);
+
+  /** Pasar al siguiente capítulo */
+  const handleNextChapter = useCallback(() => {
+    if (computedNextEpisode) {
+      handleEpisodeSelect(computedNextEpisode);
+    }
+  }, [computedNextEpisode, handleEpisodeSelect]);
+
   /** Auto-navegar al siguiente episodio o volver al programa */
   const autoNavigateToNext = useCallback(() => {
     if (autoNavFiredRef.current) return;
@@ -232,6 +259,9 @@ function PlayerViewAlt() {
           vodSlug={vodSlug}
           userToken={token || undefined}
           userProfile={activeProfile?.id || undefined}
+          onRestartChapter={handleRestartChapter}
+          onNextChapter={handleNextChapter}
+          hasNextChapter={hasNextChapter}
         />
 
         {/* Card flotante "A continuación" — se renderiza

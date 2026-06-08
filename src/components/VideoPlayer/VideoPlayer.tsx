@@ -41,6 +41,9 @@ const VideoPlayerComponent = ({
   vodSlug,
   userToken,
   userProfile,
+  onRestartChapter,
+  onNextChapter,
+  hasNextChapter = false,
 }: VideoPlayerProps) => {
   // Norigin spatial navigation context for the player
   const { ref: playerFocusRef, focusKey } = useFocusable({
@@ -340,6 +343,9 @@ const VideoPlayerComponent = ({
               onSkip={handleSkip}
               onHideControls={() => setIsUIVisible(false)}
               onSidebarVisibilityChange={setIsSidebarOpen}
+              onRestartChapter={onRestartChapter}
+              onNextChapter={onNextChapter}
+              hasNextChapter={hasNextChapter}
             />
           </>
         )}

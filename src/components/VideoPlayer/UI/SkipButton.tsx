@@ -30,6 +30,14 @@ const SkipButtonComponent = ({ seconds, onClick }: SkipButtonProps) => {
         setFocus("PLAYER-BTN-BACK");
         return false;
       }
+      if (direction === "left") {
+        setFocus(isForward ? "PLAYER-BTN-PLAYPAUSE" : "PLAYER-BTN-CHAPTER-RESTART");
+        return false;
+      }
+      if (direction === "right") {
+        setFocus(isForward ? "PLAYER-BTN-CHAPTER-NEXT" : "PLAYER-BTN-PLAYPAUSE");
+        return false;
+      }
       return true;
     },
   });

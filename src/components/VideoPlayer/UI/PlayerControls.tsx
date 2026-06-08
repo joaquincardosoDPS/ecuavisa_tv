@@ -165,6 +165,13 @@ interface PlayerControlsProps {
   onEpisodeSelect?: (episode: ProgramChapter) => void;
   onHideControls?: () => void;
   onSidebarVisibilityChange?: (isOpen: boolean) => void;
+
+  /** Callback para reiniciar el capítulo actual */
+  onRestartChapter?: () => void;
+  /** Callback para pasar al siguiente capítulo */
+  onNextChapter?: () => void;
+  /** Si hay un capítulo siguiente disponible */
+  hasNextChapter?: boolean;
 }
 
 const PlayerControlsComponent = ({
@@ -188,6 +195,9 @@ const PlayerControlsComponent = ({
   onEpisodeSelect,
   onHideControls,
   onSidebarVisibilityChange,
+  onRestartChapter,
+  onNextChapter,
+  hasNextChapter = false,
 }: PlayerControlsProps) => {
   const [isChaptersSidebarOpen, setIsChaptersSidebarOpen] = useState(false);
 
@@ -251,6 +261,9 @@ const PlayerControlsComponent = ({
             onVolumeChange={onVolumeChange}
             onMuteToggle={onMuteToggle}
             onFullscreen={onFullscreen}
+            onRestartChapter={onRestartChapter}
+            onNextChapter={onNextChapter}
+            hasNextChapter={hasNextChapter}
           />
         </div>
 
