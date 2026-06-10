@@ -54,7 +54,7 @@
     font-family: 'Archia', sans-serif;
 }
 
-.metaRow > * + * {
+.metaRow>*+* {
     margin-left: 0.75rem;
 }
 
@@ -92,7 +92,7 @@
     justify-content: center;
     cursor: pointer;
     outline: none;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
 .playButton:hover,
@@ -105,7 +105,7 @@
     align-items: center;
 }
 
-.playButtonContent > * + * {
+.playButtonContent>*+* {
     margin-left: 0.75rem;
 }
 

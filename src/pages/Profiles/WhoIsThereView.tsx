@@ -13,7 +13,7 @@ import { isInputAction } from '@/utils/keycodes';
 import type { Profile } from '@/interfaces/profile.interface';
 import fallbackLogo from '@/assets/img/logo.svg';
 import iconEdit from '@/assets/img/icons/iconos-edit.svg';
-import styles from './ProfilesView.module.css';
+import styles from './WhoIsThereView.module.css';
 
 // ── Profile Card (focusable) ──
 

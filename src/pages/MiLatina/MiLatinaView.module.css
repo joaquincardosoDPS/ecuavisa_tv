@@ -30,7 +30,8 @@
 .avatarInitial {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     text-transform: uppercase;
     line-height: 1;
 }
@@ -39,14 +40,16 @@
 .title {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--clr-primary-title);
+    color: #ffffff;
+    color: var(--clr-primary-title, #ffffff);
     margin: 0 0 1vh;
 }
 
 /* ── Profile name / info ── */
 .profileName {
     font-size: 1.2rem;
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     opacity: 0.8;
     margin: 0 0 4vh;
 }
@@ -64,7 +67,8 @@
 
 .infoLabel {
     font-size: 0.9rem;
-    color: var(--clr-primary-subtitle);
+    color: #ffffff;
+    color: var(--clr-primary-subtitle, #ffffff);
     opacity: 0.6;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -72,7 +76,8 @@
 
 .infoValue {
     font-size: 1.1rem;
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
 }
 
 /* ── Buttons container ── */
@@ -94,8 +99,10 @@
     padding: 1.2rem 3rem;
     border-radius: 8px;
     border: 2px solid transparent;
-    background: var(--clr-primary-button);
-    color: var(--clr-text-primary-button);
+    background: #fff200;
+    background: var(--clr-primary-button, #fff200);
+    color: #00453a;
+    color: var(--clr-text-primary-button, #00453a);
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
@@ -106,22 +113,30 @@
 .buttonFocused,
 .button:hover {
     transform: scale(1.05);
-    border-color: var(--foc-primary);
-    background: var(--foc-primary);
-    color: var(--clr-text-primary-button);
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
+    background: #fff200;
+    background: var(--foc-primary, #fff200);
+    color: #00453a;
+    color: var(--clr-text-primary-button, #00453a);
 }
 
 /* ── Logout button (secondary style) ── */
 .buttonSecondary {
-    background: var(--clr-secondary-button);
-    color: var(--clr-text-secondary-button);
+    background: #00705a;
+    background: var(--clr-secondary-button, #00705a);
+    color: #ffffff;
+    color: var(--clr-text-secondary-button, #ffffff);
 }
 
 .buttonSecondary.buttonFocused,
 .buttonSecondary:hover {
-    background: var(--foc-secondary);
-    border-color: var(--foc-secondary);
-    color: var(--clr-text-secondary-button);
+    background: #fff200;
+    background: var(--foc-secondary, #fff200);
+    border-color: #fff200;
+    border-color: var(--foc-secondary, #fff200);
+    color: #ffffff;
+    color: var(--clr-text-secondary-button, #ffffff);
 }
 
 /* ── Loading state ── */
@@ -130,7 +145,8 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     font-size: 1.2rem;
 }
 

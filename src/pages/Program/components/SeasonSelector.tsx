@@ -35,10 +35,6 @@ function SeasonButton({
         onFocus: () => {
             onPress();
             onFocused?.();
-            // Scroll la temporada enfocada a la vista
-            if (ref.current) {
-                (ref.current as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
         },
     });
 

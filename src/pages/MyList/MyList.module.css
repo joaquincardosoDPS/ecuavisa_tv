@@ -8,7 +8,8 @@
 .title {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--clr-primary-title);
+  color: #ffffff;
+  color: var(--clr-primary-title, #ffffff);
   margin: 0 0 3vh;
 }
 
@@ -26,7 +27,8 @@
 }
 
 .notLoggedInText {
-  color: var(--clr-primary-text);
+  color: #ffffff;
+  color: var(--clr-primary-text, #ffffff);
   opacity: 0.6;
   font-size: 1.2rem;
 }
@@ -56,32 +58,38 @@
   height: 10rem;
   margin-top: 10vh;
   border-radius: 50%;
-  border: 4px solid var(--clr-text-primary-button);
+  border: 4px solid #00453a;
+  border: 4px solid var(--clr-text-primary-button, #00453a);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--clr-text-primary-button);
+  color: #00453a;
+  color: var(--clr-text-primary-button, #00453a);
   cursor: pointer;
   background: none;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .emptyBtnFocused,
 .emptyBtn:hover {
-  color: var(--foc-primary);
-  border-color: var(--foc-primary);
+  color: #fff200;
+  color: var(--foc-primary, #fff200);
+  border-color: #fff200;
+  border-color: var(--foc-primary, #fff200);
 }
 
 .emptyTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--clr-primary-title);
+  color: #ffffff;
+  color: var(--clr-primary-title, #ffffff);
   margin: 0;
 }
 
 .emptySubtitle {
   font-size: 1.1rem;
-  color: var(--clr-primary-text);
+  color: #ffffff;
+  color: var(--clr-primary-text, #ffffff);
   opacity: 0.7;
   margin: 0;
 }

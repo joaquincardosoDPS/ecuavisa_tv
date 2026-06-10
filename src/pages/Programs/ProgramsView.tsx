@@ -5,6 +5,7 @@ import { useProgramsNavigation } from '@/hooks/programs/useProgramsNavigation';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import HomeCardCarrousel from '@/pages/Home/components/HomeCardCarrousel';
 import SelectBanner from '@/pages/Category/SelectBanner';
+import { usePageScroll } from '@/hooks/shared/usePageScroll';
 import type { Program, Category } from '@/interfaces/catalog.interface';
 import styles from './ProgramsView.module.css';
 
@@ -12,8 +13,10 @@ import styles from './ProgramsView.module.css';
 const PREFETCH_THRESHOLD = 2;
 
 function ProgramsView() {
-    const containerRef = useRef<HTMLDivElement>(null);
     const initialFocusSet = useRef(false);
+
+    /* ── Hook de scroll por translateY (compatible webOS 1-3) ── */
+    const { scrollRef, scrollToSection } = usePageScroll();
 
     /* ── Hooks de datos y navegación ── */
     const {
@@ -53,24 +56,9 @@ function ProgramsView() {
         }
     }, [filteredCategories]);
 
-    /* Scroll vertical nativo — posiciona la sección visible debajo del banner (53vh) */
-    const handleCardFocused = useCallback((sectionId: string, categoryIndex: number) => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const section = container.querySelector(
-            `[data-section="${sectionId}"]`,
-        ) as HTMLElement | null;
-        if (!section) return;
-
-        const bannerHeight = window.innerHeight * 0.53;
-        const sectionRect = section.getBoundingClientRect();
-        const vh = window.innerHeight;
-
-        if (sectionRect.top < bannerHeight || sectionRect.bottom > vh) {
-            const targetScrollTop = section.offsetTop - bannerHeight + container.offsetTop;
-            container.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'smooth' });
-        }
+    /* Scroll vertical al foco — usa translateY (REGLA 1.2 / F5.1) */
+    const handleRowFocused = useCallback((sectionId: string, categoryIndex: number) => {
+        scrollToSection(sectionId, 'start', window.innerHeight * 0.53);
 
         // Prefetch cuando el foco llega a las últimas categorías
         if (
@@ -80,7 +68,7 @@ function ProgramsView() {
         ) {
             fetchNextPage();
         }
-    }, [hasNextPage, isFetchingNextPage, filteredCategories.length, fetchNextPage]);
+    }, [scrollToSection, hasNextPage, isFetchingNextPage, filteredCategories.length, fetchNextPage]);
 
     return (
         <FocusContext.Provider value={focusKey}>
@@ -105,8 +93,8 @@ function ProgramsView() {
                             </div>
                         </div>
 
-                        {/* Scroll nativo con categorías */}
-                        <div ref={containerRef} className={styles.scrollContainer}>
+                        {/* Contenedor con translateY (sin scroll nativo) */}
+                        <div ref={scrollRef} className={styles.scrollContainer}>
                             <div className={styles.carouselsWrapper}>
                                 {filteredCategories.map((category: Category, index: number) => {
                                     const sectionId = `programs-${category.key}`;
@@ -122,7 +110,7 @@ function ProgramsView() {
                                                 orientation="horizontal"
                                                 categorySlug={category.key}
                                                 focusKeyPrefix={sectionId}
-                                                onRowFocused={() => handleCardFocused(sectionId, index)}
+                                                onRowFocused={() => handleRowFocused(sectionId, index)}
                                                 onProgramFocused={(p) => {
                                                     if (p) setActiveBannerProgram(p as Program);
                                                 }}

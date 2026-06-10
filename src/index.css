@@ -10,6 +10,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Poppins';
 	src: url('./assets/fonts/Poppins-Regular.ttf');
@@ -17,6 +18,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Poppins';
 	src: url('./assets/fonts/Poppins-Medium.ttf');
@@ -24,6 +26,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Poppins';
 	src: url('./assets/fonts/Poppins-SemiBold.ttf');
@@ -31,6 +34,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Poppins';
 	src: url('./assets/fonts/Poppins-Bold.ttf');
@@ -47,6 +51,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Archia';
 	src: url('./assets/fonts/03.Archia-Regular-webfont/archia-regular-webfont.ttf');
@@ -54,6 +59,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Archia';
 	src: url('./assets/fonts/04.Archia-Medium-webfont/archia-medium-webfont.ttf');
@@ -61,6 +67,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Archia';
 	src: url('./assets/fonts/05.Archia-Semibold-webfont/archia-semibold-webfont.ttf');
@@ -68,6 +75,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'Archia';
 	src: url('./assets/fonts/06.Archia-Bold-webfont/archia-bold-webfont.ttf');
@@ -84,6 +92,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'CircularXX';
 	src: url('./assets/fonts/CircularXX-Regular.woff2');
@@ -91,6 +100,7 @@
 	font-style: normal;
 	font-display: swap;
 }
+
 @font-face {
 	font-family: 'CircularXX';
 	src: url('./assets/fonts/CircularXX-Medium.woff2');
@@ -117,15 +127,24 @@
 	--tam-quaternary-button-height: 6vh;
 
 	/* Tipografía — tamaños optimizados para TV (legibles a 3m) */
-	--font-size-heading: 2.8rem;     /* Títulos principales de página */
-	--font-size-title: 2.5rem;       /* Títulos de sección */
-	--font-size-subtitle: 1.5rem;    /* Subtítulos, nombres de categoría */
-	--font-size-body: 1.5rem;        /* Texto de lectura principal */
-	--font-size-text: 1.3rem;        /* Texto secundario / descripciones */
-	--font-size-caption: 1.1rem;     /* Texto pequeño, metadatos */
-	--font-size-label: 1.4rem;       /* Labels de botones y badges */
-	--font-size-code: 2rem;          /* Códigos destacados */
-	--font-size-subtext: 0.9rem;     /* Texto auxiliar mínimo */
+	--font-size-heading: 2.8rem;
+	/* Títulos principales de página */
+	--font-size-title: 2.5rem;
+	/* Títulos de sección */
+	--font-size-subtitle: 1.5rem;
+	/* Subtítulos, nombres de categoría */
+	--font-size-body: 1.5rem;
+	/* Texto de lectura principal */
+	--font-size-text: 1.3rem;
+	/* Texto secundario / descripciones */
+	--font-size-caption: 1.1rem;
+	/* Texto pequeño, metadatos */
+	--font-size-label: 1.4rem;
+	/* Labels de botones y badges */
+	--font-size-code: 2rem;
+	/* Códigos destacados */
+	--font-size-subtext: 0.9rem;
+	/* Texto auxiliar mínimo */
 	--font-size-icon: 4rem;
 
 	--font-weight-title: bold;
@@ -165,10 +184,27 @@
 	--avatar-size: 200px;
 	--avatar-border-radius: 50%;
 
-	/* Fallbacks (antes de la carga de API) */
-	--clr-primary: #001a28;
-	--foc-primary: #ff1376;
-	--grad-sidebar: #054668;
+	/* Fallbacks de colores — deben coincidir con la API de Latina */
+	--clr-primary: #00453a;
+	--clr-secondary: #01a77e;
+	--clr-primary-title: #ffffff;
+	--clr-secondary-title: #000000;
+	--clr-primary-button: #000000;
+	--clr-secondary-button: #fff200;
+	--clr-primary-subtitle: #ffffff;
+	--clr-secondary-subtitle: #000000;
+	--clr-primary-text: #ffffff;
+	--clr-secondary-text: #000000;
+	--clr-text-primary-button: #ffffff;
+	--clr-text-secondary-button: #000000;
+	--clr-text-tertiary-button: #fff200;
+	--clr-icon: #ffffff;
+	--clr-edit: #fa6428;
+	--foc-primary: #fff200;
+	--foc-secondary: #00b28a;
+	--foc-tertiary: #008e72;
+	--grad-banner: #00453a;
+	--grad-sidebar: linear-gradient(90deg, rgba(0, 112, 90, 1), transparent);
 
 	/* Masking */
 	--mask-right: linear-gradient(90deg, #000 0%, #000 85%, transparent 100%);
@@ -203,9 +239,9 @@ body,
 }
 
 body {
-	background-color: var(--clr-primary, #001a28);
+	background-color: var(--clr-primary, #00453a);
 	color: #ffffff;
-	font-family: var(--font-family-title) !important;
+	font-family: var(--font-family-title, 'Poppins', Arial, Helvetica, sans-serif) !important;
 	line-height: 1.5;
 }
 
@@ -224,9 +260,9 @@ body {
 
 .chapter-card-img-full:focus-within img,
 .chapter-card-img-full.focused img {
-	outline: 3px solid var(--foc-primary);
+	outline: 3px solid var(--foc-primary, #fff200);
 	outline-offset: -3px;
-	box-shadow: var(--shadow-primary);
+	box-shadow: var(--shadow-primary, 0 0 10px 5px hsla(168, 100%, 41%, 0.75));
 }
 
 /* Scrollbar discreta */
@@ -253,9 +289,7 @@ body {
 }
 
 .bg-header-gradient {
-	background-image: linear-gradient(
-		to bottom,
-		rgba(0, 26, 40, 0.8),
-		rgba(0, 26, 40, 0)
-	);
+	background-image: linear-gradient(to bottom,
+			rgba(0, 26, 40, 0.8),
+			rgba(0, 26, 40, 0));
 }

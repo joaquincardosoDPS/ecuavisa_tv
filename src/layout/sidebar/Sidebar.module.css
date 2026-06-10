@@ -25,7 +25,8 @@
     left: 0;
     width: 60vmax;
     height: 100%;
-    background: var(--grad-sidebar);
+    background: #01a77e;
+    background: var(--grad-sidebar, #01a77e);
     opacity: 0;
     z-index: -1;
     pointer-events: none;
@@ -90,7 +91,7 @@
     justify-content: flex-start;
     padding-left: 8px;
     background-color: transparent;
-    transition: all 0.3s ease;
+    
 }
 
 .profileItemFocused .profileItemInner,
@@ -120,7 +121,8 @@
 .profileAvatarInitial {
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     text-transform: uppercase;
     line-height: 1;
 }

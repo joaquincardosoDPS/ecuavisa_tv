@@ -19,7 +19,10 @@ function AlternativeCard({ program, focusKey, onCardFocus, onPress }: Alternativ
     const { ref, focused } = useFocusable({
         focusKey,
         onEnterPress: handlePress,
-        onFocus: () => onCardFocus?.(),
+        onFocus: () => {
+            console.log('[CARD] onFocus', focusKey);
+            onCardFocus?.();
+        },
     });
 
     const classList = [

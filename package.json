@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:webos": "tsc -b && node scripts/build-platform.mjs webos",
+    "build:webos": "tsc -b && node scripts/build-platform.mjs webos && ares-package --no-minify ./platforms/webos/build",
     "build:tizen": "tsc -b && node scripts/build-platform.mjs tizen",
     "build:hisense": "tsc -b && node scripts/build-platform.mjs hisense",
     "install:webos5": "ares-install --device grande com.digitalproserver.milatina_1.0.0_all.ipk",
     "inspect:webos5": "ares-inspect --device grande --app com.digitalproserver.milatina --open",
-    "deploy:tizen": "cd platforms/tizen/build && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz pack && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz install -p Debug/tizen.wgt",
+    "install:webos3": "ares-install --device chico com.digitalproserver.milatina_1.0.0_all.ipk",
+    "inspect:webos3": "ares-inspect --device chico --app com.digitalproserver.milatina --open",
+    "deploy:tizen": "cd platforms/tizen/build && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz pack && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz install -p Debug/build.wgt",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -19,6 +21,7 @@
     "@glomex/vast-ima-player": "^1.21.2",
     "@noriginmedia/norigin-spatial-navigation": "^3.1.0",
     "axios": "^1.16.0",
+    "css-vars-ponyfill": "^2.4.9",
     "he": "^1.2.0",
     "hls.js": "^1.6.16",
     "qrcode.react": "^4.2.0",
@@ -29,6 +32,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@babel/plugin-transform-arrow-functions": "^7.29.7",
+    "@babel/plugin-transform-block-scoping": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
@@ -38,6 +44,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-legacy": "^8.0.1",
     "@vitejs/plugin-react": "^6.0.1",
+    "abortcontroller-polyfill": "^1.7.8",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -47,6 +54,7 @@
     "terser": "^5.46.2",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "whatwg-fetch": "^3.6.20"
   }
 }

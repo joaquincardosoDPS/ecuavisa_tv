@@ -161,17 +161,19 @@
     background-color: rgba(0, 0, 0, 0.6);
     border: 4px solid transparent;
     cursor: pointer;
-    transition: all 0.2s ease;
+    
     font-family: 'Archia', Arial, Helvetica, sans-serif;
 }
 
 .playBtn.focused,
 .playBtn:hover {
-    border-color: #FFE500;
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
 }
 
 .playIcon {
-    color: #ffe500;
+    color: #fff200;
+    color: var(--foc-primary, #fff200);
     font-size: 2.5rem;
     margin-right: 0.5rem;
 }
@@ -201,7 +203,8 @@
 .restartBtn.focused,
 .restartBtn:hover {
     background-color: rgba(255, 255, 255, 0.3);
-    border-color: #ffe500;
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
     box-shadow: 0 0 12px rgba(255, 229, 0, 0.3);
 }
 
@@ -230,7 +233,8 @@
 }
 
 .progressTitle {
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     font-size: 0.85rem;
     margin: 0 0 0.3vh 0;
     opacity: 0.85;
@@ -258,12 +262,14 @@
 
 .progressBarInner {
     height: 100%;
-    background-color: #ffe500;
+    background-color: #fff200;
+    background-color: var(--foc-primary, #fff200);
     border-radius: 2px;
 }
 
 .progressLabel {
-    font-size: var(--font-size-subtext);
+    font-size: 0.9rem;
+    font-size: var(--font-size-subtext, 0.9rem);
     color: rgba(255, 255, 255, 0.5);
     margin-top: 0.3rem;
 }
@@ -306,7 +312,7 @@
     border-bottom: 0.3rem solid transparent;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    transition: all 0.2s ease;
+    
     margin-bottom: -1px;
     font-family: inherit;
     display: flex;
@@ -316,14 +322,16 @@
 /* Activa */
 .tabItemActive {
     font-weight: 500;
-    border-bottom-color: #ffe500;
+    border-bottom-color: #fff200;
+    border-bottom-color: var(--foc-primary, #fff200);
 }
 
 /* Foco/Hover */
 .tabItemFocused,
 .tabItem:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    border-bottom-color: #ffe500;
+    border-bottom-color: #fff200;
+    border-bottom-color: var(--foc-primary, #fff200);
 }
 
 /* ── Main Content (tabs + chapters) ── */
@@ -389,7 +397,8 @@
 .seasonItemFocused,
 .seasonItem:hover {
     background-color: rgba(0, 0, 0, 0.6);
-    color: #ffe500;
+    color: #fff200;
+    color: var(--foc-primary, #fff200);
 }
 
 /* ── Chapters vertical list ── */
@@ -436,14 +445,15 @@
     background-color: #0a0a0a;
     border-radius: 25px;
     border: 2px solid transparent;
-    transition: border-color 0.2s ease;
+    
     margin-right: 16px;
 }
 
 /* F6.1: hover = focused — ring solo en el thumbnail */
 .chapterThumb.focused,
 .chapterThumb:hover {
-    border-color: #ffe500;
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
     z-index: 10;
 }
 
@@ -571,14 +581,16 @@
 /* ── Status texts ── */
 .statusText {
     color: #ffffff;
-    font-size: var(--font-size-caption);
+    font-size: 1.1rem;
+    font-size: var(--font-size-caption, 1.1rem);
     font-weight: 500;
     opacity: 0.7;
 }
 
 .emptyText {
     color: rgba(255, 255, 255, 0.5);
-    font-size: var(--font-size-caption);
+    font-size: 1.1rem;
+    font-size: var(--font-size-caption, 1.1rem);
     font-weight: 500;
 }
 
@@ -612,20 +624,23 @@
     width: 20vw;
     height: 21vh;
     border-radius: 3rem;
-    background-color: #00604e;
+    background-color: #01a77e;
+    background-color: var(--clr-secondary, #01a77e);
     overflow: hidden;
     cursor: pointer;
     flex-shrink: 0;
     border: 3px solid transparent;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    
 }
 
 .relatedCard:hover {
-    border-color: #ffe500;
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
 }
 
 .relatedCardFocused {
-    border-color: #ffe500;
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
     transform: scale(1.02);
 }
 
@@ -683,12 +698,14 @@
 .favoriteBtn.focused,
 .favoriteBtn:hover {
     background-color: rgba(255, 255, 255, 0.3);
-    border-color: #ffe500;
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
     box-shadow: 0 0 12px rgba(255, 229, 0, 0.3);
 }
 
 .favoriteBtn.active {
-    color: #ffe500;
+    color: #fff200;
+    color: var(--foc-primary, #fff200);
 }
 
 .favoriteSvg {
@@ -710,6 +727,7 @@
 
 .chapterTimeBarFill {
     height: 100%;
-    background-color: #ffe500;
+    background-color: #fff200;
+    background-color: var(--foc-primary, #fff200);
     border-radius: 2px;
 }

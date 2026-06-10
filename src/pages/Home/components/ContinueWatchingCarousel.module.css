@@ -15,7 +15,8 @@
     margin-bottom: 1rem;
     padding-left: 1rem;
     text-transform: capitalize;
-    font-family: Archia, var(--font-family-category), Arial, Helvetica, sans-serif;
+    font-family: Archia, 'Archia', Arial, Helvetica, sans-serif, Arial, Helvetica, sans-serif;
+    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
 }
 
 /* Track horizontal */
@@ -57,7 +58,6 @@
     background-color: hsla(165, 99%, 33%, 1);
     box-sizing: border-box;
     overflow: visible;
-    transition: transform 0.2s ease;
 }
 
 .card.focused,
@@ -78,7 +78,8 @@
 
 .card.focused .image,
 .card:hover .image {
-    border: 4px solid #ffe500;
+    border: 4px solid #fff200;
+    border: 4px solid var(--foc-primary, #fff200);
     z-index: 2;
     position: relative;
 }
@@ -121,7 +122,8 @@
 
 .progressFill {
     height: 100%;
-    background-color: #ffe500;
+    background-color: #fff200;
+    background-color: var(--foc-primary, #fff200);
     transition: width 0.3s ease;
 }
 

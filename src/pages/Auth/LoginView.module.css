@@ -7,8 +7,10 @@
     width: 100vw;
     min-height: 100vh;
     overflow: hidden;
-    background-color: #00705a;
+    background-color: #00453a;
+    background-color: var(--clr-primary, #00453a);
     color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     padding-left: 40px;   /* MUI paddingLeft: 5 */
     padding-right: 32px;  /* MUI pr: 4 */
     box-sizing: border-box;
@@ -32,12 +34,16 @@
     background: transparent;
     border: none;
     color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 60px;
     width: var(--tam-back-button-height, 60px);
+    height: 60px;
     height: var(--tam-back-button-width, 60px);
+    font-size: 2rem;
     font-size: var(--font-siz-icon, 2rem);
     text-align: center;
     border-radius: 8px;
@@ -49,7 +55,8 @@
 
 .backBtn.focused,
 .backBtn:hover {
-    color: #ffe500;
+    color: #fff200;
+    color: var(--foc-primary, #fff200);
 }
 
 .backBtn svg {
@@ -102,6 +109,7 @@
     width: 450px;
     text-align: center;
     color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     line-height: 1.4;
     margin: 0;
     font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
@@ -111,6 +119,7 @@
     font-size: 1.5rem;
     font-weight: 400;
     color: #00b28a;
+    color: var(--foc-secondary, #00b28a);
     padding-top: 8px;     /* MUI paddingTop: 1 */
     padding-bottom: 80px; /* MUI paddingBottom: 10 */
     margin: 0;
@@ -125,8 +134,10 @@
     width: 300px;
     height: 100px;
     border-radius: 4rem;
-    background-color: #ffe500;
-    color: black;
+    background-color: #fff200;
+    background-color: var(--clr-secondary-button, #fff200);
+    color: #000000;
+    color: var(--clr-text-secondary-button, #000000);
     font-size: 35px;
     font-weight: 500;
     letter-spacing: 0.15em;
@@ -141,7 +152,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 4rem;
-    background-color: #ffe500;
+    background-color: #fff200;
+    background-color: var(--clr-secondary-button, #fff200);
 }
 
 .spinner {
@@ -167,12 +179,14 @@
 
 .dividerLine {
     height: 20vh;
-    border-left: 1px solid #ffe500;
+    border-left: 1px solid #fff200;
+    border-left: 1px solid var(--foc-primary, #fff200);
 }
 
 .dividerText {
     margin: 16px 0; /* MUI my: 2 */
     color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     font-size: 2.125rem; /* MUI h4 = 2.125rem */
     font-weight: 400;
     font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
@@ -194,6 +208,7 @@
     font-size: 1.5rem; /* MUI h5 */
     font-weight: 400;
     color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     text-align: center;
     margin: 0;
     font-family: Inter, Archia, CircularXX, Arial, Helvetica, sans-serif;
@@ -203,6 +218,7 @@
     font-size: 1.5rem;
     font-weight: 400;
     color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     text-align: center;
     margin: 0;
     padding-bottom: 24px; /* MUI paddingBottom: 3 */

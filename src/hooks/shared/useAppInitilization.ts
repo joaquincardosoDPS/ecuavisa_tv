@@ -2,6 +2,7 @@ import { fetchAppConfig } from '../../services/configService';
 import { useConfigStore } from '../../features/config/useConfigStore';
 import { useAuthStore } from '../../features/auth/authStore';
 import { registerTVKeys } from '../../utils/platform';
+import { applyConfigToCSS } from '../../utils/applyConfigToCSS';
 import { useEffect, useRef } from 'react';
 import { useFetch } from './useFetch';
 
@@ -21,16 +22,8 @@ export const useAppInitialization = () => {
                 document.title = configData.name;
             }
 
-            const root = document.documentElement;
-            Object.entries(configData).forEach(([key, value]) => {
-                if (
-                    key.startsWith('clr-') ||
-                    key.startsWith('foc-') ||
-                    key.startsWith('grad-')
-                ) {
-                    root.style.setProperty(`--${key}`, value as string);
-                }
-            });
+            // Aplicar colores/fuentes de la API a CSS (con soporte ponyfill para webOS 3)
+            applyConfigToCSS(configData);
 
             if (!sessionChecked.current) {
                 sessionChecked.current = true;
@@ -44,3 +37,4 @@ export const useAppInitialization = () => {
 
     return query;
 };
+

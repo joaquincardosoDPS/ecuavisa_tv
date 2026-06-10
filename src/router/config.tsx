@@ -27,6 +27,21 @@ const EventView = lazy(() => import("@/pages/Event/EventView"));
 // const TVPairView = lazy(() => import("@/pages/TV/TVPairView"));
 // const NotFoundView = lazy(() => import("@/pages/Error/NotFoundView"));
 
+/**
+ * Precarga los chunks JS de las vistas principales del sidebar.
+ * Se llama después de que la app inicie para eliminar el delay
+ * de carga cuando el usuario navega por el sidebar.
+ */
+export function prefetchMainViews() {
+    setTimeout(() => {
+        import("@/pages/Home/HomeView");
+        import("@/pages/Live/LiveView");
+        import("@/pages/Search/SearchView");
+        import("@/pages/Programs/ProgramsView");
+        import("@/pages/MyList/MyListView");
+    }, 3000); // Esperar 3s para no competir con la carga inicial
+}
+
 const Lazy = ({ children }: { children: React.ReactNode }) => (
     <Suspense fallback={<FullScreenSpinner />}>{children}</Suspense>
 );

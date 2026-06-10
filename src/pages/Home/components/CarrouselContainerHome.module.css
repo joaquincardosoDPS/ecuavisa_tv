@@ -34,7 +34,7 @@
     margin-left: 0.5rem;
     margin-bottom: 0.5rem;
     text-transform: capitalize;
-    font-family: Archia, var(--font-family-category), Arial, Helvetica, sans-serif;
+    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
 }
 
 /* Layout con logo lateral (vertical + icon) */

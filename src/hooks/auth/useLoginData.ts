@@ -43,6 +43,10 @@ export function useLoginData(onLoginSuccess: () => void) {
     const codeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const verifyIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+    // Ref para el callback para evitar re-crear checkAuthentication cada render
+    const onLoginSuccessRef = useRef(onLoginSuccess);
+    onLoginSuccessRef.current = onLoginSuccess;
+
     const fetchDeviceCode = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -86,12 +90,12 @@ export function useLoginData(onLoginSuccess: () => void) {
                     console.warn('[Auth] Could not fetch profiles after login:', err);
                 }
 
-                onLoginSuccess();
+                onLoginSuccessRef.current();
             }
         } catch {
             /* Silenciar errores de polling */
         }
-    }, [onLoginSuccess]);
+    }, []); // Sin dependencia de onLoginSuccess — usa ref
 
     useEffect(() => {
         fetchDeviceCode();

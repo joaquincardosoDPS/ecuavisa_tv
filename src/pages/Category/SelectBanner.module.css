@@ -3,7 +3,8 @@
 .banner {
     width: 97%;
     height: 51vh;
-    background-color: var(--clr-secondary);
+    background-color: #01a77e;
+    background-color: var(--clr-secondary, #01a77e);
     border-radius: 4.5rem;
     display: flex;
     align-items: flex-end;
@@ -73,7 +74,8 @@
     font-weight: normal;
     font-family: Archia, Arial, Helvetica, sans-serif;
     font-size: 1.8rem;
-    color: var(--clr-primary-text);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     width: 35%;
     line-height: 1.3;
 }

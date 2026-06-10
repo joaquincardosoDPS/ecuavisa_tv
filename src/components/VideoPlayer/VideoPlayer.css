@@ -23,7 +23,7 @@
     object-fit: contain;
     display: block;
     /* Transición suave para PiP usando solo transform  */
-    transition: transform 0.6s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    transition: transform 0.6s ease-out, box-shadow 0.2s ease-out;
     transform-origin: bottom right;
 }
 
@@ -40,12 +40,14 @@
     position: relative;
     box-sizing: border-box;
     border: 0.6vw solid transparent;
-    transition: transform 0.6s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+    transition: transform 0.6s ease-out, box-shadow 0.2s ease-out;
 }
 
 #hls-video-player.pip-mode.focused {
-    border-color: var(--foc-primary);
-    box-shadow: 0 0 3vw var(--foc-primary);
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
+    box-shadow: 0 0 3vw #fff200;
+    box-shadow: 0 0 3vw var(--foc-primary, #fff200);
 }
 
 .video-player-spinner {

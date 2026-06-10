@@ -1,7 +1,8 @@
 .gridOuter {
     position: relative;
     width: 100%;
-    height: 100%;
+    /* Chrome 38: height:100% no resuelve en cadenas flex, usar max-height explícito */
+    max-height: calc(100vh - 10rem);
     overflow: hidden;
     /* Espacio para borders/shadow */
     margin: -8px;
@@ -14,8 +15,6 @@
     align-items: flex-start;
     align-content: flex-start;
     padding-bottom: 12px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
 }
 
 /* 4 columnas: cada card ocupa ~23% con margen entre ellas */
@@ -36,13 +35,13 @@
 
 .statusText {
     color: #ffffff;
-    font-size: var(--font-size-caption);
+    font-size: var(--font-size-caption, 1.1rem);
     font-weight: 500;
     opacity: 0.7;
 }
 
 .errorText {
     color: #ef4444;
-    font-size: var(--font-size-caption);
+    font-size: var(--font-size-caption, 1.1rem);
     font-weight: 500;
 }

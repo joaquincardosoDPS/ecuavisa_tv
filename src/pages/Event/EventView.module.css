@@ -22,14 +22,15 @@
 
 .bannerBg {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: -1;
-  background: var(--clr-primary);
+  background: #00453a;
+  background: var(--clr-primary, #00453a);
 }
 
 .bannerBgImage {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   background-size: 100% auto;
   background-position: top center;
   background-repeat: no-repeat;
@@ -41,7 +42,8 @@
   bottom: 0;
   left: 0;
   width: 33%;
-  background: linear-gradient(to right, var(--clr-primary), transparent);
+  background: linear-gradient(to right, #00453a, transparent);
+  background: linear-gradient(to right, var(--clr-primary, #00453a), transparent);
 }
 
 .bannerOverlayBottom {
@@ -50,13 +52,15 @@
   right: 0;
   bottom: 0;
   height: 66%;
-  background: linear-gradient(to top, var(--clr-primary) 0%, transparent 100%);
+  background: linear-gradient(to top, #00453a 0%, transparent 100%);
+  background: linear-gradient(to top, var(--clr-primary, #00453a) 0%, transparent 100%);
 }
 
 .bannerScrollOverlay {
   position: absolute;
-  inset: 0;
-  background: var(--clr-primary);
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: #00453a;
+  background: var(--clr-primary, #00453a);
   transition: opacity 0.1s ease;
 }
 
@@ -82,8 +86,10 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: var(--foc-tertiary);
-  color: var(--clr-secondary-subtitle);
+  background: #fff200;
+  background: var(--foc-tertiary, #fff200);
+  color: #aaaaaa;
+  color: var(--clr-secondary-subtitle, #aaaaaa);
 }
 
 /* Event logo */
@@ -126,21 +132,24 @@
 .categoryName {
   font-size: 1.4rem;
   font-weight: 500;
-  color: var(--clr-primary-text);
+  color: #ffffff;
+  color: var(--clr-primary-text, #ffffff);
 }
 
 /* Title + description */
 .eventTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--clr-primary-title);
+  color: #ffffff;
+  color: var(--clr-primary-title, #ffffff);
   margin: 0;
 }
 
 .eventDescription {
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--clr-primary-subtitle);
+  color: #ffffff;
+  color: var(--clr-primary-subtitle, #ffffff);
   max-width: 45vw;
   line-height: 1.5;
   opacity: 0.8;
@@ -168,7 +177,8 @@
   padding: 1rem 0.5rem;
   font-size: 1.3rem;
   font-weight: 500;
-  color: var(--clr-secondary-text);
+  color: #b0b0b0;
+  color: var(--clr-secondary-text, #b0b0b0);
   border: none;
   background: none;
   cursor: pointer;
@@ -185,7 +195,8 @@
 
 .tabBtnFocused {
   color: #fff;
-  border-bottom-color: var(--foc-primary);
+  border-bottom-color: #fff200;
+  border-bottom-color: var(--foc-primary, #fff200);
 }
 
 /* ── Content area below tabs ── */
@@ -228,12 +239,13 @@
   height: 12.375vw;
   position: relative;
   border: 3px solid transparent;
-  transition: border-color 0.2s ease;
+  
 }
 
 .eventCardFocused {
-  border-color: var(--foc-primary);
-  box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+  border-color: #fff200;
+  border-color: var(--foc-primary, #fff200);
+  box-shadow: 0 0 20px rgba(255, 229, 0, 0.3);
   z-index: 10;
 }
 
@@ -250,7 +262,8 @@
   z-index: 10;
   padding: 0.25rem 0.75rem;
   border-radius: 8px;
-  font-size: var(--font-size-caption);
+  font-size: 1.1rem;
+  font-size: var(--font-size-caption, 1.1rem);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -276,17 +289,21 @@
 }
 
 .eventCardDateText {
-  font-size: var(--font-size-caption);
+  font-size: 1.1rem;
+  font-size: var(--font-size-caption, 1.1rem);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--clr-secondary-text);
+  color: #b0b0b0;
+  color: var(--clr-secondary-text, #b0b0b0);
 }
 
 .eventCardDateTitle {
-  font-size: var(--font-size-caption);
+  font-size: 1.1rem;
+  font-size: var(--font-size-caption, 1.1rem);
   font-weight: 500;
-  color: var(--clr-secondary-text);
+  color: #b0b0b0;
+  color: var(--clr-secondary-text, #b0b0b0);
   margin-top: 0.15rem;
 }
 
@@ -318,6 +335,7 @@
 
 .emptyText {
   font-size: 1.2rem;
-  color: var(--clr-primary-text);
+  color: #ffffff;
+  color: var(--clr-primary-text, #ffffff);
   opacity: 0.6;
 }

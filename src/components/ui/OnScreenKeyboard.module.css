@@ -24,8 +24,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--clr-secondary);
-    color: var(--clr-text-primary-button);
+    background-color: #01a77e;
+    background-color: var(--clr-secondary, #01a77e);
+    color: #ffffff;
+    color: var(--clr-primary-text, #ffffff);
     border: 2px solid transparent;
     border-radius: 8px;
     font-family: inherit;
@@ -52,8 +54,9 @@
 .key.focused,
 .key:hover {
     background-color: rgba(255, 255, 255, 0.2);
-    border-color: var(--foc-primary);
-    box-shadow: 0 0 12px rgba(255, 19, 118, 0.3);
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
+    box-shadow: 0 0 12px rgba(255, 229, 0, 0.3);
     z-index: 2;
 }
 
@@ -76,7 +79,8 @@
 }
 
 .deleteIcon line {
-    stroke: var(--clr-secondary);
+    stroke: #01a77e;
+    stroke: var(--clr-secondary, #01a77e);
     stroke-width: 2;
     stroke-linecap: round;
 }

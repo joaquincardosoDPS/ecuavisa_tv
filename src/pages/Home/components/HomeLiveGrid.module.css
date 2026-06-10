@@ -11,7 +11,8 @@
     text-transform: capitalize;
     padding-left: 1rem;
     margin-bottom: 1rem;
-    font-family: Archia, var(--font-family-category), Arial, Helvetica, sans-serif;
+    font-family: Archia, 'Archia', Arial, Helvetica, sans-serif, Arial, Helvetica, sans-serif;
+    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
 }
 
 /* Fila horizontal de cards */
@@ -28,17 +29,22 @@
     height: 13.5vh;
     margin-right: 17.5px;
     border-radius: 32px;
-    background-color: #00604e;
+    background-color: #01a77e;
+    background-color: var(--clr-secondary, #01a77e);
     box-sizing: border-box;
     cursor: pointer;
     overflow: hidden;
-    transition: transform 0.2s ease;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* Focus / hover — border + scale sutil  */
 .channelCard.focused,
 .channelCard:hover {
-    border: 0.3rem solid #ffe500;
+    border: 0.3rem solid #fff200;
+    border: 0.3rem solid var(--foc-primary, #fff200);
     transform: scale(1.02);
 }
 

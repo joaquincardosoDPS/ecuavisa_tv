@@ -5,6 +5,10 @@
     height: 702px;
     border-radius: 32px;
     overflow: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* Imagen de fondo */
@@ -75,7 +79,7 @@
     justify-content: center;
     cursor: pointer;
     outline: none;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.2s ease;
     padding: 0;
 }
 
@@ -117,12 +121,13 @@
     border-radius: 50%;
     background-color: #ffffff;
     cursor: pointer;
-    transition: all 0.3s ease;
+    
 }
 
 .dot.dotActive {
     width: 24px;
     height: 8px;
     border-radius: 4px;
-    background-color: #ffe500;
+    background-color: #fff200;
+    background-color: var(--foc-primary, #fff200);
 }

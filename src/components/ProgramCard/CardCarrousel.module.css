@@ -26,7 +26,8 @@
     justify-content: center;
     overflow: hidden;
     cursor: pointer;
-    background-color: var(--clr-secondary);
+    background-color: #01a77e;
+    background-color: var(--clr-secondary, #01a77e);
     border: 3px solid transparent;
     border-radius: 8px;
 }
@@ -45,12 +46,14 @@
 .viewMore.focused,
 .viewMore:hover {
     z-index: 10;
-    border-color: var(--foc-primary);
-    box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+    border-color: #fff200;
+    border-color: var(--foc-primary, #fff200);
+    box-shadow: 0 0 20px rgba(255, 229, 0, 0.3);
 }
 
 .viewMoreText {
-    font-size: var(--font-size-subtitle);
+    font-size: 1.5rem;
+    font-size: var(--font-size-subtitle, 1.5rem);
     font-weight: 500;
     color: #ffffff;
 }

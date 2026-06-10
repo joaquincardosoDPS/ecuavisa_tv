@@ -34,28 +34,36 @@
    PRIMARIA
    ═══════════════════════════════ */
 .primary {
-    background-color: var(--clr-primary-button);
-    color: var(--clr-text-primary-button);
+    background-color: #fff200;
+    background-color: var(--clr-primary-button, #fff200);
+    color: #00453a;
+    color: var(--clr-text-primary-button, #00453a);
 }
 
 .primary.focused,
 .primary:hover {
-    background-color: var(--foc-primary);
-    color: var(--clr-text-primary-button);
-    box-shadow: 0 0 20px 4px var(--clr-primary-button);
+    background-color: #fff200;
+    background-color: var(--foc-primary, #fff200);
+    color: #00453a;
+    color: var(--clr-text-primary-button, #00453a);
+    box-shadow: 0 0 20px 4px #fff200;
+    box-shadow: 0 0 20px 4px var(--clr-primary-button, #fff200);
 }
 
 /* ═══════════════════════════════
    SECUNDARIA
    ═══════════════════════════════ */
 .secondary {
-    background-color: var(--clr-secondary-button);
-    color: var(--clr-text-secondary-button);
+    background-color: #00705a;
+    background-color: var(--clr-secondary-button, #00705a);
+    color: #ffffff;
+    color: var(--clr-text-secondary-button, #ffffff);
 }
 
 .secondary.focused,
 .secondary:hover {
-    box-shadow: 0px 0px 20px 0px var(--foc-secondary);
+    box-shadow: 0px 0px 20px 0px #fff200;
+    box-shadow: 0px 0px 20px 0px var(--foc-secondary, #fff200);
 }
 
 /* ═══════════════════════════════
@@ -63,13 +71,18 @@
    ═══════════════════════════════ */
 .tertiary {
     background-color: transparent;
-    color: var(--clr-text-tertiary-button);
-    border-color: var(--clr-text-tertiary-button);
+    color: #ffffff;
+    color: var(--clr-text-tertiary-button, #ffffff);
+    border-color: #ffffff;
+    border-color: var(--clr-text-tertiary-button, #ffffff);
 }
 
 .tertiary.focused,
 .tertiary:hover {
-    background-color: var(--clr-text-tertiary-button);
-    color: var(--clr-tertiary-button, var(--clr-primary));
-    box-shadow: 0 0 10px 1px var(--foc-tertiary);
+    background-color: #ffffff;
+    background-color: var(--clr-text-tertiary-button, #ffffff);
+    color: #00453a;
+    color: var(--clr-tertiary-button, var(--clr-primary, #00453a));
+    box-shadow: 0 0 10px 1px #fff200;
+    box-shadow: 0 0 10px 1px var(--foc-tertiary, #fff200);
 }

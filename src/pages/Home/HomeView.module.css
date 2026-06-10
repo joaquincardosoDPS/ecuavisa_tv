@@ -42,7 +42,7 @@
     margin-left: 0.5rem;
     margin-bottom: 0.5rem;
     text-transform: capitalize;
-    font-family: Archia, var(--font-family-category), Arial, Helvetica, sans-serif;
+    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
 }
 
 /* Error state */
@@ -56,6 +56,6 @@
 
 .errorText {
     color: #ef4444;
-    font-family: var(--font-family-title);
-    font-size: var(--font-size-text);
+    font-family: var(--font-family-title, 'Archia', Arial, Helvetica, sans-serif);
+    font-size: var(--font-size-text, 1.3rem);
 }

@@ -56,9 +56,15 @@ export function useTrackScroll(options: UseTrackScrollOptions = {}): UseTrackScr
         const wrapper = track.parentElement;
         if (!wrapper) return;
 
-        const wrapperSize = isHorizontal ? wrapper.offsetWidth : wrapper.offsetHeight;
+        // Usar getBoundingClientRect para Chrome 38 (webOS 1-3)
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const wrapperSize = isHorizontal ? wrapperRect.width : wrapperRect.height;
+
+        // Si el wrapper no tiene tamaño, usar el viewport como fallback
+        const effectiveWrapperSize = wrapperSize > 0 ? wrapperSize : (isHorizontal ? window.innerWidth : window.innerHeight);
+
         const trackSize = isHorizontal ? track.scrollWidth : track.scrollHeight;
-        const maxScroll = Math.max(0, trackSize - wrapperSize);
+        const maxScroll = Math.max(0, trackSize - effectiveWrapperSize);
         const clamped = Math.max(0, Math.min(offset, maxScroll));
 
         currentOffset.current = clamped;
@@ -81,12 +87,23 @@ export function useTrackScroll(options: UseTrackScrollOptions = {}): UseTrackScr
         ) as HTMLElement | null;
         if (!child) return;
 
-        const wrapperSize = isHorizontal ? wrapper.offsetWidth : wrapper.offsetHeight;
-        const childOffset = isHorizontal ? child.offsetLeft : child.offsetTop;
-        const childSize = isHorizontal ? child.offsetWidth : child.offsetHeight;
+        // Usar getBoundingClientRect para compatibilidad con Chrome 38 (webOS 1-3)
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const childRect = child.getBoundingClientRect();
 
-        const targetOffset = childOffset - (wrapperSize / 2) + (childSize / 2);
-        applyScroll(targetOffset);
+        const wrapperSize = isHorizontal ? wrapperRect.width : wrapperRect.height;
+        const effectiveWrapperSize = wrapperSize > 0 ? wrapperSize : (isHorizontal ? window.innerWidth : window.innerHeight);
+
+        const childCenter = isHorizontal
+            ? (childRect.left + childRect.width / 2)
+            : (childRect.top + childRect.height / 2);
+        const wrapperCenter = isHorizontal
+            ? (wrapperRect.left + effectiveWrapperSize / 2)
+            : (wrapperRect.top + effectiveWrapperSize / 2);
+
+        // Ajustar el offset actual para centrar el elemento
+        const delta = childCenter - wrapperCenter;
+        applyScroll(currentOffset.current + delta);
     }, [isHorizontal, applyScroll]);
 
     /** Wheel listener opcional */

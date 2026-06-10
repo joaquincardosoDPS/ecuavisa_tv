@@ -77,8 +77,8 @@ const ChapterButtonComponent = ({
         color: disabled
           ? "rgba(255, 255, 255, 0.3)"
           : focused
-            ? "var(--foc-primary)"
-            : "var(--clr-text-primary-button)",
+            ? "var(--foc-primary, #ffe500)"
+            : "var(--clr-text-primary-button, #00453a)",
         outline: "none",
         transition: "color 0.15s ease, opacity 0.15s ease",
         opacity: disabled ? 0.35 : 1,

@@ -6,6 +6,7 @@ import {
 } from '@noriginmedia/norigin-spatial-navigation';
 import { useCategoryData } from '@/hooks/category/useCategoryData';
 import { useCategoryNavigation } from '@/hooks/category/useCategoryNavigation';
+import { usePageScroll } from '@/hooks/shared/usePageScroll';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import type { Program } from '@/interfaces/catalog.interface';
 import SelectBanner from './SelectBanner';
@@ -26,15 +27,15 @@ function getCardImage(program: Program): string {
 function CategoryCard({
     program,
     focusKey,
-    isFirstRow,
     onProgramFocus,
     onPress,
+    onCardFocused,
 }: {
     program: Program;
     focusKey: string;
-    isFirstRow?: boolean;
     onProgramFocus?: (p: Program) => void;
     onPress?: (program: Program) => void;
+    onCardFocused?: () => void;
 }) {
     const imgSrc = getCardImage(program);
 
@@ -47,30 +48,7 @@ function CategoryCard({
         onEnterPress: handlePress,
         onFocus: () => {
             onProgramFocus?.(program);
-            const el = ref.current as HTMLElement;
-            if (!el) return;
-            
-            const container = el.closest('[class*="container"]') as HTMLElement;
-            const banner = document.querySelector('[class*="stickyBanner"]') as HTMLElement;
-
-            if (isFirstRow) {
-                container?.scrollTo({ top: 0, behavior: 'smooth' });
-            } else if (container && banner) {
-                const bannerHeight = banner.getBoundingClientRect().height;
-                const elRect = el.getBoundingClientRect();
-                const containerRect = container.getBoundingClientRect();
-                
-                const targetTop = bannerHeight + 10;
-                const currentTop = elRect.top - containerRect.top;
-                const offset = currentTop - targetTop;
-                
-                if (Math.abs(offset) > 20) {
-                    container.scrollBy({
-                        top: offset,
-                        behavior: 'smooth'
-                    });
-                }
-            }
+            onCardFocused?.();
         },
     });
 
@@ -107,6 +85,9 @@ function CategoryCard({
     );
 }
 
+/** Cuántos cards antes del final disparan la carga */
+const PREFETCH_THRESHOLD = 6;
+
 /* ── Vista de categoría ── */
 function CategoryView() {
     /* ── Hooks de datos y navegación ── */
@@ -126,6 +107,9 @@ function CategoryView() {
 
     const { goToProgram } = useCategoryNavigation();
 
+    /* ── Scroll por translateY (compatible webOS 1-3) ── */
+    const { scrollRef, applyScroll, currentScrollY } = usePageScroll();
+
     /* ── Foco ── */
     const { ref, focusKey } = useFocusable({
         focusKey: 'CATEGORY',
@@ -140,20 +124,41 @@ function CategoryView() {
         }
     }, [isLoading, programs.length]);
 
-    /* Detectar scroll al fondo para cargar más */
-    const handleScroll = useCallback(
-        (e: React.UIEvent<HTMLDivElement>) => {
-            const el = e.currentTarget;
-            if (
-                el.scrollHeight - el.scrollTop - el.clientHeight < 300 &&
-                hasMore &&
-                !isLoadingMore
-            ) {
-                loadMore();
+    /* Scroll al card enfocado + prefetch */
+    const handleCardFocused = useCallback((index: number) => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const card = container.querySelector(
+            `[data-focuskey="CAT-GRID-${index}"]`,
+        ) as HTMLElement | null;
+
+        if (card) {
+            const cardRect = card.getBoundingClientRect();
+
+            // Calcular la altura real del banner fijo
+            const bannerEl = document.querySelector('[class*="stickyBanner"]') as HTMLElement | null;
+            const bannerBottom = bannerEl
+                ? bannerEl.getBoundingClientRect().bottom
+                : window.innerHeight * 0.55;
+
+            // Si el card está cortado por el banner o por el viewport inferior
+            if (cardRect.top < bannerBottom + 5 || cardRect.bottom > window.innerHeight - 20) {
+                const targetTop = bannerBottom + 10;
+                const delta = cardRect.top - targetTop;
+                applyScroll(currentScrollY.current + delta);
             }
-        },
-        [hasMore, isLoadingMore, loadMore],
-    );
+        }
+
+        // Prefetch cuando el foco llega a los últimos N cards
+        if (
+            hasMore &&
+            !isLoadingMore &&
+            index >= programs.length - PREFETCH_THRESHOLD
+        ) {
+            loadMore();
+        }
+    }, [scrollRef, applyScroll, currentScrollY, hasMore, isLoadingMore, programs.length, loadMore]);
 
     if (isLoading) {
         return <FullScreenSpinner />;
@@ -171,43 +176,42 @@ function CategoryView() {
 
     return (
         <FocusContext.Provider value={focusKey}>
-            <div
-                ref={ref}
-                className={styles.container}
-                onScroll={handleScroll}
-            >
-                {/* Banner del programa seleccionado — sticky */}
+            <div ref={ref} className={styles.container}>
+                {/* Banner del programa seleccionado — fixed */}
                 <div className={styles.stickyBanner}>
                     <SelectBanner program={selectedProgram} imageUrl={bannerImageUrl} />
                 </div>
 
-                {/* Título de categoría */}
-                <h1 className={styles.categoryTitle}>{categoryTitle || slug}</h1>
+                {/* Contenido con translateY */}
+                <div ref={scrollRef} className={styles.scrollContent}>
+                    {/* Título de categoría */}
+                    <h1 className={styles.categoryTitle}>{categoryTitle || slug}</h1>
 
-                {programs.length === 0 ? (
-                    <p className={styles.emptyText}>
-                        No hay programas en esta categoría.
-                    </p>
-                ) : (
-                    <div className={styles.grid}>
-                        {programs.map((program, i) => (
-                            <CategoryCard
-                                key={program.id || program.key}
-                                program={program}
-                                focusKey={`CAT-GRID-${i}`}
-                                isFirstRow={i < 4}
-                                onProgramFocus={setActiveBannerProgram}
-                                onPress={goToProgram}
-                            />
-                        ))}
-                    </div>
-                )}
+                    {programs.length === 0 ? (
+                        <p className={styles.emptyText}>
+                            No hay programas en esta categoría.
+                        </p>
+                    ) : (
+                        <div className={styles.grid}>
+                            {programs.map((program, i) => (
+                                <CategoryCard
+                                    key={program.id || program.key}
+                                    program={program}
+                                    focusKey={`CAT-GRID-${i}`}
+                                    onProgramFocus={setActiveBannerProgram}
+                                    onPress={goToProgram}
+                                    onCardFocused={() => handleCardFocused(i)}
+                                />
+                            ))}
+                        </div>
+                    )}
 
-                {isLoadingMore && (
-                    <div className={styles.loadingMore}>
-                        <FullScreenSpinner />
-                    </div>
-                )}
+                    {isLoadingMore && (
+                        <div className={styles.loadingMore}>
+                            <FullScreenSpinner />
+                        </div>
+                    )}
+                </div>
             </div>
         </FocusContext.Provider>
     );

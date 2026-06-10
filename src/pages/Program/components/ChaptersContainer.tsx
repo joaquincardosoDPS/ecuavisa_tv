@@ -64,16 +64,32 @@ function ChaptersContainer({
     onFocus: () => onContentFocused?.(),
   });
 
-  /** Scroll vertical al capítulo enfocado */
+  /** Scroll vertical al capítulo enfocado (compatible webOS 1-3) */
   const scrollToChapter = useCallback((idx: number) => {
     const list = listRef.current;
     if (!list) return;
+
+    // El contenedor scrolleable es chaptersWrapper (padre de chaptersTrack)
+    const scrollContainer = list.parentElement;
+    if (!scrollContainer) return;
 
     const children = list.children;
     if (idx < 0 || idx >= children.length) return;
 
     const child = children[idx] as HTMLElement;
-    child.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+
+    // Si el elemento ya está visible, no scrollear
+    if (childRect.top >= containerRect.top && childRect.bottom <= containerRect.bottom) {
+      return;
+    }
+
+    // Calcular el nuevo scrollTop para centrar el elemento
+    const childOffsetTop = child.offsetTop;
+    const containerHeight = scrollContainer.clientHeight;
+    const targetScroll = childOffsetTop - containerHeight / 2 + child.offsetHeight / 2;
+    scrollContainer.scrollTop = Math.max(0, targetScroll);
   }, []);
 
   /** Focus handler con infinite scroll */
