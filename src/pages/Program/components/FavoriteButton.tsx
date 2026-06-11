@@ -33,6 +33,9 @@ function FavoriteButton({
                 setFocus(playFocusKey);
                 return false;
             }
+            if (direction === 'right') {
+                return false;
+            }
             if (direction === 'down') {
                 setFocus(tabsFocusKey);
                 return false;
