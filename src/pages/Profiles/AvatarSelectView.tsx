@@ -60,11 +60,13 @@ function AvatarRow({
   selectedAvatar,
   onSelectAvatar,
   focusKeyPrefix,
+  onRowFocused,
 }: {
   group: import('@/interfaces/profile.interface').AvatarGroup;
   selectedAvatar: string | null;
   onSelectAvatar: (id: string, url: string | null) => void;
   focusKeyPrefix: string;
+  onRowFocused?: () => void;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +74,7 @@ function AvatarRow({
     focusKey: focusKeyPrefix,
     saveLastFocusedChild: true,
     trackChildren: true,
+    onFocus: () => onRowFocused?.(),
   });
 
   const scrollToCard = useCallback((cardFocusKey: string) => {
@@ -144,11 +147,37 @@ function AvatarSelectView() {
 
   const avatarGroups = avatarsResponse?.data || [];
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const { ref: containerRef, focusKey } = useFocusable({
     focusKey: 'AVATAR-SELECT-VIEW',
     saveLastFocusedChild: true,
     trackChildren: true,
   });
+
+  /** Scroll vertical al grupo enfocado */
+  const scrollToRow = useCallback((rowIndex: number) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const children = container.children;
+    if (rowIndex < 0 || rowIndex >= children.length) return;
+
+    const child = children[rowIndex] as HTMLElement;
+    const containerRect = container.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+
+    // Si ya está visible, no scrollear
+    if (childRect.top >= containerRect.top && childRect.bottom <= containerRect.bottom) {
+      return;
+    }
+
+    // Centrar el grupo en el contenedor
+    const childOffsetTop = child.offsetTop;
+    const containerHeight = container.clientHeight;
+    const targetScroll = childOffsetTop - containerHeight / 2 + child.offsetHeight / 2;
+    container.scrollTop = Math.max(0, targetScroll);
+  }, []);
 
   // Focus first avatar row on load
   useEffect(() => {
@@ -186,7 +215,7 @@ function AvatarSelectView() {
       <div ref={containerRef} className={styles.container}>
         <h1 className={styles.title}>Elegir avatar</h1>
 
-        <div className={styles.avatarsScroll}>
+        <div ref={scrollRef} className={styles.avatarsScroll}>
           {avatarGroups.map((group, idx) => (
             <AvatarRow
               key={group.name}
@@ -199,6 +228,7 @@ function AvatarSelectView() {
                 goBackWithAvatar(returnTo, id, stateData.currentName, url);
               }}
               focusKeyPrefix={`avatar-row-${idx}`}
+              onRowFocused={() => scrollToRow(idx)}
             />
           ))}
         </div>

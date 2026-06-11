@@ -59,6 +59,7 @@ interface RelatedProgramsContainerProps {
     fetchNextPage?: () => void;
     onRowFocused?: () => void;
     onProgramPress?: (programKey: string) => void;
+    onContentFocused?: () => void;
 }
 
 function RelatedProgramsContainer({
@@ -68,6 +69,7 @@ function RelatedProgramsContainer({
     hasNextPage = false,
     fetchNextPage,
     onProgramPress,
+    onContentFocused,
 }: RelatedProgramsContainerProps) {
     const gridRef = useRef<HTMLDivElement>(null);
 
@@ -76,6 +78,7 @@ function RelatedProgramsContainer({
         saveLastFocusedChild: true,
         trackChildren: true,
         isFocusBoundary: false,
+        onFocus: () => onContentFocused?.(),
     });
 
     /** scroll al card enfocado con margen inferior + prefetch */

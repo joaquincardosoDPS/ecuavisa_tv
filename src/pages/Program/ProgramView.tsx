@@ -171,6 +171,7 @@ function ProgramView({
                   showChapter={programDetail.active_number}
                   progressMap={progressMap}
                   onChapterPress={handleChapterPress}
+                  onContentFocused={() => scrollToSection("tabs", "start", 60)}
                 />
               )}
             </div>

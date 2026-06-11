@@ -9,6 +9,7 @@ import { useAuthNavigation } from '@/hooks/auth/useAuthNavigation';
 import { useConfigStore } from '@/features/config/useConfigStore';
 import { useAuthStore } from '@/features/auth/authStore';
 import { isInputAction } from '@/utils/keycodes';
+import { dismissSplash } from '@/utils/dismissSplash';
 import logoFallback from '@/assets/img/logo.svg';
 import styles from './RegisterView.module.css';
 
@@ -45,10 +46,28 @@ function RegisterView() {
         onEnterPress: goToLogin,
     });
 
-    // Auto-focus login button on mount
+    // Auto-focus login button on mount + dismiss splash
     useEffect(() => {
+        dismissSplash();
         const timer = setTimeout(() => setFocus('sn:register-login-btn'), 300);
         return () => clearTimeout(timer);
+    }, []);
+
+    /** Cierra la app en la plataforma correspondiente */
+    const exitApp = useCallback(() => {
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const w = window as any;
+            if (w.tizen?.application) {
+                w.tizen.application.getCurrentApplication().exit();
+            } else if (w.webOS?.platformBack) {
+                w.webOS.platformBack();
+            } else {
+                window.close();
+            }
+        } catch {
+            window.close();
+        }
     }, []);
 
     // Back key → show exit dialog 
@@ -61,17 +80,7 @@ function RegisterView() {
                     setExitSelection('exit');
                 } else if (e.key === 'Enter' || e.keyCode === 13) {
                     if (exitSelection === 'exit') {
-                        try {
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            const w = window as any;
-                            if (w.tizen?.application) {
-                                w.tizen.application.getCurrentApplication().exit();
-                            } else if (w.webOS?.platformBack) {
-                                w.webOS.platformBack();
-                            }
-                        } catch {
-                            window.close();
-                        }
+                        exitApp();
                     } else {
                         setShowExitDialog(false);
                         setFocus('sn:register-login-btn');
@@ -184,7 +193,7 @@ function RegisterView() {
                             </button>
                             <button
                                 className={`${styles.dialogBtn} ${exitSelection === 'exit' ? styles.focused : ''}`}
-                                onClick={() => window.close()}
+                                onClick={exitApp}
                             >
                                 Sí, Salir
                             </button>

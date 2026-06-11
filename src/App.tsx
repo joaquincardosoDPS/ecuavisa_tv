@@ -1,15 +1,12 @@
 import { RouterProvider } from "react-router-dom";
 import { appRouter } from "./router"
-import { FullScreenSpinner } from "./components/ui/FullScreenSpinner";
 import { useAppInitialization } from "./hooks/shared/useAppInitilization";
 
 
 function App() {
-  const { isLoading, isError } = useAppInitialization();
-
-  if (isLoading) return <FullScreenSpinner />;
-  if (isError) return <div>Error crítico al iniciar la aplicación.</div>;
-
+  // Config se carga en background — el splash de index.html cubre todo
+  // hasta que WhoIsThereView lo remueva cuando los perfiles estén listos.
+  useAppInitialization();
 
   return (
     <RouterProvider router={appRouter} />

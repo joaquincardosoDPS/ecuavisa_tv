@@ -115,6 +115,7 @@ function ChaptersContainer({
             seasons={activeSegment.all_temp}
             activeSeason={activeSeason}
             setActiveSeason={setActiveSeason}
+            onSeasonFocused={onContentFocused}
           />
         )}
 

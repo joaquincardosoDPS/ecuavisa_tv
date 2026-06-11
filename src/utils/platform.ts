@@ -26,9 +26,18 @@ export function exitApp(): void {
             try { tizen.application.getCurrentApplication().exit(); } catch { /* noop */ }
             break;
         case 'webos':
-            try { webOS.platformBack?.(); } catch { /* noop */ }
+            try {
+                if (typeof webOS !== 'undefined' && webOS.platformBack) {
+                    webOS.platformBack();
+                } else {
+                    window.close();
+                }
+            } catch {
+                window.close();
+            }
             break;
         default:
+            window.close();
             break;
     }
 }

@@ -353,12 +353,13 @@
     flex-shrink: 0;
     margin-top: 40px;
     margin-right: 176px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 220px);
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     padding-right: 8px;
+    padding-bottom: 20px;
 }
 
 .seasonsRow>*+* {
@@ -404,12 +405,13 @@
 /* ── Chapters vertical list ── */
 .chaptersWrapper {
     flex: 1;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 220px);
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     margin-top: 40px;
+    padding-bottom: 20px;
 }
 
 .chaptersWrapper::-webkit-scrollbar {

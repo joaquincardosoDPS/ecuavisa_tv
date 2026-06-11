@@ -10,6 +10,7 @@ import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 import { Button } from '@/components/ui/Button';
 import { useConfigStore } from '@/features/config/useConfigStore';
 import { isInputAction } from '@/utils/keycodes';
+import { dismissSplash } from '@/utils/dismissSplash';
 import type { Profile } from '@/interfaces/profile.interface';
 import fallbackLogo from '@/assets/img/logo.svg';
 import iconEdit from '@/assets/img/icons/iconos-edit.svg';
@@ -178,6 +179,7 @@ function WhoIsThereView() {
 
   useEffect(() => {
     if (!isLoading && profiles.length > 0) {
+      dismissSplash();
       setTimeout(() => setFocus(`whoisthere-profile-${profiles[0].id}`), 300);
     }
   }, [isLoading, profiles]);

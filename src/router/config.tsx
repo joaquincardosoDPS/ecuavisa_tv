@@ -47,6 +47,8 @@ const Lazy = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const APP_ROUTES: RouteObject[] = [
+    /* Redirigir / → /whoisthere SIN pasar por MainLayout (evita flash del sidebar) */
+    { index: true, element: <Navigate to="/whoisthere" replace /> },
     { path: "auth/register", element: <Lazy><RegisterView /></Lazy> },
     { path: "auth/login", element: <Lazy><LoginView /></Lazy> },
     {
@@ -59,7 +61,6 @@ export const APP_ROUTES: RouteObject[] = [
         id: "root",
         element: <MainLayout />,
         children: [
-            { index: true, element: <Navigate to="/whoisthere" replace /> },
             {
                 path: "play/:program/:segment/:season/:chapter",
                 element: <Lazy><PlayerView /></Lazy>,
