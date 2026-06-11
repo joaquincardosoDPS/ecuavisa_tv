@@ -26,7 +26,7 @@ export function useMyListData() {
     } = useFetchPaginated<FavoriteItem>(
         (pg, limit) => favoritesService.getAll(token!, activeProfile!.id, pg, limit),
         [token, activeProfile],
-        { limit: FAVORITES_LIMIT, enabled: isAuthenticated, hasMoreStrategy: 'length' },
+        { limit: FAVORITES_LIMIT, enabled: isAuthenticated, hasMoreStrategy: 'last_page' },
     );
 
     return {

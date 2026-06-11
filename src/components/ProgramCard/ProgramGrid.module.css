@@ -2,10 +2,23 @@
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     /* Espacio para borders/shadow */
     margin: -8px;
     padding: 8px;
+}
+
+/* Scroll nativo con scrollbar oculta — mismo patrón que CategoryView */
+.scrollArea {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: auto;
+}
+
+.scrollArea::-webkit-scrollbar {
+    display: none;
 }
 
 .grid {
@@ -14,8 +27,6 @@
     align-items: flex-start;
     align-content: flex-start;
     padding-bottom: 12px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
 }
 
 /* 4 columnas: cada card ocupa ~23% con margen entre ellas */
@@ -24,14 +35,13 @@
     margin: 1%;
 }
 
-/* Wrapper para el botón "Cargar más" — ocupa todo el ancho */
-.loadMoreWrapper {
-    flex: 0 0 98%;
-    margin: 1%;
+/* Spinner de carga infinita al final de la grilla */
+.loadingMoreSpinner {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 0;
+    padding: 1.5rem 0;
 }
 
 .statusText {

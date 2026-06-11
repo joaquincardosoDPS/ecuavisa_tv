@@ -2,6 +2,8 @@
 // All types used by the VideoPlayer module are defined here.
 // External consumers should import types from '@/components/VideoPlayer'.
 
+import type { AdBreakCuepoint } from '@/services/adsService';
+
 export type { AdBreakCuepoint } from '@/services/adsService';
 
 
