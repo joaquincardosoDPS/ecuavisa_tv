@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import type { Program } from '@/interfaces/catalog.interface';
 import styles from './ProgramCard.module.css';
@@ -5,11 +6,12 @@ import styles from './ProgramCard.module.css';
 interface AlternativeCardProps {
     program: Program;
     focusKey: string;
-    onCardFocus?: () => void;
+    index: number;
+    onCardFocus?: (focusKey: string, index: number) => void;
     onPress?: (programKey: string) => void;
 }
 
-function AlternativeCard({ program, focusKey, onCardFocus, onPress }: AlternativeCardProps) {
+function AlternativeCard({ program, focusKey, index, onCardFocus, onPress }: AlternativeCardProps) {
     const imageSrc = program?.image_land?.small;
 
     const handlePress = () => {
@@ -19,10 +21,7 @@ function AlternativeCard({ program, focusKey, onCardFocus, onPress }: Alternativ
     const { ref, focused } = useFocusable({
         focusKey,
         onEnterPress: handlePress,
-        onFocus: () => {
-            console.log('[CARD] onFocus', focusKey);
-            onCardFocus?.();
-        },
+        onFocus: () => onCardFocus?.(focusKey, index),
     });
 
     const classList = [
@@ -52,4 +51,6 @@ function AlternativeCard({ program, focusKey, onCardFocus, onPress }: Alternativ
     );
 }
 
-export default AlternativeCard;
+export default memo(AlternativeCard);
+
+
