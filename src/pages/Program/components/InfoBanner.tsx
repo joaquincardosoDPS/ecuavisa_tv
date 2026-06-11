@@ -3,6 +3,7 @@ import { useFavorite } from '@/hooks/program/useFavorite';
 import type { Program } from '@/interfaces/catalog.interface';
 import type { HistoryItem } from '@/interfaces/history.interface';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
 import iconoReiniciarRaw from '@/assets/img/icons/iconos-reiniciar-program.svg?raw';
 import FavoriteButton from './FavoriteButton';
 import ProgressBar from './ProgressBar';
@@ -46,6 +47,10 @@ function InfoBanner({ program, onBannerFocused, continueWatchingItem, onPlay, on
         onEnterPress: handlePlay,
         onFocus: () => onBannerFocused?.(),
         onArrowPress: (direction) => {
+            if (direction === 'left') {
+                setFocus(SIDEBAR_FOCUS_KEY);
+                return false;
+            }
             if (direction === 'right') {
                 if (isResuming) {
                     setFocus('program-btn-restart');

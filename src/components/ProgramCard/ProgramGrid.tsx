@@ -113,7 +113,7 @@ function ProgramGrid({
             onLoadMoreRef.current();
         }
 
-        /* ── Scroll into view ── */
+        /* ── Scroll into view (Chrome 38 compatible) ── */
         const container = scrollRef.current;
         if (!container) return;
 
@@ -129,8 +129,10 @@ function ProgramGrid({
         const isBelow = childRect.bottom > containerRect.bottom;
 
         if (isAbove || isBelow) {
+            // Calcular offset relativo al container y ajustar scrollTop directamente
+            // (scrollBy + smooth no existe en Chrome 38 / webOS 1-3)
             const offset = childRect.top - containerRect.top - 10;
-            container.scrollBy({ top: offset, behavior: 'smooth' });
+            container.scrollTop = container.scrollTop + offset;
         }
     }, []);
 

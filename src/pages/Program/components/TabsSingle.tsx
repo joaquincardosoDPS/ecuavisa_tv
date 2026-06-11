@@ -1,5 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
 import type { FocusDetails } from '@noriginmedia/norigin-spatial-navigation';
 import type { Segment } from '@/interfaces/catalog.interface';
 import styles from '../ProgramPage.module.css';
@@ -50,6 +51,8 @@ function TabButton({
             if (direction === 'left') {
                 if (index > 0) {
                     setFocus(allFocusKeys[index - 1]);
+                } else {
+                    setFocus(SIDEBAR_FOCUS_KEY);
                 }
                 return false;
             }

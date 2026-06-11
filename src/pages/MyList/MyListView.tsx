@@ -120,8 +120,9 @@ function MyListView() {
       const childRect = child.getBoundingClientRect();
 
       if (childRect.top < containerRect.top || childRect.bottom > containerRect.bottom) {
+        // scrollBy + smooth no existe en Chrome 38 / webOS 1-3
         const offset = childRect.top - containerRect.top - 10;
-        container.scrollBy({ top: offset, behavior: "smooth" });
+        container.scrollTop = container.scrollTop + offset;
       }
     },
     [],

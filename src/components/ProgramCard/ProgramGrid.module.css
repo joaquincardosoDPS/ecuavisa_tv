@@ -1,8 +1,8 @@
 .gridOuter {
     position: relative;
     width: 100%;
-    /* Chrome 38: height:100% no resuelve en cadenas flex, usar max-height explícito */
-    max-height: calc(100vh - 10rem);
+    /* Chrome 38: height:100% no resuelve contra max-height, usar height explícito */
+    height: calc(100vh - 10rem);
     overflow: hidden;
     /* Espacio para borders/shadow */
     margin: -8px;

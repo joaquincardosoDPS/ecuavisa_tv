@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useFavorite } from '@/hooks/program/useFavorite';
 import type { Chapter, Program } from '@/interfaces/catalog.interface';
 import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
 import { useContinueWatching } from '@/hooks/program/useContinueWatching';
 import { formatDuration } from '@/utils/formatDuration';
 import FavoriteButton from './FavoriteButton';
@@ -44,6 +45,10 @@ function InfoBannerSingle({
     onEnterPress: handlePlay,
     onFocus: () => onBannerFocused?.(),
     onArrowPress: (direction) => {
+      if (direction === 'left') {
+        setFocus(SIDEBAR_FOCUS_KEY);
+        return false;
+      }
       if (direction === 'right' && isEnabled) {
         setFocus('program-single-btn-favorite');
         return false;
