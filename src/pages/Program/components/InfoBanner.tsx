@@ -60,6 +60,11 @@ function InfoBanner({ program, onBannerFocused, continueWatchingItem, onPlay, on
                     setFocus('program-btn-favorite');
                     return false;
                 }
+                return false;
+            }
+            if (direction === 'left') {
+                setFocus('SIDEBAR');
+                return false;
             }
             if (direction === 'down') {
                 setFocus('PROGRAM-TABS');

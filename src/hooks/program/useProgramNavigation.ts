@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { Program, Chapter } from '@/interfaces/catalog.interface';
 import type { HistoryItem } from '@/interfaces/history.interface';
+import { catalogService } from '@/services/catalogService';
 
 export function useProgramNavigation() {
     const navigate = useNavigate();
@@ -27,8 +28,8 @@ export function useProgramNavigation() {
         );
     };
 
-    /** Navega al player desde el banner */
-    const goToPlayerFromBanner = (
+    /** Navega al player desde el banner — busca el primer capítulo real de la API */
+    const goToPlayerFromBanner = async (
         program: Program,
         continueWatchingItem?: HistoryItem | null,
     ) => {
@@ -38,7 +39,21 @@ export function useProgramNavigation() {
             const firstSegment = program.segments?.[0];
             if (firstSegment) {
                 const firstSeason = firstSegment.all_temp?.[0] ?? 1;
-                goToPlayer(program.key, firstSegment.key, firstSeason, 1);
+                try {
+                    const res = await catalogService.getChapters({
+                        program: program.key,
+                        segment: firstSegment.key,
+                        season: firstSeason,
+                        limit: 1,
+                        page: 1,
+                    });
+                    const firstChapter = res?.data?.[0];
+                    const chapterNum = firstChapter?.chapter ?? 1;
+                    goToPlayer(program.key, firstSegment.key, firstSeason, chapterNum);
+                } catch {
+                    // Fallback: navegar con chapter 1
+                    goToPlayer(program.key, firstSegment.key, firstSeason, 1);
+                }
             }
         }
     };
