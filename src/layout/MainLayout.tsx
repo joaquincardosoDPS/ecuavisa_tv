@@ -30,7 +30,7 @@ function ContentWrapper() {
             <main
                 ref={ref}
                 className={styles.content}
-                style={{ marginLeft: '9vw' }}
+                style={{ paddingLeft: '9vw' }}
             >
                 <Outlet />
             </main>

@@ -6,22 +6,12 @@
 
 .section.hasBg {
     padding: 2rem 0;
-}
-
-/* Fondo que se extiende detrás del sidebar */
-.section.hasBg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100px;
-    width: 100vw;
-    height: 100%;
-    background: inherit;
+    /* Extender el fondo por debajo del sidebar sin pseudo-elemento */
+    margin-left: -9vw;
+    padding-left: 9vw;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    z-index: 0;
-    pointer-events: none;
 }
 
 .sectionTitle {

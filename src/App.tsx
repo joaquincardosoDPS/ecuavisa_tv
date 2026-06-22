@@ -1,6 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { appRouter } from "./router"
 import { useAppInitialization } from "./hooks/shared/useAppInitilization";
+import { NetworkLostPopup } from "./components/ui/NetworkLostPopup";
 
 
 function App() {
@@ -9,7 +10,11 @@ function App() {
   useAppInitialization();
 
   return (
-    <RouterProvider router={appRouter} />
+    <>
+      <RouterProvider router={appRouter} />
+      {/* Popup global de red — visible en TODAS las pantallas (CO-CN-02) */}
+      <NetworkLostPopup />
+    </>
   )
 }
 

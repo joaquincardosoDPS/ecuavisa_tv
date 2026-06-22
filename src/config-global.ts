@@ -3,7 +3,7 @@ export const RUDO_API_URL = 'https://consumers.rudo.video/categories/all';
 export const RUDO_BASE_USER = 'https://consumers.rudo.video/users'
 
 
-export const CLIENT = 'ecuavisa';
+export const CLIENT = 'chv';
 export const BASENAME = import.meta.env.BASE_URL.replace(/\/+$/, '') || '/';
 
 export const ADS_FALLBACK_DOMAIN = 'https://www.latina.pe';

@@ -4,6 +4,10 @@
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
+    /* Extender a la izquierda para que overflow-x clip empiece en el borde del viewport */
+    margin-left: -9vw;
+    padding-left: 9vw;
+    width: calc(100% + 9vw);
 }
 
 .container::-webkit-scrollbar {
