@@ -1,0 +1,63 @@
+.liveBadgeWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--clr-primary-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.controlsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.volumePopoverContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.volumeSliderWrapper {
+  padding: 12px 8px;
+  background-color: rgba(0, 0, 0, 0.85);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.livePulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--foc-primary);
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+.volumeInput {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 4px;
+  height: 80px;
+  accent-color: var(--clr-icon);
+  cursor: pointer;
+  appearance: auto;
+}
+

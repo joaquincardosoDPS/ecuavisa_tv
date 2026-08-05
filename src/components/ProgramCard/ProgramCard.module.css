@@ -1,111 +1,60 @@
-/* ── Card base ── */
-.card {
+/* ── Shared card styles ── */
+.cardWrapper {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.cardImg {
     position: relative;
     flex-shrink: 0;
     overflow: hidden;
     cursor: pointer;
-    background-color: #0a0a0a;
-    border: 3px solid transparent;
-}
-
-/* F6.1: hover = focused*/
-.card.focused,
-.card:hover {
-    z-index: 10;
-    border-color: #fff200;
-    border-color: var(--foc-primary, #fff200);
-    transform: scale(1.02);
-}
-
-/* Alternative cards override: no border/shadow on the card itself */
-.card.alternative.focused,
-.card.alternative:hover {
-    border-color: transparent;
-    box-shadow: none;
-}
-
-/* ── Orientaciones ── */
-.horizontal {
-    border-radius: 8px;
-    width: 22vw;
-    /* 16:9 ratio: 22vw * 9/16 = 12.375vw */
-    height: 12.375vw;
-}
-
-.vertical {
-    border-radius: 12px;
-    width: 15vw;
-    /* 9:16 ratio: 15vw * 16/9 = 26.67vw */
-    height: 26.67vw;
-}
-
-.alternative {
-    border-radius: 32px;
-    width: 100%;
-    background-color: #00AD86;
-    overflow: visible;
-    border: none;
-}
-
-/* 16:9 ratio box inside alternative cards */
-.ratioBox {
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding-top: 56.25%;
-    overflow: hidden;
-    border-radius: 28px;
-}
-
-.ratioBox .image,
-.ratioBox .fallback {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-/* Pseudo-elemento para el borde (respeta layout original sin encoger) */
-.ratioBox::after {
-    content: "";
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    border-radius: inherit;
-    border: 4px solid transparent;
-    pointer-events: none;
-    z-index: 15;
+    transition: all 0.3s;
+    background-color: var(--clr-primary);
+    border-radius: 0.5rem;
+    
+    /* Solución de Layout + Borde visible:
+       Declaramos el borde desde el inicio como transparente y forzamos
+       border-box para que el borde crezca hacia adentro, sobre la imagen,
+       sin desplazar los elementos exteriores. */
     box-sizing: border-box;
+    border: 2px solid transparent;
 }
 
-/* Image border on focus for alternative cards */
-.alternative.focused .ratioBox::after,
-.alternative:hover .ratioBox::after {
-    border-color: #fff200;
-    border-color: var(--foc-primary, #fff200);
+.cardImg:hover,
+.cardImg:focus {
+    z-index: 10;
+    outline: none;
+    /* Al hacer hover coloreamos el borde (ahora visible) y agregamos el glow exterior */
+    border-color: var(--foc-primary);
+    box-shadow: 0 0 20px rgba(255,19,118,0.3);
 }
 
-/* ── Card title (below card) ── */
-.cardTitle {
-    font-size: 18px;
-    font-weight: 600;
-    color: #ffffff;
-    font-family: Archia, Arial, Helvetica, sans-serif;
-    padding-top: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ── Imagen ── */
-.image {
+.cardImg img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s;
+    transform: scale(1.1);
+    user-select: none;
 }
 
-/* ── Fallback sin imagen ── */
-.fallback {
+.cardImg:hover img,
+.cardImg:focus img {
+    transform: scale(1.0);
+}
+
+.cardImgVertical {
+    aspect-ratio: 9 / 16;
+    border-radius: 0.75rem;
+}
+
+.cardImgHorizontal {
+    aspect-ratio: 16 / 9;
+}
+
+.cardImgFallback {
     width: 100%;
     height: 100%;
     display: flex;
@@ -113,110 +62,313 @@
     justify-content: center;
     padding: 1rem;
     text-align: center;
-    background-color: #1a1a1a;
+    background-color: var(--clr-secondary);
+    transform: scale(1.1);
+    transition: transform 0.3s;
 }
 
-.fallbackText {
-    color: #ffffff;
-    font-size: 0.9rem;
-    font-size: var(--font-size-subtext, 0.9rem);
+.cardImg:hover .cardImgFallback,
+.cardImg:focus .cardImgFallback {
+    transform: scale(1.0);
+}
+
+.cardImgFallbackText {
+    color: var(--clr-primary-title);
+    font-size: 0.875rem;
     font-weight: 500;
 }
 
-/* ── Badges ── */
+.badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    padding: 0.25rem 0.625rem;
+    border-radius: 0 0 0.375rem 0;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .rankingBadge {
     position: absolute;
     top: 0.5rem;
     left: 0;
     z-index: 10;
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 3.75rem;
+    height: 3.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.rankingIcon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
 .rankingNumber {
     position: relative;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 1.4rem;
-    font-size: var(--font-size-label, 1.4rem);
+    color: var(--clr-primary-title);
+    font-weight: bold;
+    font-size: 1.125rem;
     text-align: center;
     margin-top: -0.875rem;
 }
 
-.eventBadge {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    font-size: var(--font-size-caption, 1.1rem);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #000000;
-}
-
-/* ── Card wrapper (for date info below card) ── */
-.cardWrapper {
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-
-/* ── Event date info (horizontal — below card) ── */
-.eventDateInfo {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem 0;
-}
-
-.eventDateText {
-    font-size: 1.1rem;
-    font-size: var(--font-size-caption, 1.1rem);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #b0b0b0;
-    color: var(--clr-secondary-text, #b0b0b0);
-}
-
-.eventDateTitle {
-    font-size: 1.1rem;
-    font-size: var(--font-size-caption, 1.1rem);
-    font-weight: 500;
-    color: #b0b0b0;
-    color: var(--clr-secondary-text, #b0b0b0);
-    margin-top: 0.15rem;
-}
-
-/* ── Event date overlay (vertical — bottom banner) ── */
-.eventDateOverlay {
+.dateBanner {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 10;
-    padding: 0.4rem 0.75rem;
-    background-color: #fff200;
-    background-color: var(--foc-primary, #fff200);
-    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--foc-primary);
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #ffffff;
-    color: var(--clr-primary-title, #ffffff);
+    letter-spacing: 0.05em;
+    color: var(--clr-primary-title);
     text-align: center;
 }
+
+.cardMeta {
+    margin-top: 0.5rem;
+    padding: 0 0.125rem;
+}
+
+.cardTitle {
+    color: var(--clr-primary-title);
+    font-size: 1rem;
+    font-weight: bold;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.cardSubtitle {
+    color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+    font-size: 0.875rem;
+    margin-top: 0.125rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* ── Carousel ── */
+.carouselWrapper {
+    position: relative;
+}
+
+.carouselViewport {
+    overflow: hidden;
+    cursor: grab;
+    padding: 0.25rem 0;
+    margin-left: -0.25rem;
+    padding-left: 0.25rem;
+}
+
+.carouselViewport:active {
+    cursor: grabbing;
+}
+
+.carouselTrack {
+    display: flex;
+    gap: 1.25rem;
+    align-items: stretch;
+    will-change: transform;
+}
+
+.carouselArrow {
+    position: absolute;
+    z-index: 20;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+    color: var(--clr-primary-title);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s, background-color 0.2s;
+    opacity: 0;
+    cursor: default;
+    background-color: color-mix(in srgb, var(--clr-primary) 60%, transparent);
+}
+
+.carouselWrapper:hover .carouselArrow { opacity: 0.3; }
+
+.carouselArrow.canScroll {
+    cursor: pointer;
+}
+
+.carouselWrapper:hover .carouselArrow.canScroll { opacity: 1; }
+
+.carouselArrow.canScroll:hover {
+    background-color: var(--foc-primary);
+    border-color: var(--foc-primary);
+}
+
+.carouselArrowLeft {
+    left: 0;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+.carouselArrowRight {
+    right: 3rem;
+    transform: translateY(-50%);
+}
+
+.carouselSpacer { flex: none; }
+
+/* ── CarrouselContainer ── */
+.containerSection {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin: 1.25rem 0;
+    padding-left: 6.25rem;
+}
+
+.containerWithBg {
+    padding: 2rem;
+}
+
+.containerTitle {
+    position: relative;
+    z-index: 10;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--clr-primary-title);
+    line-height: 1.75rem;
+}
+
+.containerIconRow {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.containerIconBox {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5rem;
+    gap: 1.25rem;
+    width: 20rem;
+}
+
+.containerIconImg {
+    width: 60%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 13px rgba(0,0,0,0.5));
+}
+
+.containerIconTitle {
+    width: 40%;
+    position: relative;
+    z-index: 10;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--clr-primary-title);
+    line-height: 1.75rem;
+}
+
+.containerCarouselWrap {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── ProgramGrid ── */
+.grid {
+    color: var(--clr-primary-title);
+    display: grid;
+    gap: 1rem;
+}
+
+.grid4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.grid6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.loadMore {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+    border-top-color: white;
+    border-radius: 9999px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fullWidthCard {
+  width: 100%;
+}
+
+
+.viewMoreText {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--clr-primary-title);
+}
+
+
+.horizontalWrapper {
+  width: var(--card-w-horizontal);
+}
+
+.horizontalImageContainer {
+  width: var(--card-w-horizontal);
+}
+
+
+.verticalImageContainer {
+  width: var(--card-w-vertical);
+}
+
+.rankingIconImage {
+  position: absolute;
+  inset: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+
+.categoryFontContainer {
+  font-family: var(--font-family-category);
+}
+
+.carouselFlexContainer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.carouselItemContainer {
+  flex: 1;
+  min-width: 0px;
+}
+
+
+.loadingText {
+  font-size: 1.25rem;
+}
+
+.errorText {
+  color: #f87171;
+  font-size: 1.25rem;
+}
+

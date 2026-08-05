@@ -1,0 +1,33 @@
+﻿.btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 2px solid;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.favorited {
+    background-color: var(--clr-primary-title);
+    border-color: var(--clr-primary-title);
+    color: black;
+}
+.favorited:hover:not(:disabled) { background-color: rgba(255,255,255,0.8); }
+
+.unfavorited {
+    background-color: rgba(0,0,0,0.4);
+    border-color: var(--clr-primary-title);
+    color: var(--clr-primary-title);
+}
+.unfavorited:hover:not(:disabled) {
+    background-color: var(--clr-primary-title);
+    color: black;
+}
+
+.icon { width: 1.5rem; height: 1.5rem; transition: color 0.2s; }

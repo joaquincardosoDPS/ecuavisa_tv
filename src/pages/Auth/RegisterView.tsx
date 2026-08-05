@@ -1,208 +1,126 @@
-import { useState, useEffect, useCallback } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import {
-    useFocusable,
-    FocusContext,
-    setFocus,
-} from '@noriginmedia/norigin-spatial-navigation';
-import { useAuthNavigation } from '@/hooks/auth/useAuthNavigation';
-import { useConfigStore } from '@/features/config/useConfigStore';
-import { useAuthStore } from '@/features/auth/authStore';
-import { isInputAction } from '@/utils/keycodes';
-import { dismissSplash } from '@/utils/dismissSplash';
-import logoFallback from '@/assets/img/logo.svg';
-import styles from './RegisterView.module.css';
-
-const REGISTER_FOCUS_KEY = 'sn:register';
+import { useNavigate } from "react-router-dom";
+import { useRegisterForm } from "@/hooks/auth/useRegisterForm";
+import RegisterComplete from "./components/RegisterComplete";
+import iconoVisible from "@/assets/img/icons/iconos-visible.svg";
+import iconoOculto from "@/assets/img/icons/iconos-oculto.svg";
+import styles from "./Auth.module.css";
 
 function RegisterView() {
-    const configLogo = useConfigStore((s) => s.config?.logo);
-    const activationUrl = useConfigStore(
-        (s) => s.config?.['url-tv-vincular'] || 'https://latina.pe/activacion',
-    );
-    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const navigate = useNavigate();
+  const {
+    STEPS,
+    step,
+    formData,
+    setFieldValue,
+    errors,
+    isSubmitting,
+    submitError,
+    showPassword,
+    togglePassword,
+    acceptTerms,
+    setAcceptTerms,
+    logo,
+    from,
+    termsUrl,
+    inputRefs,
+    goNext,
+    goPrev,
+    handleKeyDown,
+    getSlideClass,
+    isAnimating,
+    registrationComplete,
+  } = useRegisterForm();
 
-    const [showExitDialog, setShowExitDialog] = useState(false);
-    const [exitSelection, setExitSelection] = useState<'cancel' | 'exit'>('cancel');
+  if (registrationComplete) return <RegisterComplete />;
 
-    /* ── Hook de navegación ── */
-    const { goToLogin, goToLive } = useAuthNavigation();
+  return (
+    <div className={styles.page}>
+      <div className={styles.card}>
+        <div className={styles.logoWrap}>
+          <img src={logo} alt="Logo" className={styles.logo} onClick={() => navigate("/")} />
+        </div>
 
-    // If already authenticated, redirect away
-    useEffect(() => {
-        if (isAuthenticated) goToLive();
-    }, [isAuthenticated, goToLive]);
+        <div className={styles.stepWrap}>
+          {step > 0 && (
+            <button type="button" onClick={goPrev} disabled={isSubmitting || isAnimating} className={styles.backBtn}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          <p className={styles.stepText}>Paso {step + 1} de {STEPS.length}</p>
+        </div>
 
-    // Focus context for the page
-    const { ref: containerRef, focusKey } = useFocusable({
-        focusKey: REGISTER_FOCUS_KEY,
-        trackChildren: true,
-        isFocusBoundary: true,
-    });
+        {submitError && <p className={`${styles.errorMsg} ${styles.submitErrorText}`}>{submitError}</p>}
 
-    // "Iniciar sesión" button
-    const { ref: loginBtnRef, focused: loginBtnFocused } = useFocusable({
-        focusKey: 'sn:register-login-btn',
-        onEnterPress: goToLogin,
-    });
-
-    // Auto-focus login button on mount + dismiss splash
-    useEffect(() => {
-        dismissSplash();
-        const timer = setTimeout(() => setFocus('sn:register-login-btn'), 300);
-        return () => clearTimeout(timer);
-    }, []);
-
-    /** Cierra la app en la plataforma correspondiente */
-    const exitApp = useCallback(() => {
-        try {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const w = window as any;
-            if (w.tizen?.application) {
-                w.tizen.application.getCurrentApplication().exit();
-            } else if (w.webOS?.platformBack) {
-                w.webOS.platformBack();
-            } else {
-                window.close();
-            }
-        } catch {
-            window.close();
-        }
-    }, []);
-
-    // Back key → show exit dialog 
-    const handleKeyDown = useCallback(
-        (e: KeyboardEvent) => {
-            if (showExitDialog) {
-                if (e.key === 'ArrowLeft' || e.keyCode === 37) {
-                    setExitSelection('cancel');
-                } else if (e.key === 'ArrowRight' || e.keyCode === 39) {
-                    setExitSelection('exit');
-                } else if (e.key === 'Enter' || e.keyCode === 13) {
-                    if (exitSelection === 'exit') {
-                        exitApp();
-                    } else {
-                        setShowExitDialog(false);
-                        setFocus('sn:register-login-btn');
-                    }
-                } else if (isInputAction(e, 'Back')) {
-                    e.preventDefault();
-                    setShowExitDialog(false);
-                    setFocus('sn:register-login-btn');
-                }
-                return;
-            }
-
-            if (isInputAction(e, 'Back')) {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowExitDialog(true);
-            }
-        },
-        [showExitDialog, exitSelection],
-    );
-
-    useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleKeyDown]);
-
-    const loginBtnClass = [
-        styles.loginBtn,
-        loginBtnFocused && styles.focused,
-    ]
-        .filter(Boolean)
-        .join(' ');
-
-    return (
-        <FocusContext.Provider value={focusKey}>
-            <div ref={containerRef} className={styles.container}>
-                {/* ── Header (Logo + Iniciar sesión button) ── */}
-                <div className={styles.header}>
-                    <div className={styles.logoWrapper}>
-                        <img
-                            src={configLogo || logoFallback}
-                            alt="Logo"
-                            className={styles.logo}
-                        />
-                    </div>
-                    <div className={styles.loginBtnWrapper}>
-                        <button
-                            ref={loginBtnRef}
-                            className={loginBtnClass}
-                            onClick={goToLogin}
-                            onMouseEnter={() => setFocus('sn:register-login-btn')}
-                        >
-                            Iniciar sesión
-                        </button>
-                    </div>
-                </div>
-
-                {/* ── Body (text + QR) ── */}
-                <div className={styles.body}>
-                    {/* Left — text */}
-                    <div className={styles.textColumn}>
-                        <h2 className={styles.mainTitle}>
-                            Suscríbete Y Descubre
-                        </h2>
-                        <p className={styles.subtitle}>
-                            ¿No tienes una Cuenta?
-                        </p>
-                        <p className={styles.subtitleSmall}>
-                            Escanea el código QR para iniciar tu registro.
-                        </p>
-                    </div>
-
-                    {/* Right — QR code */}
-                    <div className={styles.qrColumn}>
-                        <div className={styles.qrContainer}>
-                            <QRCodeSVG
-                                value={activationUrl}
-                                size={300}
-                                bgColor="#ffffff"
-                                fgColor="#000000"
-                                level="M"
-                            />
-                        </div>
-                    </div>
-                </div>
+        <div className={styles.slidesWrap}>
+          {STEPS.map((s, i) => (
+            <div
+              key={s.id}
+              className={`register-slide ${getSlideClass(i)}`}
+              style={i === step && !isAnimating ? { position: "relative", width: "100%" } : { position: "absolute", top: 0, left: 0, width: "100%" }}
+            >
+              <h2 className={styles.stepTitle}>{s.label}</h2>
+              <div className={styles.inputWrapper}>
+                <input
+                  ref={(el) => { inputRefs.current[i] = el; }}
+                  type={s.id === "password" ? (showPassword ? "text" : "password") : s.type}
+                  placeholder={s.placeholder}
+                  value={formData[s.id]}
+                  onChange={(e) => setFieldValue(s.id, e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className={[styles.input, errors[s.id] ? styles.inputError : ""].join(" ")}
+                  style={s.id === "password" ? { paddingRight: "3.5rem" } : {}}
+                  autoComplete={s.type === "password" ? "new-password" : s.id}
+                />
+                {s.id === "password" && (
+                  <button type="button" onClick={togglePassword} className={styles.eyeBtn} tabIndex={-1}>
+                    <img src={showPassword ? iconoVisible : iconoOculto} alt="Toggle" className={styles.eyeIcon} />
+                  </button>
+                )}
+              </div>
+              <div className={styles.errorMsg} style={{ opacity: errors[s.id] ? 1 : 0, height: errors[s.id] ? "1.25rem" : 0, transition: "all 0.2s" }}>
+                {errors[s.id]}
+              </div>
             </div>
+          ))}
+        </div>
 
-            {/* ── Exit dialog ── */}
-            {showExitDialog && (
-                <div className={styles.dialogOverlay}>
-                    <div className={styles.dialog}>
-                        <img
-                            src={configLogo || logoFallback}
-                            alt="Logo"
-                            className={styles.dialogLogo}
-                        />
-                        <h2 className={styles.dialogTitle}>¿Salir app?</h2>
-                        <p className={styles.dialogSubtitle}>
-                            ¿Estás seguro de que deseas salir?
-                        </p>
-                        <div className={styles.dialogActions}>
-                            <button
-                                className={`${styles.dialogBtn} ${exitSelection === 'cancel' ? styles.focused : ''}`}
-                                onClick={() => {
-                                    setShowExitDialog(false);
-                                    setFocus('sn:register-login-btn');
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                className={`${styles.dialogBtn} ${exitSelection === 'exit' ? styles.focused : ''}`}
-                                onClick={exitApp}
-                            >
-                                Sí, Salir
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </FocusContext.Provider>
-    );
+        {step === STEPS.length - 1 && (
+          <label className={styles.checkboxWrap}>
+            <input
+              type="checkbox"
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.target.checked)}
+              className={styles.checkbox}
+            />
+            <span className={styles.checkboxText}>
+              Acepto los <a href={termsUrl} target="_blank" rel="noopener noreferrer" className={styles.link} onClick={(e) => e.stopPropagation()}>Términos, Condiciones y Políticas de Privacidad</a>
+            </span>
+          </label>
+        )}
+
+        <button type="button" onClick={goNext} disabled={isSubmitting} className={`${styles.submitBtn} ${styles.registerSubmitBtn}`}>
+          {isSubmitting ? "Creando cuenta..." : step < STEPS.length - 1 ? "Continuar" : "Crear cuenta"}
+        </button>
+
+        <p className={styles.linkWrap}>
+          ¿Ya tienes cuenta? <span className={styles.link} onClick={() => navigate("/auth/login", { state: { from } })}>Inicia sesión</span>
+        </p>
+      </div>
+      <style>{`
+        .register-slide { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .register-slide-active { transform: translateX(0); opacity: 1; }
+        .register-slide-exit-left { transform: translateX(-110%); opacity: 0; }
+        .register-slide-exit-right { transform: translateX(110%); opacity: 0; }
+        .register-slide-enter-right { transform: translateX(0); opacity: 1; animation: slideFromRight 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .register-slide-enter-left { transform: translateX(0); opacity: 1; animation: slideFromLeft 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .register-slide-hidden { transform: translateX(110%); opacity: 0; pointer-events: none; position: absolute; }
+        @keyframes slideFromRight { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideFromLeft { from { transform: translateX(-110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      `}</style>
+    </div>
+  );
 }
 
 export default RegisterView;

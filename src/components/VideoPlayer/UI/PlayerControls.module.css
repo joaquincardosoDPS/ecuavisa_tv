@@ -1,0 +1,75 @@
+.optionButton {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background-color: transparent;
+  color: var(--clr-icon);
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
+  padding: 0px;
+  box-shadow: none;
+}
+
+.qualityOption {
+  padding: 8px 16px;
+  color: var(--clr-icon);
+  background-color: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.qualityButtonContainer {
+  position: relative;
+}
+
+.qualityButton {
+  padding: 8px 20px;
+  height: 56px;
+  border-radius: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background-color: transparent;
+  color: var(--clr-icon);
+  font-size: 1.3rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+}
+
+.qualityLabel {
+  margin-left: 10px;
+  color: gray;
+}
+
+.qualityDropdown {
+  position: absolute;
+  bottom: 100%;
+  right: 0px;
+  background: #08090C;
+  border: 1px solid #333;
+  z-index: 100;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  min-width: 120px;
+}
+
+.floatingButtonsContainer {
+  position: absolute;
+  right: 55px;
+  bottom: 140px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  z-index: 2000;
+}
+

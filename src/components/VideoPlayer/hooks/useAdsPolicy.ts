@@ -1,17 +1,13 @@
 interface UseAdsPolicyOptions {
     vastUrl?: string;
-    vastUrls?: string[];
 }
 
-export function useAdsPolicy({ vastUrl, vastUrls }: UseAdsPolicyOptions) {
+export function useAdsPolicy({ vastUrl }: UseAdsPolicyOptions) {
     const hasValidVastUrl = !!vastUrl && vastUrl !== 'none' && vastUrl.trim() !== '';
-    const hasValidVastUrls = !!vastUrls && vastUrls.length > 0;
-    const shouldPlayAds = hasValidVastUrl || hasValidVastUrls;
 
     return {
-        shouldPlayAds,
+        shouldPlayAds: hasValidVastUrl,
         effectiveVastUrl: hasValidVastUrl ? vastUrl : undefined,
-        effectiveVastUrls: hasValidVastUrls ? vastUrls : undefined,
         evaluated: true,
     };
 }

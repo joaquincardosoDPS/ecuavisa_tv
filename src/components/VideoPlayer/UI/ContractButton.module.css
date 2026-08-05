@@ -1,0 +1,10 @@
+.buttonStyle1 {
+  background: none;
+  border: none;
+  color: var(--clr-icon);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+

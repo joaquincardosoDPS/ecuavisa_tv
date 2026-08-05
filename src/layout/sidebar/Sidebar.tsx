@@ -1,190 +1,52 @@
-import { useState, useCallback, useMemo } from 'react';
-import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
-import { SIDEBAR_FOCUS_KEY, SIDEBAR_ITEMS_BASE, SIDEBAR_ITEMS_AUTH, SIDEBAR_ITEM_LOGIN, CONTENT_FOCUS_KEY } from './constants';
-import { useAuthStore } from '@/features/auth/authStore';
-import { useConfigStore } from '@/features/config/useConfigStore';
-import { SidebarItem } from './SidebarItem';
-import logoFallback from '@/assets/img/logo.svg';
-import styles from './Sidebar.module.css';
-import type { Profile } from '@/interfaces/profile.interface';
+﻿import { useNavigate, useLocation } from "react-router-dom";
+import { SidebarIcon } from "../header/SidebarIcons";
+import styles from "./Sidebar.module.css";
 
-function getProfileAvatarUrl(profile: Profile): string | null {
-    if (Array.isArray(profile.images)) return null;
-    return profile.images?.medium || profile.images?.default || null;
+interface SidebarItem {
+	id: string;
+	label: string;
+	icon: string;
+	path: string;
 }
 
-// ── Focusable profile avatar item ──
+const SIDEBAR_ITEMS: SidebarItem[] = [
+	{ id: "sb-home", label: "Inicio", icon: "home", path: "/" },
+	{ id: "sb-search", label: "Buscar", icon: "search", path: "/buscar" },
+	{ id: "sb-programs", label: "Programas", icon: "programs", path: "/programas" },
+	{ id: "sb-live", label: "En vivo", icon: "live", path: "/en-vivo" },
+	{ id: "sb-list", label: "Mi Lista", icon: "list", path: "/mi-lista" },
+	{ id: "sb-history", label: "Seguir Viendo", icon: "history", path: "/seguir-viendo" },
+	{ id: "sb-account", label: "Cuenta", icon: "account", path: "/mi-ecuavisa" },
+];
 
-function ProfileSidebarItem({
-    profile,
-    avatarUrl,
-    isExpanded,
-    prevFocusKey,
-    onItemFocus,
-    onItemBlur,
-    onCollapse,
-}: {
-    profile: Profile;
-    avatarUrl: string | null;
-    isExpanded: boolean;
-    prevFocusKey: string | null;
-    onItemFocus: () => void;
-    onItemBlur: () => void;
-    onCollapse: () => void;
-}) {
-    const navigate = useNavigate();
+function Sidebar() {
+	const navigate = useNavigate();
+	const location = useLocation();
 
-    const goToProfiles = () => {
-        navigate('/mi-latina', { replace: true });
-        onCollapse();
-        setFocus(CONTENT_FOCUS_KEY);
-    };
+	const isActive = (path: string) => {
+		if (path === "/") return location.pathname === "/";
+		return location.pathname.startsWith(path);
+	};
 
-    const { ref, focused } = useFocusable({
-        focusKey: 'sidebar-profile',
-        onEnterPress: goToProfiles,
-        onFocus: onItemFocus,
-        onBlur: onItemBlur,
-        onArrowPress: (direction) => {
-            if (direction === 'right') {
-                onCollapse();
-                setFocus(CONTENT_FOCUS_KEY);
-                return false;
-            }
-            if (direction === 'left') return false;
-            if (direction === 'up' && prevFocusKey) {
-                setFocus(prevFocusKey);
-                return false;
-            }
-            if (direction === 'down') return false;
-            return false;
-        },
-    });
-
-    const classList = [
-        styles.profileItem,
-        focused && styles.profileItemFocused,
-        isExpanded && styles.profileItemExpanded,
-    ].filter(Boolean).join(' ');
-
-    return (
-        <li ref={ref} className={classList} onClick={goToProfiles}>
-            <div className={styles.profileItemInner}>
-                <span className={styles.profileAvatar}>
-                    {avatarUrl ? (
-                        <img
-                            src={avatarUrl}
-                            alt={profile.name_perfil}
-                            className={styles.profileAvatarImg}
-                            draggable={false}
-                            decoding="async"
-                        />
-                    ) : (
-                        <span className={styles.profileAvatarInitial}>
-                            {profile.name_perfil.charAt(0).toUpperCase()}
-                        </span>
-                    )}
-                </span>
-                <span className={styles.profileLabel}>Mi Latina</span>
-            </div>
-        </li>
-    );
+	return (
+		<aside className={styles.sidebar}>
+			<nav className={styles.nav}>
+				{SIDEBAR_ITEMS.map((item) => {
+					const active = isActive(item.path);
+					return (
+						<button
+							key={item.id}
+							onClick={() => navigate(item.path)}
+							className={[styles.btn, active ? styles.btnActive : styles.btnInactive].join(" ")}
+						>
+							<SidebarIcon name={item.icon} size={22} />
+							<span className={styles.label}>{item.label}</span>
+						</button>
+					);
+				})}
+			</nav>
+		</aside>
+	);
 }
 
-export function Sidebar() {
-    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-    const activeProfile = useAuthStore((s) => s.activeProfile);
-    const configLogo = useConfigStore((s) => s.config?.logo);
-    const [isFocusExpanded, setIsFocusExpanded] = useState(false);
-    const [isHoverExpanded, setIsHoverExpanded] = useState(false);
-
-    const isExpanded = isFocusExpanded || isHoverExpanded;
-
-    const items = useMemo(() => {
-        return isAuthenticated
-            ? [...SIDEBAR_ITEMS_BASE, ...SIDEBAR_ITEMS_AUTH]
-            : [ ...SIDEBAR_ITEMS_BASE, SIDEBAR_ITEM_LOGIN];
-    }, [isAuthenticated]);
-
-    const { ref, focusKey } = useFocusable({
-        focusKey: SIDEBAR_FOCUS_KEY,
-        saveLastFocusedChild: true,
-        trackChildren: true,
-        isFocusBoundary: false,
-    });
-
-    const handleChildFocus = useCallback(() => {
-        setIsFocusExpanded(true);
-    }, []);
-
-    const handleChildBlur = useCallback(() => {
-        setIsFocusExpanded(false);
-    }, []);
-
-    /* F6.1: Hover expande el sidebar igual que el foco */
-    const handleHoverStart = useCallback(() => {
-        setIsHoverExpanded(true);
-    }, []);
-
-    const handleHoverEnd = useCallback(() => {
-        setIsHoverExpanded(false);
-    }, []);
-
-    const handleCollapse = useCallback(() => {
-        setIsFocusExpanded(false);
-        setIsHoverExpanded(false);
-    }, []);
-
-    const containerClass = [
-        styles.container,
-        isExpanded && styles.expanded,
-    ].filter(Boolean).join(' ');
-
-    return (
-        <FocusContext.Provider value={focusKey}>
-            <nav
-                ref={ref}
-                className={containerClass}
-                onMouseEnter={handleHoverStart}
-                onMouseLeave={handleHoverEnd}
-            >
-                <div className={styles.backdrop} />
-
-                <img src={configLogo || logoFallback} alt="Logo" className={styles.logo} />
-
-                <div className={styles.spacer} />
-
-                <ul className={styles.navList}>
-                    {items.map((item, index) => (
-                        <SidebarItem
-                            key={item.id}
-                            item={item}
-                            isExpanded={isExpanded}
-                            prevFocusKey={index > 0 ? items[index - 1].id : null}
-                            nextFocusKey={index < items.length - 1
-                                ? items[index + 1].id
-                                : (isAuthenticated && activeProfile ? 'sidebar-profile' : null)}
-                            onItemFocus={handleChildFocus}
-                            onItemBlur={handleChildBlur}
-                            onCollapse={handleCollapse}
-                        />
-                    ))}
-
-                    {/* Active profile avatar — below nav items, focusable */}
-                    {isAuthenticated && activeProfile && (
-                        <ProfileSidebarItem
-                            profile={activeProfile}
-                            avatarUrl={getProfileAvatarUrl(activeProfile)}
-                            isExpanded={isExpanded}
-                            prevFocusKey={items[items.length - 1]?.id || null}
-                            onItemFocus={handleChildFocus}
-                            onItemBlur={handleChildBlur}
-                            onCollapse={handleCollapse}
-                        />
-                    )}
-                </ul>
-            </nav>
-        </FocusContext.Provider>
-    );
-}
+export default Sidebar;

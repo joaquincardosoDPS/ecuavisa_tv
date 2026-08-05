@@ -1,0 +1,19 @@
+.noSignalContainer {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.75rem;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noSignalText {
+  color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+}
+
+.playerIframe {
+  border: none;
+  overflow: hidden;
+}
+

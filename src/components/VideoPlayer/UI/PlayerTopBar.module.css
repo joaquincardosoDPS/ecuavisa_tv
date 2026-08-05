@@ -1,0 +1,42 @@
+.leftSection {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  max-width: 60vw;
+}
+
+.title {
+  margin: 0px;
+  font-weight: 500;
+  font-size: 1.4rem;
+  line-height: 1px;
+}
+
+.description {
+  font-weight: 500;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.rightSection {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: start;
+  gap: 10px;
+}
+
+.iconSpan {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+}
+

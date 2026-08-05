@@ -1,5 +1,6 @@
 import React from "react";
 import iconosContraer from "@/assets/img/icons/iconos-contraer.svg";
+import styles from "./ContractButton.module.css";
 
 interface ContractButtonProps {
   onClick?: () => void;
@@ -9,16 +10,7 @@ const ContractButtonComponent = ({ onClick }: ContractButtonProps) => {
   return (
     <button
       onClick={onClick}
-      style={{
-        background: "none",
-        border: "none",
-        color: "#fff",
-        cursor: "pointer",
-        padding: "4px",
-        display: "flex",
-        alignItems: "center",
-      }}
-      title="Contraer"
+      title="Contraer" className={styles.buttonStyle1}
     >
       <img src={iconosContraer} alt="Contraer" width={22} height={22} />
     </button>

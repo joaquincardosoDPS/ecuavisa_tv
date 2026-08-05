@@ -1,84 +1,23 @@
-/* ── ProgramsView — idéntico al /vod del original ── */
-
-.container {
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
+.carouselsContainer {
+  position: relative;
+  z-index: 10;
+  padding: 6.25rem 0;
 }
 
-/* ── Banner fijo (después del sidebar) ── */
-.bannerFixed {
-    position: fixed;
-    top: 0;
-    left: 9vw;
-    right: 0;
-    z-index: 8;
-    background: #00453a;
-    background: var(--clr-primary, #00453a);
-    width: calc(100vw - 9vw);
-    max-width: 100%;
-    box-sizing: border-box;
-    isolation: isolate;
-    transform: translateZ(0);
-    backface-visibility: hidden;
+.loadingSentinel {
+  height: 5rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.bannerInner {
-    width: 100%;
-    height: 51vh;
+.loadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border: 4px solid var(--foc-primary);
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
 }
 
-/* ── Scroll por translateY (compatible webOS 1-3) ── */
-.scrollContainer {
-    min-width: 100%;
-    will-change: transform;
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    padding-top: 0;
-}
-
-/* ── Carruseles ── */
-.carouselsWrapper {
-    display: flex;
-    flex-direction: column;
-    padding-right: 32px;
-    padding-bottom: 50vh;
-    margin-top: 53vh;
-    margin-bottom: 32px;
-}
-
-.carouselsWrapper>*+* {
-    margin-top: 32px;
-}
-
-.section {
-    display: flex;
-    flex-direction: column;
-}
-
-.sectionTitle {
-    font-size: 24px;
-    font-weight: bold;
-    color: #ffffff;
-    text-transform: capitalize;
-    padding-left: 16px;
-    margin-bottom: 0.5rem;
-    font-family: Archia, 'Archia', Arial, Helvetica, sans-serif, Arial, Helvetica, sans-serif;
-    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
-}
-
-/* Error state */
-.errorContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 50vh;
-    color: #ffffff;
-}
-
-.errorText {
-    color: #ef4444;
-    font-family: 'Poppins', Arial, Helvetica, sans-serif;
-    font-family: var(--font-family-title, 'Poppins', Arial, Helvetica, sans-serif);
-    font-size: 1.3rem;
-    font-size: var(--font-size-text, 1.3rem);
-}

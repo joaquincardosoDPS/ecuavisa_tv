@@ -6,8 +6,6 @@ export interface ApiConfigResponse {
 }
 
 export interface AppConfig {
-    nombre_slider: string;
-    nombre_recomendados: string;
     name: string;
     google_active: boolean;
     google_id: string | null;
@@ -40,7 +38,10 @@ export interface AppConfig {
     "terminos-condiciones": string;
     "android-link"?: string;
     "ios-link"?: string;
-    "url-tv-vincular"?: string;
-    background_image: string;
+    nombre_recomendados?: string;
+    nombre_slider?: string;
+    "ranking-name"?: string;
+    "key-analytics"?: string | null;
+    "splash-video-tv"?: string | null;
 }
 

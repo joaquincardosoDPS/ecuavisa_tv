@@ -3,10 +3,22 @@ export const RUDO_API_URL = 'https://consumers.rudo.video/categories/all';
 export const RUDO_BASE_USER = 'https://consumers.rudo.video/users'
 
 
-export const CLIENT = 'chv';
+const LS_CLIENT_KEY = 'app_client';
+const LS_VERSION_KEY = 'app_client_v';
+const LS_CURRENT_VERSION = '2';
+
+
+if (localStorage.getItem(LS_VERSION_KEY) !== LS_CURRENT_VERSION) {
+  localStorage.removeItem(LS_CLIENT_KEY);
+  localStorage.setItem(LS_VERSION_KEY, LS_CURRENT_VERSION);
+}
+
+
+// export const CLIENT = resolveClient();
+export const CLIENT = 'dps';
 export const BASENAME = import.meta.env.BASE_URL.replace(/\/+$/, '') || '/';
 
-export const ADS_FALLBACK_DOMAIN = 'https://www.latina.pe';
+export const ADS_FALLBACK_DOMAIN = 'https://www.ecuavisa.com';
 
 // Social Login Configuration - These will be loaded from API
 export const GOOGLE_CLIENT_ID = 'https://consumers.rudo.video/users/login_rrss'; // Will be loaded from API configuration  

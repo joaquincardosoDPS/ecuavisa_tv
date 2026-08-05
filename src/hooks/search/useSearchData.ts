@@ -1,60 +1,73 @@
-import { useState, useCallback } from 'react';
-import { useDebounce } from '../shared/useDebounce';
-import { useFetchPaginated } from '../shared/useFetchPaginated';
-import { catalogService } from '@/services/catalogService';
-import type { Program } from '@/interfaces/catalog.interface';
+import { useSearchParams } from "react-router-dom";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { catalogService } from "@/services/catalogService";
+import type { Program } from "@/interfaces/catalog.interface";
 
 const SEARCH_LIMIT = 12;
 
-/**
- * Hook de datos para la vista de búsqueda.
- * Centraliza el debounce, fetching paginado y carga de más resultados.
- */
-export function useSearchData() {
-    const [query, setQuery] = useState('');
-    const debouncedQuery = useDebounce(query, 500);
+interface UseSearchDataReturn {
+  query: string;
+  setQuery: (value: string) => void;
+  programs: Program[];
+  totalRecords: number;
+  isLoading: boolean;
+  isError: boolean;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+}
 
-    const hasQuery = debouncedQuery.trim().length > 0;
+export function useSearchData(): UseSearchDataReturn {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
 
-    const {
-        data: programs,
-        isLoading,
-        isLoadingMore,
-        isError,
-        hasMore,
-        loadMore,
-    } = useFetchPaginated<Program>(
-        (pg, limit) => catalogService.searchPrograms({ search: debouncedQuery, limit, page: pg }),
-        [debouncedQuery],
-        { limit: SEARCH_LIMIT, enabled: hasQuery, hasMoreStrategy: 'length' },
-    );
+  const setQuery = (newQuery: string) => {
+    const trimmed = newQuery.trim();
+    if (trimmed) {
+      setSearchParams({ q: trimmed }, { replace: true });
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  };
 
-    /** Agrega un carácter al query */
-    const appendChar = useCallback((char: string) => {
-        setQuery((prev) => prev + char);
-    }, []);
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["search", query],
+    queryFn: ({ pageParam = 1 }) =>
+      catalogService.searchPrograms({
+        search: query,
+        limit: SEARCH_LIMIT,
+        page: pageParam,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (lastPageParam < lastPage.last_page) {
+        return lastPageParam + 1;
+      }
+      return undefined;
+    },
+    enabled: true,
+  });
 
-    /** Borra el último carácter */
-    const deleteChar = useCallback(() => {
-        setQuery((prev) => prev.slice(0, -1));
-    }, []);
+  const programs = data?.pages.flatMap((page) => page.data) ?? [];
+  const firstPage = data?.pages[0];
+  const totalRecords = firstPage?.total_records ?? firstPage?.total_display_records ?? programs.length;
 
-    /** Limpia todo el query */
-    const clearQuery = useCallback(() => {
-        setQuery('');
-    }, []);
-
-    return {
-        query,
-        debouncedQuery,
-        programs: hasQuery ? programs : [],
-        isLoading,
-        isLoadingMore,
-        isError,
-        hasMore,
-        loadMore,
-        appendChar,
-        deleteChar,
-        clearQuery,
-    };
+  return {
+    query,
+    setQuery,
+    programs,
+    totalRecords,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  };
 }

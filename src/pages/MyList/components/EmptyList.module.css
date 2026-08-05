@@ -1,0 +1,38 @@
+.emptyListContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.titleText {
+  font-size: 1.5rem;
+}
+
+.subtitleText {
+  font-size: 1.125rem;
+}
+
+.addButton {
+  margin-top: 5rem;
+  height: 8.75rem;
+  width: 8.75rem;
+  border-radius: 9999px;
+  border: 4px solid var(--clr-text-primary-button);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text-primary-button);
+  cursor: pointer;
+  transition: all 0.3s;
+  background: transparent;
+}
+
+.addButton:hover,
+.addButton:focus,
+.addButton.focused {
+  color: var(--foc-primary);
+  border-color: var(--foc-primary);
+  outline: none;
+}

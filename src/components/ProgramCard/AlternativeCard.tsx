@@ -1,56 +1,31 @@
-import { memo } from 'react';
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import type { Program } from '@/interfaces/catalog.interface';
-import styles from './ProgramCard.module.css';
+import type { Program } from "@/interfaces/catalog.interface";
+import { useNavigate } from "react-router-dom";
+import styles from "./ProgramCard.module.css";
 
-interface AlternativeCardProps {
-    program: Program;
-    focusKey: string;
-    index: number;
-    onCardFocus?: (focusKey: string, index: number) => void;
-    onPress?: (programKey: string) => void;
-}
-
-function AlternativeCard({ program, focusKey, index, onCardFocus, onPress }: AlternativeCardProps) {
+function AlternativeCard({ program }: { program: Program }) {
+    const navigate = useNavigate();
     const imageSrc = program?.image_land?.small;
 
-    const handlePress = () => {
-        onPress?.(program.key);
-    };
-
-    const { ref, focused } = useFocusable({
-        focusKey,
-        onEnterPress: handlePress,
-        onFocus: () => onCardFocus?.(focusKey, index),
-    });
-
-    const classList = [
-        styles.card,
-        styles.alternative,
-        focused && styles.focused,
-    ].filter(Boolean).join(' ');
-
     return (
-        <div ref={ref} className={classList} data-focuskey={focusKey} onClick={handlePress}>
-            <div className={styles.ratioBox}>
+        <div className={styles.cardWrapper}>
+            <div
+                tabIndex={0}
+                className={`${[styles.cardImg, styles.cardImgHorizontal].join(" ")} ${styles.fullWidthCard}`}
+                onClick={() => navigate(`/programas/${program.key}`)}
+            >
                 {imageSrc ? (
-                    <img
-                        src={imageSrc}
-                        alt={program.title}
-                        className={styles.image}
-                        draggable={false}
-                        decoding="async"
-                    />
+                    <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" />
                 ) : (
-                    <div className={styles.fallback}>
-                        <span className={styles.fallbackText}>{program.title}</span>
+                    <div className={styles.cardImgFallback}>
+                        <span className={styles.cardImgFallbackText}>{program.title}</span>
                     </div>
                 )}
+            </div>
+            <div className={styles.cardMeta}>
+                <p className={styles.cardTitle}>{program.title}</p>
             </div>
         </div>
     );
 }
 
-export default memo(AlternativeCard);
-
-
+export default AlternativeCard;

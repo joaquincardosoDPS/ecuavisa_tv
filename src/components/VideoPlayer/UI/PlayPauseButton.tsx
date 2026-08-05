@@ -1,7 +1,7 @@
-import React from "react";
-import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import React, { useState } from "react";
 import iconoPlayRaw from "@/assets/img/icons/iconos-play.svg?raw";
 import iconoPauseRaw from "@/assets/img/icons/iconos-pause.svg?raw";
+import styles from "./PlayPauseButton.module.css";
 
 interface PlayPauseButtonProps {
   playing?: boolean;
@@ -15,34 +15,13 @@ const PlayPauseButtonComponent = ({
   playing = false,
   onClick,
 }: PlayPauseButtonProps) => {
-  const { ref, focused } = useFocusable({
-    focusKey: "PLAYER-BTN-PLAYPAUSE",
-    onEnterPress: () => onClick?.(),
-    onArrowPress: (direction) => {
-      if (direction === "down") {
-        setFocus("PLAYER-SEEKBAR-THUMB");
-        return false;
-      }
-      if (direction === "up") {
-        setFocus("PLAYER-BTN-BACK");
-        return false;
-      }
-      if (direction === "left") {
-        setFocus("PLAYER-BTN-SKIP-REW");
-        return false;
-      }
-      if (direction === "right") {
-        setFocus("PLAYER-BTN-SKIP-FWD");
-        return false;
-      }
-      return true;
-    },
-  });
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
-      ref={ref}
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: "none",
         border: "none",
@@ -54,17 +33,15 @@ const PlayPauseButtonComponent = ({
         justifyContent: "center",
         width: "40px",
         height: "40px",
-        color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
-        outline: "none",
+        color: hovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
         transition: "color 0.15s ease",
       }}
-      title={playing ? "Pausar" : "Reproducir"}
+      title={playing ? "Pausar" : "Ver ahora"}
     >
       <span
-        style={{ display: "inline-flex", width: 28, height: 28 }}
         dangerouslySetInnerHTML={{
           __html: resizeSvg(playing ? iconoPauseRaw : iconoPlayRaw, 28),
-        }}
+        }} className={styles.iconWrapper}
       />
     </button>
   );

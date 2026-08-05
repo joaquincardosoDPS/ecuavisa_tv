@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import iconoCast from "@/assets/img/icons/iconos-cast.svg";
+import styles from "./CastButton.module.css";
 
 interface CastButtonProps {
   onClick?: () => void;
@@ -13,17 +14,7 @@ const CastButtonComponent = ({ onClick }: CastButtonProps) => {
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "8px",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      title="Transmitir"
+      title="Transmitir" className={styles.buttonStyle1}
     >
       <img
         src={iconoCast}

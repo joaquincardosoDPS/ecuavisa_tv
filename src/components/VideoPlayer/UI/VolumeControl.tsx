@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import iconoVolumenRaw from "@/assets/img/icons/iconos-volumen.svg?raw";
+import styles from "./VolumeControl.module.css";
 
 interface VolumeControlProps {
   volume?: number;
@@ -21,13 +22,8 @@ const VolumeControlComponent = ({
 
   return (
     <div
-      style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-      }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => setIsHovered(false)} className={styles.volumeContainer}
     >
       {/* Botón de mute */}
       <button
@@ -47,10 +43,9 @@ const VolumeControlComponent = ({
         title={muted ? "Activar sonido" : "Silenciar"}
       >
         <span
-          style={{ display: "inline-flex", width: 28, height: 28 }}
           dangerouslySetInnerHTML={{
             __html: resizeSvg(iconoVolumenRaw, 28),
-          }}
+          }} className={styles.volumeIconSpan}
         />
       </button>
 
@@ -67,15 +62,7 @@ const VolumeControlComponent = ({
           transition: "opacity 0.2s ease",
         }}
       >
-        <div
-          style={{
-            padding: "12px 8px",
-            backgroundColor: "rgba(0, 0, 0, 0.85)",
-            borderRadius: "8px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+        <div className={styles.volumeSliderWrapper}
         >
         <input
           type="range"
@@ -86,16 +73,7 @@ const VolumeControlComponent = ({
           onChange={(e) =>
             onVolumeChange && onVolumeChange(parseFloat(e.target.value))
           }
-          style={{
-            writingMode: "vertical-lr",
-            direction: "rtl",
-            width: "4px",
-            height: "80px",
-            accentColor: "#fff",
-            cursor: "pointer",
-            appearance: "auto",
-          }}
-          title="Volumen"
+          title="Volumen" className={styles.volumeSliderInput}
         />
         </div>
       </div>

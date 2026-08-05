@@ -1,133 +1,167 @@
-/* ── HomeLiveGrid — Nuestras Señales (idéntico al original) ── */
-
-.section {
-    padding: 0 1rem;
+.cardWrapper {
+  flex-shrink: 0;
+  width: 15vw;
+  cursor: pointer;
 }
 
-.sectionTitle {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    text-transform: capitalize;
-    padding-left: 1rem;
-    margin-bottom: 1rem;
-    font-family: Archia, 'Archia', Arial, Helvetica, sans-serif, Arial, Helvetica, sans-serif;
-    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
+.cardImageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: var(--clr-secondary);
+  transition: all 0.3s ease;
+  /* El ring transparente base para evitar saltos (opcional, box-shadow no salta de todos modos) */
+  box-shadow: 0 0 0 0 transparent;
 }
 
-/* Fila horizontal de cards */
-.row {
-    display: flex;
-    flex-direction: row;
+/* Efecto hover: ring-2 (borde por fuera sin romper el layout) y glow */
+.cardWrapper:hover .cardImageContainer,
+.cardImageContainer.focused {
+  box-shadow: 0 0 0 2px var(--foc-primary), 0 0 20px rgba(255, 19, 118, 0.3);
 }
 
-/* Card de canal (outer) */
-.channelCard {
-    flex-shrink: 0;
-    position: relative;
-    width: 12.6vw;
-    height: 13.5vh;
-    margin-right: 17.5px;
-    border-radius: 32px;
-    background-color: #01a77e;
-    background-color: var(--clr-secondary, #01a77e);
-    box-sizing: border-box;
-    cursor: pointer;
-    overflow: hidden;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+/* TV Rule: Al estar enfocado con D-Pad, sí aplicamos el scale(1.05) según el manual de TV */
+.cardImageContainer.focused {
+  transform: scale(1.05);
 }
 
-/* Focus / hover — border + scale sutil  */
-.channelCard.focused,
-.channelCard:hover {
-    border: 0.3rem solid #fff200;
-    border: 0.3rem solid var(--foc-primary, #fff200);
-    transform: scale(1.02);
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  /* En EcuavisaWeb, la imagen parte con un scale(1.1) */
+  transform: scale(1.1);
 }
 
-/* Background image — fills the entire card */
-.channelBg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+/* Y al hacer hover o estar focused, se reduce a scale(1.0) */
+.cardWrapper:hover .cardImage,
+.cardImageContainer.focused .cardImage {
+  transform: scale(1.0);
 }
 
-/* Inner overlay for logo + badge */
-.channelInner {
-    width: 100%;
-    height: 100%;
-    border-radius: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+.titleWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Logo del canal — centrado sobre el bg */
-.channelLogo {
-    max-width: 50%;
-    max-height: 50%;
-    object-fit: contain;
-    z-index: 1;
+.fallbackTitle {
+  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  font-size: 0.875rem;
 }
 
-/* Badge "En Vivo" */
-.liveBadge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: #FF0000;
-    color: #ffffff;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 4px 6px;
-    border-radius: 50px;
-    z-index: 2;
-    letter-spacing: 0.5px;
-    font-family: Archia, Arial, Helvetica, sans-serif;
+.logo {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  height: 1.25rem;
+  width: auto;
+  z-index: 10;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
 }
 
-/* Restricción (candado) overlay */
-.restrictedOverlay {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
+.badge {
+  position: absolute;
+  bottom: 1rem;
+  left: 0.5rem;
+  background-color: var(--foc-primary);
+  color: var(--clr-primary-title);
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.lockIcon {
-    width: 32px;
-    height: 32px;
-    opacity: 0.7;
-    z-index: 2;
+.dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background-color: var(--clr-primary-title);
 }
 
-/* Carousel wrapper */
-.wrapper {
-    overflow: hidden;
-    margin: -10px -15px;
-    padding: 10px 15px;
+.progressTrack {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.3125rem;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
-.track {
-    display: flex;
-    flex-direction: row;
-    transition: transform 0.3s ease;
+.progressBar {
+  height: 100%;
+  background-color: var(--foc-primary);
+  transition: width 1s ease;
 }
 
-.endSpacer {
-    flex-shrink: 0;
-    width: 5rem;
+.infoContainer {
+  margin-top: 0.5rem;
+  padding: 0 0.125rem;
 }
+
+.channelName {
+  color: var(--clr-primary-title);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.eventTitle {
+  color: var(--clr-primary-title);
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  margin-top: 0.125rem;
+}
+
+.liveGridContainer {
+  padding-left: 6.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.gridTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--clr-primary-title);
+  text-transform: capitalize;
+  margin-bottom: 1rem;
+}
+
+.carouselWrapper {
+  position: relative;
+}
+
+.emblaViewport {
+  overflow: hidden;
+  cursor: grab;
+  padding: 0.25rem 0;
+  margin-left: -0.25rem;
+  padding-left: 0.25rem;
+}
+
+.emblaContainer {
+  display: flex;
+  align-items: stretch;
+  transform: translate3d(0,0,0);
+  gap: 1.25rem;
+}
+
+.carouselSpacer {
+  flex: 0 0 auto;
+  width: 4rem;
+}
+

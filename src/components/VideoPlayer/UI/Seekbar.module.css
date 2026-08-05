@@ -1,0 +1,51 @@
+.seekbarWrapper {
+  width: 100%;
+}
+
+.controlRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  color: var(--clr-primary-text);
+}
+
+.timeDisplay {
+  display: flex;
+  gap: 0.5rem;
+  font-weight: normal;
+}
+
+.durationText {
+  text-align: start;
+}
+
+.positionText {
+  text-align: right;
+}
+
+.centerControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.seekbarTrack {
+  width: 100%;
+  height: 3px;
+  background-color: var(--clr-secondary);
+  border-radius: 999px;
+  position: relative;
+  transition: outline 0.2s ease;
+  opacity: 1;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+

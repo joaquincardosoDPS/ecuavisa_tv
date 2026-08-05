@@ -1,0 +1,55 @@
+.overlayTitle {
+  font-size: 1.1vw;
+  color: #FA6428;
+  font-weight: bold;
+  margin-bottom: 0.8vw;
+  font-family: Roboto, sans-serif;
+}
+
+.contentWrapper {
+  display: flex;
+  gap: 1vw;
+  align-items: center;
+}
+
+.imageWrapper {
+  width: 13vw;
+  aspect-ratio: 16/9;
+  border-radius: 0.4vw;
+  overflow: hidden;
+  flex-shrink: 0px;
+  position: relative;
+}
+
+.countdownText {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  padding-top: 1.5vw;
+  padding-bottom: 0.4vw;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+  text-align: center;
+  font-size: 0.9vw;
+  color: white;
+  font-weight: bold;
+}
+
+.episodeTitle {
+  font-size: 1.1vw;
+  color: white;
+  font-weight: bold;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3px;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: Roboto, sans-serif;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

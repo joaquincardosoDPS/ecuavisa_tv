@@ -5,6 +5,7 @@ import type { ProgramChapter } from "../types";
 import iconosConfig from "@/assets/img/icons/iconos-config.svg";
 import { useEffect, useState } from "react";
 import React from "react";
+import styles from "./PlayerControls.module.css";
 
 // ---- Botón de Opciones ----
 interface PlayerOptionButtonProps {
@@ -18,23 +19,7 @@ export const PlayerOptionButton = ({
 }: PlayerOptionButtonProps) => {
   return (
     <button
-      onClick={onClick}
-      style={{
-        width: "64px",
-        height: "64px",
-        borderRadius: "50%",
-        border: "2px solid rgba(255, 255, 255, 0.6)",
-        backgroundColor: "transparent",
-        color: "#fff",
-        transition: "all 0.2s ease",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        cursor: "pointer",
-        outline: "none",
-        padding: 0,
-        boxShadow: "none",
-      }}
+      onClick={onClick} className={styles.optionButton}
     >
       {icon}
     </button>
@@ -50,14 +35,7 @@ interface QualityOptionProps {
 const QualityOption = ({ label, onSelect }: QualityOptionProps) => {
   return (
     <div
-      onClick={onSelect}
-      style={{
-        padding: "8px 16px",
-        color: "#fff",
-        backgroundColor: "transparent",
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-      }}
+      onClick={onSelect} className={styles.qualityOption}
     >
       {label}
     </div>
@@ -83,48 +61,19 @@ export const PlayerQualityButton = ({
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className={styles.qualityButtonContainer}>
       <button
-        onClick={() => setOpen(!open)}
-        style={{
-          padding: "10px 24px",
-          height: "64px",
-          borderRadius: "32px",
-          border: "2px solid rgba(255, 255, 255, 0.6)",
-          backgroundColor: "transparent",
-          color: "#fff",
-          fontSize: "1.5rem",
-          fontWeight: "bold",
-          // minHeight: "56px",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          cursor: "pointer",
-          outline: "none",
-          boxShadow: "none",
-        }}
+        onClick={() => setOpen(!open)} className={styles.qualityButton}
       >
         <img src={iconosConfig} alt="Configuración" width={26} height={26} />
         Calidad{" "}
-        <span style={{ marginLeft: "10px", color: "gray" }}>
+        <span className={styles.qualityLabel}>
           {qualities.find((o) => o.value === value)?.label || "Auto"}
         </span>
       </button>
 
       {open && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "100%",
-            right: 0,
-            background: "#08090C",
-            border: "1px solid #333",
-            zIndex: 100,
-            borderRadius: "8px",
-            overflow: "hidden",
-            marginBottom: "8px",
-            minWidth: "120px",
-          }}
+        <div className={styles.qualityDropdown}
         >
           {qualities.map((opt) => (
             <QualityOption
@@ -165,17 +114,6 @@ interface PlayerControlsProps {
   onEpisodeSelect?: (episode: ProgramChapter) => void;
   onHideControls?: () => void;
   onSidebarVisibilityChange?: (isOpen: boolean) => void;
-
-  /** Callback para reiniciar el capítulo actual */
-  onRestartChapter?: () => void;
-  /** Callback para pasar al siguiente capítulo */
-  onNextChapter?: () => void;
-  /** Si hay un capítulo siguiente disponible */
-  hasNextChapter?: boolean;
-  /** Cuepoints de midroll para marcadores en el seekbar */
-  adCuepoints?: { timeSeconds: number; vastUrls: string[] }[];
-  /** Array de tiempos de cuepoints ya reproducidos */
-  playedCuepoints?: number[];
 }
 
 const PlayerControlsComponent = ({
@@ -199,11 +137,6 @@ const PlayerControlsComponent = ({
   onEpisodeSelect,
   onHideControls,
   onSidebarVisibilityChange,
-  onRestartChapter,
-  onNextChapter,
-  hasNextChapter = false,
-  adCuepoints,
-  playedCuepoints,
 }: PlayerControlsProps) => {
   const [isChaptersSidebarOpen, setIsChaptersSidebarOpen] = useState(false);
 
@@ -267,24 +200,11 @@ const PlayerControlsComponent = ({
             onVolumeChange={onVolumeChange}
             onMuteToggle={onMuteToggle}
             onFullscreen={onFullscreen}
-            onRestartChapter={onRestartChapter}
-            onNextChapter={onNextChapter}
-            hasNextChapter={hasNextChapter}
-            adCuepoints={adCuepoints}
-            playedCuepoints={playedCuepoints}
           />
         </div>
 
         {/* Botones Flotantes Arriba del Seekbar */}
-        <div
-          style={{
-            position: "absolute",
-            right: "55px",
-            bottom: "140px",
-            display: "flex",
-            alignItems: "center",
-            zIndex: 2000,
-          }}
+        <div className={styles.floatingButtonsContainer}
         >
           {/* Episodios y Reinicio Solo si NO es VIVO
           {!isLive && (

@@ -1,166 +1,109 @@
-import { useRef, useCallback } from 'react';
-import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
-import type { Program, Event } from '@/interfaces/catalog.interface';
-import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
-import CardHorizontal from './CardHorizontal';
-import CardVertical from './CardVertical';
-import styles from './CardCarrousel.module.css';
-
-interface ViewMoreCardProps {
-    focusKey: string;
-    categorySlug: string;
-    categoryTitle?: string;
-    isVertical: boolean;
-    onCardFocus: () => void;
-}
-
-/** Componente extraído para evitar re-mount en cada render */
-function ViewMoreCard({ focusKey, categorySlug, categoryTitle, isVertical, onCardFocus }: ViewMoreCardProps) {
-    const navigate = useNavigate();
-
-    const goToCategory = () => navigate(`/categoria/${categorySlug}`, {
-        state: { title: categoryTitle },
-    });
-
-    const { ref, focused } = useFocusable({
-        focusKey,
-        onEnterPress: goToCategory,
-        onFocus: () => onCardFocus(),
-    });
-
-    const classList = [
-        styles.viewMore,
-        isVertical ? styles.vertical : styles.horizontal,
-        focused && styles.focused,
-    ].filter(Boolean).join(' ');
-
-    return (
-        <div
-            ref={ref}
-            className={classList}
-            data-focuskey={focusKey}
-            onClick={goToCategory}
-        >
-            <span className={styles.viewMoreText}>Ver Más</span>
-        </div>
-    );
-}
+import useEmblaCarousel from "embla-carousel-react";
+import type { Program, Event } from "@/interfaces/catalog.interface";
+import type { EmblaOptionsType } from "embla-carousel";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import CardHorizontal from "./CardHorizontal";
+import CardVertical from "./CardVertical";
+import styles from "./ProgramCard.module.css";
 
 interface CardCarrouselProps {
-    programs: (Program | Event)[];
-    orientation?: 'horizontal' | 'vertical';
-    categorySlug?: string;
-    categoryTitle?: string;
-    format?: string;
-    focusKeyPrefix: string;
-    /** Callback cuando la fila recibe foco (para scroll vertical del padre) */
-    onRowFocused?: () => void;
-    /** Callback cuando un card individual recibe foco */
-    onProgramFocused?: (program?: Program | Event) => void;
+  programs: (Program | Event)[];
+  orientation?: "horizontal" | "vertical";
+  hasIconImage?: boolean;
+  categorySlug?: string;
+  format?: string;
 }
 
-function CardCarrousel({
-    programs,
-    orientation = 'horizontal',
-    categorySlug,
-    categoryTitle,
-    format,
-    focusKeyPrefix,
-    onRowFocused,
-    onProgramFocused,
-}: CardCarrouselProps) {
-    const trackRef = useRef<HTMLDivElement>(null);
+function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, format }: CardCarrouselProps) {
+  const navigate = useNavigate();
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
-    const isVertical = orientation === 'vertical';
+  const focusKey = `carousel-${categorySlug || 'unknown'}-${format || 'unknown'}`;
+  const { focusKey: generatedFocusKey, ref } = useFocusable({
+    focusKey,
+    saveLastFocusedChild: true,
+  });
 
-    const { ref, focusKey } = useFocusable({
-        focusKey: focusKeyPrefix,
-        saveLastFocusedChild: true,
-        trackChildren: true,
-        isFocusBoundary: false,
-        onFocus: () => onRowFocused?.(),
-    });
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
 
-    /** centra el card enfocado horizontalmente en el track */
-    const scrollToCard = useCallback((cardFocusKey: string) => {
-        const track = trackRef.current;
-        if (!track) return;
+  useEffect(() => {
+    if (!emblaApi) return;
+    queueMicrotask(onSelect);
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    return () => { emblaApi.off("select", onSelect); emblaApi.off("reInit", onSelect); };
+  }, [emblaApi, onSelect]);
 
-        const wrapper = track.parentElement;
-        if (!wrapper) return;
+  const isVertical = orientation === "vertical";
+  const arrowTop = isVertical
+    ? "calc(var(--card-w-vertical, 15vw) * 3 / 4)"
+    : "calc(var(--card-w-horizontal, 15vw) * 9 / 32)";
 
-        const child = track.querySelector(
-            `[data-focuskey="${cardFocusKey}"]`,
-        ) as HTMLElement | null;
-        if (!child) return;
+  return (
+    <FocusContext.Provider value={generatedFocusKey}>
+      <div ref={ref} className={styles.carouselWrapper}>
+        <button
+          onClick={() => emblaApi?.scrollPrev()}
+          disabled={!canScrollPrev}
+          className={[styles.carouselArrow, styles.carouselArrowLeft, canScrollPrev ? styles.canScroll : ""].join(" ")}
+          style={{ top: arrowTop }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
 
-        const wrapperWidth = wrapper.offsetWidth;
-        const childLeft = child.offsetLeft;
-        const childWidth = child.offsetWidth;
+        <button
+          onClick={() => emblaApi?.scrollNext()}
+          disabled={!canScrollNext}
+          className={[styles.carouselArrow, styles.carouselArrowRight, canScrollNext ? styles.canScroll : ""].join(" ")}
+          style={{ top: arrowTop }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 6 15 12 9 18" />
+          </svg>
+        </button>
 
-        const targetX = childLeft - (wrapperWidth / 2) + (childWidth / 2);
-        const maxScroll = track.scrollWidth - wrapperWidth;
-        const clampedX = Math.max(0, Math.min(targetX, maxScroll));
-
-        track.style.transform = `translateX(-${clampedX}px)`;
-    }, []);
-
-    const viewMoreKey = `${focusKeyPrefix}-viewmore`;
-
-    return (
-        <FocusContext.Provider value={focusKey}>
-            <div ref={ref} className={styles.wrapper}>
-                <div ref={trackRef} className={styles.track}>
-                    {programs.map((program, index) => {
-                        const cardKey = `${focusKeyPrefix}-${program.id}`;
-                        const goToSidebar = index === 0
-                            ? () => setFocus(SIDEBAR_FOCUS_KEY)
-                            : undefined;
-                        const handleCardFocus = () => {
-                            scrollToCard(cardKey);
-                            onProgramFocused?.(program);
-                        };
-                        return isVertical ? (
-                            <CardVertical
-                                key={program.id}
-                                program={program}
-                                format={format}
-                                index={index}
-                                focusKey={cardKey}
-                                onCardFocus={handleCardFocus}
-                                onArrowLeft={goToSidebar}
-                            />
-                        ) : (
-                            <CardHorizontal
-                                key={program.id}
-                                program={program}
-                                format={format}
-                                focusKey={cardKey}
-                                onCardFocus={handleCardFocus}
-                                onArrowLeft={goToSidebar}
-                            />
-                        );
-                    })}
-
-                    {programs.length === 10 && categorySlug && format !== 'ranking' && (
-                        <ViewMoreCard
-                            focusKey={viewMoreKey}
-                            categorySlug={categorySlug}
-                            categoryTitle={categoryTitle}
-                            isVertical={isVertical}
-                            onCardFocus={() => {
-                                scrollToCard(viewMoreKey);
-                                onProgramFocused?.();
-                            }}
-                        />
-                    )}
-
-                    <div className={styles.endSpacer} />
-                </div>
-            </div>
-        </FocusContext.Provider>
-    );
+        <div ref={emblaRef} className={styles.carouselViewport}>
+          <div className={styles.carouselTrack}>
+            {programs.map((program, index) => {
+              const itemFormat = "type" in program ? "event" : format;
+              return isVertical
+                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} />
+                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} />;
+            })}
+            {programs.length === 10 && categorySlug && format !== "ranking" && (
+              <div
+                onClick={() => navigate(`/categoria/${categorySlug}`)}
+                className={styles.cardImg}
+                style={{
+                  width: isVertical ? "var(--card-w-vertical)" : "var(--card-w-horizontal)",
+                  aspectRatio: isVertical ? "2/3" : "16/9",
+                  borderRadius: isVertical ? "0.75rem" : "0.5rem",
+                  backgroundColor: "var(--clr-secondary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <span className={styles.viewMoreText}>Ver Más</span>
+              </div>
+            )}
+            <div className={styles.carouselSpacer} style={{ width: hasIconImage ? "31.25rem" : "4rem" }} />
+          </div>
+        </div>
+      </div>
+    </FocusContext.Provider>
+  );
 }
 
 export default CardCarrousel;

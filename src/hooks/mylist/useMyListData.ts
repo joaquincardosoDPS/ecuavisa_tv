@@ -1,43 +1,61 @@
-import { useFetchPaginated } from '../shared/useFetchPaginated';
-import { useAuthStore } from '@/features/auth/authStore';
-import { favoritesService } from '@/services/favoritesService';
-import type { FavoriteItem } from '@/interfaces/favorites.interface';
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/features/auth/authStore";
+import { favoritesService } from "@/services/favoritesService";
+import type { FavoriteItem } from "@/interfaces/favorites.interface";
 
-const FAVORITES_LIMIT = 12;
+const PAGE_LIMIT = 20;
 
-/**
- * Hook de datos para la vista Mi Lista.
- * Centraliza fetching de favoritos con paginación infinita.
- */
-export function useMyListData() {
-    const token = useAuthStore((s) => s.token);
-    const activeProfile = useAuthStore((s) => s.activeProfile);
+export interface UseMyListDataReturn {
+  favorites: FavoriteItem[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  isAuthenticated: boolean;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+}
 
-    const isAuthenticated = !!token && !!activeProfile;
+export function useMyListData(): UseMyListDataReturn {
+  const token = useAuthStore((s) => s.token);
+  const activeProfile = useAuthStore((s) => s.activeProfile);
+  const isAuthenticated = !!token && !!activeProfile;
 
-    const {
-        data: favorites,
-        isLoading,
-        isLoadingMore,
-        isError,
-        hasMore,
-        page,
-        loadMore,
-    } = useFetchPaginated<FavoriteItem>(
-        (pg, limit) => favoritesService.getAll(token!, activeProfile!.id, pg, limit),
-        [token, activeProfile],
-        { limit: FAVORITES_LIMIT, enabled: isAuthenticated, hasMoreStrategy: 'last_page' },
-    );
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["favorites", token, activeProfile?.id],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await favoritesService.getAll(token!, activeProfile!.id, pageParam, PAGE_LIMIT);
+      if (response.status === "error") {
+        throw new Error(response.msj || "Error al cargar favoritos.");
+      }
+      return response;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      const lastPageNum = lastPage.last_page ?? 1;
+      return lastPageParam < lastPageNum ? lastPageParam + 1 : undefined;
+    },
+    enabled: isAuthenticated,
+  });
 
-    return {
-        favorites,
-        page,
-        isLoading,
-        isLoadingMore,
-        isError,
-        errorMsg: isError ? 'Error al cargar favoritos.' : '',
-        hasMore,
-        loadMore,
-        isAuthenticated,
-    };
+  const favorites = data?.pages.flatMap((page) => page.data || []) ?? [];
+
+  return {
+    favorites,
+    isLoading,
+    isError,
+    error: error as Error | null,
+    isAuthenticated,
+    fetchNextPage,
+    hasNextPage: !!hasNextPage,
+    isFetchingNextPage,
+  };
 }

@@ -12,6 +12,7 @@ export function useImagePreloader(urls: string[], enabled = true): boolean {
 
     useEffect(() => {
         if (!enabled || urls.length === 0) {
+             
             setReady(false);
             return;
         }

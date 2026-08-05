@@ -1,0 +1,24 @@
+.pageContainer {
+  padding: 6rem 12rem;
+}
+
+.authPromptContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
+  gap: 1rem;
+}
+
+.authPromptText {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  font-size: 1.125rem;
+}
+
+.errorMessage {
+  color: #f87171;
+  text-align: center;
+  padding: 5rem 0;
+}
+

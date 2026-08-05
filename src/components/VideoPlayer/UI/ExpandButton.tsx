@@ -1,6 +1,7 @@
 import { useState } from "react";
 import iconosExpandirRaw from "@/assets/img/icons/iconos-expandir.svg?raw";
 import iconosContraerRaw from "@/assets/img/icons/iconos-contraer.svg?raw";
+import styles from "./ExpandButton.module.css";
 
 interface ExpandButtonProps {
   isExpanded: boolean;
@@ -27,10 +28,9 @@ function ExpandButton({ isExpanded, onClick }: ExpandButtonProps) {
       title={isExpanded ? "Contraer" : "Expandir"}
     >
       <span
-        style={{ display: "inline-flex", width: 20, height: 20 }}
         dangerouslySetInnerHTML={{
           __html: resizeSvg(isExpanded ? iconosContraerRaw : iconosExpandirRaw, 20),
-        }}
+        }} className={styles.iconWrapper}
       />
     </button>
   );

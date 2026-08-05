@@ -1,91 +1,53 @@
-import { useEffect } from 'react';
-import { FocusContext, useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import { useSearchData } from '@/hooks/search/useSearchData';
-import { useSearchNavigation } from '@/hooks/search/useSearchNavigation';
-import { OnScreenKeyboard } from '@/components/ui/OnScreenKeyboard';
-import ProgramGrid from '@/components/ProgramCard/ProgramGrid';
-import styles from './SearchView.module.css';
+import ProgramGrid from "@/components/ProgramCard/ProgramGrid";
+import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
+import { useSearchData } from "@/hooks/search/useSearchData";
+import Button from "@/components/ui/Button";
+import styles from "./SearchView.module.css";
 
 function SearchView() {
-    /* ── Hooks de datos y navegación ── */
-    const {
-        query,
-        debouncedQuery,
-        programs,
-        isLoading,
-        isLoadingMore,
-        isError,
-        hasMore,
-        loadMore,
-        appendChar,
-        deleteChar,
-        clearQuery,
-    } = useSearchData();
+	useDocumentTitle("Buscador");
+	const { query, programs, totalRecords, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useSearchData();
 
-    const { goToProgram } = useSearchNavigation();
-
-    /* ── UI / Foco ── */
-    const { ref, focusKey } = useFocusable({
-        focusKey: 'SEARCH',
-        saveLastFocusedChild: true,
-        trackChildren: true,
-    });
-
-    /* Foco inicial en el teclado */
-    useEffect(() => {
-        setFocus('SEARCH-KB');
-    }, []);
-
-    return (
-        <FocusContext.Provider value={focusKey}>
-            <div ref={ref} className={styles.container}>
-                {/* Input de texto (display only) */}
-                <div className={styles.inputWrapper}>
-                    <div className={styles.inputDisplay}>
-                        {query || (
-                            <span className={styles.placeholder}>
-                                Ingresa tu búsqueda...
-                            </span>
-                        )}
-                    </div>
-                </div>
-
-                {/* Contenido: teclado (25%) + resultados (75%) */}
-                <div className={styles.content}>
-                    <div className={styles.keyboardPanel}>
-                        <OnScreenKeyboard
-                            focusKeyPrefix="SEARCH-KB"
-                            onInput={appendChar}
-                            onSearch={() => {/* ya busca con debounce */ }}
-                            onDelete={deleteChar}
-                            onClear={clearQuery}
-                        />
-                    </div>
-
-                    <div className={styles.resultsPanel}>
-                        {debouncedQuery.trim().length === 0 ? (
-                            <p className={styles.hint}>
-                                Usa el teclado para buscar programas
-                            </p>
-                        ) : (
-                            <ProgramGrid
-                                programs={programs}
-                                isLoading={isLoading}
-                                isError={isError}
-                                loadingText="Buscando..."
-                                errorText="Error al buscar"
-                                focusKeyPrefix="SEARCH-RESULTS"
-                                hasMore={hasMore}
-                                isLoadingMore={isLoadingMore}
-                                onLoadMore={loadMore}
-                                onProgramPress={goToProgram}
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
-        </FocusContext.Provider>
-    );
+	return (
+		<div className={styles.pageContainer}>
+			{query.trim() ? (
+				<div className={styles.activeQueryHeader}>
+					<h1 className={styles.resultsTitle}>
+						Resultados para <span className={styles.highlightedQuery}>"{query}"</span>
+					</h1>
+					{!isLoading && (
+						<p className={styles.resultsCount}>
+							{totalRecords === 1 ? "1 resultado encontrado" : `${totalRecords} resultados encontrados`}
+						</p>
+					)}
+				</div>
+			) : (
+				<div className={styles.emptyQueryHeader}>
+					<h1 className={styles.searchTitle}>Buscador</h1>
+					<p className={styles.searchSubtitle}>
+						Explora nuestro catálogo de programas, series y contenidos.
+					</p>
+				</div>
+			)}
+			{!isLoading && query.trim().length > 0 && programs.length === 0 && (
+				<div className={styles.noResultsContainer}>
+					<p className={styles.noResultsText}>
+						No encontramos resultados para <span className={styles.noResultsQuery}>"{query}"</span>
+					</p>
+					<p className={styles.noResultsSuggestion}>
+						Intenta con otros términos de búsqueda como el nombre del programa o género.
+					</p>
+				</div>
+			)}
+			<ProgramGrid programs={programs} isLoading={isLoading} isError={isError} loadingText="Buscando..." errorText="Error al buscar contenidos" />
+			{hasNextPage && (
+				<div className={styles.loadMoreContainer}>
+					<Button variant="tertiary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className={styles.loadMoreButton}>
+						{isFetchingNextPage ? "Cargando..." : "Ver más"}
+					</Button>
+				</div>
+			)}
+		</div>
+	);
 }
-
 export default SearchView;

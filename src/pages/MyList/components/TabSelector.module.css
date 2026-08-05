@@ -1,0 +1,13 @@
+.tabContainer {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tabSeparator {
+  color: color-mix(in srgb, var(--clr-primary-title) 30%, transparent);
+  margin: 0 0.5rem;
+}
+

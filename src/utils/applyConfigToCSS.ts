@@ -1,72 +1,48 @@
 // src/utils/applyConfigToCSS.ts
 // Aplica la configuración dinámica del cliente a las variables CSS de :root
-import cssVars from 'css-vars-ponyfill';
-
-export function applyConfigToCSS(config: any) {
+export function applyConfigToCSS(config: Record<string, string>) {
     if (!config) return;
     const root = document.documentElement;
 
-    // Map de clave-config → nombre de variable CSS
-    const varMap: Record<string, string> = {
-        'clr-primary':               '--clr-primary',
-        'clr-secondary':             '--clr-secondary',
-        'clr-primary-title':         '--clr-primary-title',
-        'clr-secondary-title':       '--clr-secondary-title',
-        'clr-primary-button':        '--clr-primary-button',
-        'clr-secondary-button':      '--clr-secondary-button',
-        'clr-primary-subtitle':      '--clr-primary-subtitle',
-        'clr-secondary-subtitle':    '--clr-secondary-subtitle',
-        'clr-primary-text':          '--clr-primary-text',
-        'clr-secondary-text':        '--clr-secondary-text',
-        'clr-text-primary-button':   '--clr-text-primary-button',
-        'clr-text-secondary-button': '--clr-text-secondary-button',
-        'clr-text-tertiary-button':  '--clr-text-tertiary-button',
-        'clr-icon':                  '--clr-icon',
-        'clr-edit':                  '--clr-edit',
-        'foc-primary':               '--foc-primary',
-        'foc-secondary':             '--foc-secondary',
-        'foc-tertiary':              '--foc-tertiary',
-        'grad-banner':               '--grad-banner',
-        'grad-sidebar':              '--grad-sidebar',
-        'font-family-title':         '--font-family-title',
-        'font-family-text':          '--font-family-text',
-        'font-family-button':        '--font-family-button',
-        'font-family-subtitle':      '--font-family-subtitle',
-        'font-size-title':           '--font-size-title',
-        'font-size-subtitle':        '--font-size-subtitle',
-        'font-size-text':            '--font-size-text',
-        'font-size-subtext':         '--font-size-subtext',
-        'font-title':                '--font-title',
-        'font-subtitle':             '--font-subtitle',
-        'font-text':                 '--font-text',
-        'font-weight-title':         '--font-weight-title',
-        'font-weight-subtitle':      '--font-weight-subtitle',
-        'font-weight-text':          '--font-weight-text',
-        'font-weight-subtext':       '--font-weight-subtext',
-    };
+    // Colores
+    if (config["clr-primary"]) root.style.setProperty('--clr-primary', config["clr-primary"]);
+    if (config["clr-secondary"]) root.style.setProperty('--clr-secondary', config["clr-secondary"]);
+    if (config["clr-primary-title"]) root.style.setProperty('--clr-primary-title', config["clr-primary-title"]);
+    if (config["clr-secondary-title"]) root.style.setProperty('--clr-secondary-title', config["clr-secondary-title"]);
+    if (config["clr-primary-button"]) root.style.setProperty('--clr-primary-button', config["clr-primary-button"]);
+    if (config["clr-secondary-button"]) root.style.setProperty('--clr-secondary-button', config["clr-secondary-button"]);
+    if (config["clr-primary-subtitle"]) root.style.setProperty('--clr-primary-subtitle', config["clr-primary-subtitle"]);
+    if (config["clr-secondary-subtitle"]) root.style.setProperty('--clr-secondary-subtitle', config["clr-secondary-subtitle"]);
+    if (config["clr-primary-text"]) root.style.setProperty('--clr-primary-text', config["clr-primary-text"]);
+    if (config["clr-secondary-text"]) root.style.setProperty('--clr-secondary-text', config["clr-secondary-text"]);
+    if (config["clr-text-primary-button"]) root.style.setProperty('--clr-text-primary-button', config["clr-text-primary-button"]);
+    if (config["clr-text-secondary-button"]) root.style.setProperty('--clr-text-secondary-button', config["clr-text-secondary-button"]);
+    if (config["clr-text-tertiary-button"]) root.style.setProperty('--clr-text-tertiary-button', config["clr-text-tertiary-button"]);
+    if (config["clr-icon"]) root.style.setProperty('--clr-icon', config["clr-icon"]);
+    if (config["clr-edit"]) root.style.setProperty('--clr-edit', config["clr-edit"]);
+    if (config["foc-primary"]) root.style.setProperty('--foc-primary', config["foc-primary"]);
+    if (config["foc-secondary"]) root.style.setProperty('--foc-secondary', config["foc-secondary"]);
+    if (config["foc-tertiary"]) root.style.setProperty('--foc-tertiary', config["foc-tertiary"]);
 
-    // 1. Aplicar vía setProperty (browsers modernos con soporte nativo de CSS vars)
-    const ponyfillVars: Record<string, string> = {};
-    Object.entries(varMap).forEach(([key, cssVar]) => {
-        if (config[key]) {
-            root.style.setProperty(cssVar, config[key]);
-            ponyfillVars[cssVar] = config[key];
-        }
-    });
+    // Fuentes
+    if (config["font-family-title"]) root.style.setProperty('--font-family-title', config["font-family-title"]);
+    if (config["font-family-text"]) root.style.setProperty('--font-family-text', config["font-family-text"]);
+    if (config["font-family-button"]) root.style.setProperty('--font-family-button', config["font-family-button"]);
+    if (config["font-family-subtitle"]) root.style.setProperty('--font-family-subtitle', config["font-family-subtitle"]);
+    if (config["font-size-title"]) root.style.setProperty('--font-size-title', config["font-size-title"]);
+    if (config["font-size-subtitle"]) root.style.setProperty('--font-size-subtitle', config["font-size-subtitle"]);
+    if (config["font-size-text"]) root.style.setProperty('--font-size-text', config["font-size-text"]);
+    if (config["font-size-subtext"]) root.style.setProperty('--font-size-subtext', config["font-size-subtext"]);
+    if (config["font-title"]) root.style.setProperty('--font-title', config["font-title"]);
+    if (config["font-subtitle"]) root.style.setProperty('--font-subtitle', config["font-subtitle"]);
+    if (config["font-text"]) root.style.setProperty('--font-text', config["font-text"]);
+    if (config["font-weight-title"]) root.style.setProperty('--font-weight-title', config["font-weight-title"]);
+    if (config["font-weight-subtitle"]) root.style.setProperty('--font-weight-subtitle', config["font-weight-subtitle"]);
+    if (config["font-weight-text"]) root.style.setProperty('--font-weight-text', config["font-weight-text"]);
+    if (config["font-weight-subtext"]) root.style.setProperty('--font-weight-subtext', config["font-weight-subtext"]);
 
-    // 2. Inyectar etiqueta <style> con las variables para que el ponyfill las detecte
-    //    (necesario para webOS 3.x / Chrome <49 que no soporta CSS vars nativas)
-    let styleTag = document.getElementById('__config-vars__') as HTMLStyleElement | null;
-    if (!styleTag) {
-        styleTag = document.createElement('style');
-        styleTag.id = '__config-vars__';
-        document.head.appendChild(styleTag);
-    }
-    const cssText = ':root {\n' +
-        Object.entries(ponyfillVars).map(([k, v]) => `  ${k}: ${v};`).join('\n') +
-        '\n}';
-    styleTag.textContent = cssText;
+    // Gradientes
+    if (config["grad-banner"]) root.style.setProperty('--grad-banner', config["grad-banner"]);
+    if (config["grad-sidebar"]) root.style.setProperty('--grad-sidebar', config["grad-sidebar"]);
 
-    // 3. Re-ejecutar el ponyfill pasando las variables explícitamente
-    cssVars({ watch: false, silent: true, variables: ponyfillVars });
 }

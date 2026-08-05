@@ -1,66 +1,49 @@
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import styles from './Button.module.css';
+﻿import { cn } from "@/utils/cn";
+import styles from "./Button.module.css";
 
-type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
+type ButtonVariant = "primary" | "secondary" | "tertiary";
 
 interface ButtonProps {
-    /** Texto visible del botón */
     children: React.ReactNode;
-    /** Variante visual */
     variant?: ButtonVariant;
-    /** Muestra una flecha de Play a la izquierda */
     showArrow?: boolean;
-    /** Focus key para navegación espacial (obligatorio para TV) */
-    focusKey: string;
-    /** Callback al presionar Enter (control remoto) */
-    onPress?: () => void;
-    /** Callback al hacer click (Magic Mouse / F6.2) */
-    onClick?: () => void;
-    /** Callback al recibir foco */
-    onFocused?: () => void;
-    /** Callback para control de navegación direccional */
-    onArrowPress?: (direction: string) => boolean;
-    /** Clase CSS adicional */
+    onClick?: (...args: any[]) => any;
+    disabled?: boolean;
     className?: string;
+    style?: React.CSSProperties;
 }
 
-export function Button({
+const variantStyleMap: Record<ButtonVariant, string> = {
+    primary: styles.primary,
+    secondary: styles.secondary,
+    tertiary: styles.tertiary,
+};
+
+function Button({
     children,
-    variant = 'primary',
+    variant = "primary",
     showArrow = false,
-    focusKey,
-    onPress,
     onClick,
-    onFocused,
-    onArrowPress,
+    disabled = false,
     className,
+    style
 }: ButtonProps) {
-    const { ref, focused } = useFocusable({
-        focusKey,
-        onEnterPress: () => onPress?.(),
-        onFocus: () => onFocused?.(),
-        onArrowPress: onArrowPress as (direction: string) => boolean,
-    });
-
-    const classList = [
-        styles.btn,
-        styles[variant],
-        focused && styles.focused,
-        showArrow && styles.withArrow,
-        className,
-    ].filter(Boolean).join(' ');
-
     return (
         <button
-            ref={ref}
             type="button"
-            className={classList}
-            onClick={() => {
-                onPress?.();
-                onClick?.();
-            }}
+            className={cn(styles.btn, variantStyleMap[variant], className)}
+            onClick={onClick}
+            disabled={disabled}
+            style={style}
         >
+            {showArrow && (
+                <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className={styles.arrow}>
+                    <path d="M14 8L0 16V0L14 8Z" />
+                </svg>
+            )}
             {children}
         </button>
     );
 }
+
+export default Button;

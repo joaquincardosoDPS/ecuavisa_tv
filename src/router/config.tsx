@@ -1,90 +1,79 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Navigate, type RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import MainLayout from "@/layout/MainLayout";
-import ProtectedRoute from "@/router/ProtectedRoute";
+import { AnalyticsWrapper } from "@/layout/AnalyticsWrapper";
+// import ProtectedRoute from "@/router/ProtectedRoute";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 
 const HomeView = lazy(() => import("@/pages/Home/HomeView"));
 const SearchView = lazy(() => import("@/pages/Search/SearchView"));
 const ProgramsView = lazy(() => import("@/pages/Programs/ProgramsView"));
 const ProgramPage = lazy(() => import("@/pages/Program/index"));
-// Vista original con PiP shrink:
-// const PlayerView = lazy(() => import("@/pages/Player/PlayerView"));
-// Vista alternativa con card overlay:
-const PlayerView = lazy(() => import("@/pages/Player/PlayerViewAlt"));
+const PlayerView = lazy(() => import("@/pages/Player/PlayerView"));
 const LoginView = lazy(() => import("@/pages/Auth/LoginView"));
 const RegisterView = lazy(() => import("@/pages/Auth/RegisterView"));
-const WhoIsThereView = lazy(() => import("@/pages/Profiles/WhoIsThereView"));
+const SelectProfileView = lazy(() => import("@/pages/Auth/SelectProfileView"));
 const ProfilesView = lazy(() => import("@/pages/Profiles/ProfilesView"));
 const EditProfileView = lazy(() => import("@/pages/Profiles/EditProfileView"));
-const AvatarSelectView = lazy(() => import("@/pages/Profiles/AvatarSelectView"));
+const SelectAvatarView = lazy(() => import("@/pages/Profiles/SelectAvatarView"));
 const MyListView = lazy(() => import("@/pages/MyList/MyListView"));
-const AccountInfoView = lazy(() => import("@/pages/MiLatina/AccountInfoView"));
+const HistoryView = lazy(() => import("@/pages/History/HistoryView"));
 const CategoryView = lazy(() => import("@/pages/Category/CategoryView"));
-// const MyAccountView = lazy(() => import("@/pages/MyAccount/MyAccountView"));
+const MyAccountView = lazy(() => import("@/pages/MyAccount/MyAccountView"));
 const LiveView = lazy(() => import("@/pages/Live/LiveView"));
 const EventView = lazy(() => import("@/pages/Event/EventView"));
-// const TVPairView = lazy(() => import("@/pages/TV/TVPairView"));
-// const NotFoundView = lazy(() => import("@/pages/Error/NotFoundView"));
-
-/**
- * Precarga los chunks JS de las vistas principales del sidebar.
- * Se llama después de que la app inicie para eliminar el delay
- * de carga cuando el usuario navega por el sidebar.
- */
-export function prefetchMainViews() {
-    setTimeout(() => {
-        import("@/pages/Home/HomeView");
-        import("@/pages/Live/LiveView");
-        import("@/pages/Search/SearchView");
-        import("@/pages/Programs/ProgramsView");
-        import("@/pages/MyList/MyListView");
-    }, 3000); // Esperar 3s para no competir con la carga inicial
-}
+const TVPairView = lazy(() => import("@/pages/TV/TVPairView"));
+const NotFoundView = lazy(() => import("@/pages/Error/NotFoundView"));
 
 const Lazy = ({ children }: { children: React.ReactNode }) => (
-    <Suspense fallback={<FullScreenSpinner />}>{children}</Suspense>
+  <Suspense fallback={<FullScreenSpinner />}>{children}</Suspense>
 );
 
 export const APP_ROUTES: RouteObject[] = [
-    /* Redirigir / → /whoisthere SIN pasar por MainLayout (evita flash del sidebar) */
-    { index: true, element: <Navigate to="/whoisthere" replace /> },
-    { path: "auth/register", element: <Lazy><RegisterView /></Lazy> },
-    { path: "auth/login", element: <Lazy><LoginView /></Lazy> },
-    {
-        element: <ProtectedRoute />,
+  {
+    // Layout raíz para tracking de analytics en todas las rutas
+    element: <AnalyticsWrapper />,
+    children: [
+      {
+        path: "auth",
         children: [
-            { path: "whoisthere", element: <Lazy><WhoIsThereView /></Lazy> },
+          { path: "login", element: <Lazy><LoginView /></Lazy> },
+          { path: "registro", element: <Lazy><RegisterView /></Lazy> },
         ],
-    },
-    {
-        id: "root",
-        element: <MainLayout />,
+      },
+      {
+        // element: <ProtectedRoute />,
         children: [
-            {
-                path: "play/:program/:segment/:season/:chapter",
-                element: <Lazy><PlayerView /></Lazy>,
-            },
-            /* Rutas protegidas — requieren token */
-            {
-                element: <ProtectedRoute />,
-                children: [
-                    { path: "home", element: <Lazy><HomeView /></Lazy> },
-                    { path: "buscar", element: <Lazy><SearchView /></Lazy> },
-                    { path: "programas", element: <Lazy><ProgramsView /></Lazy> },
-                    { path: "programas/:slug", element: <Lazy><ProgramPage /></Lazy> },
-                    { path: "categoria/:slug", element: <Lazy><CategoryView /></Lazy> },
-                    { path: "eventos/:slug", element: <Lazy><EventView /></Lazy> },
-                    { path: "live", element: <Lazy><LiveView /></Lazy> },
-                    { path: "mi-lista", element: <Lazy><MyListView /></Lazy> },
-                    { path: "mi-latina/cuenta", element: <Lazy><AccountInfoView /></Lazy> },
-                    { path: "mi-latina", element: <Lazy><ProfilesView /></Lazy> },
-                    { path: "mi-latina/nuevo", element: <Lazy><EditProfileView /></Lazy> },
-                    { path: "mi-latina/:id", element: <Lazy><EditProfileView /></Lazy> },
-                    { path: "mi-latina/avatar", element: <Lazy><AvatarSelectView /></Lazy> },
-                ],
-            },
+          { path: "seleccionar-perfil", element: <Lazy><SelectProfileView /></Lazy> },
+          {
+            id: "root",
+            element: <MainLayout />,
+            children: [
+              { path: "/", element: <Lazy><HomeView /></Lazy> },
+              { path: "home", element: <Navigate to="/" replace /> },
+              { path: "buscar", element: <Lazy><SearchView /></Lazy> },
+              { path: "programas", element: <Lazy><ProgramsView /></Lazy> },
+              { path: "programas/:slug", element: <Lazy><ProgramPage /></Lazy> },
+              { path: "categoria/:slug", element: <Lazy><CategoryView /></Lazy> },
+              { path: "eventos/:slug", element: <Lazy><EventView /></Lazy> },
+              { path: "live", element: <Lazy><LiveView /></Lazy> },
+              { path: "mi-lista", element: <Lazy><MyListView /></Lazy> },
+              { path: "seguir-viendo", element: <Lazy><HistoryView /></Lazy> },
+              { path: "mi-ecuavisa", element: <Lazy><MyAccountView /></Lazy> },
+              { path: "mi-ecuavisa/perfiles", element: <Lazy><ProfilesView /></Lazy> },
+              { path: "mi-ecuavisa/perfiles/:id", element: <Lazy><EditProfileView /></Lazy> },
+              { path: "mi-ecuavisa/perfiles/:id/avatars", element: <Lazy><SelectAvatarView /></Lazy> },
+              { path: "*", element: <Lazy><NotFoundView /></Lazy> },
+            ],
+          },
+          {
+            path: "play/:program/:segment/:season/:chapter",
+            element: <Lazy><PlayerView /></Lazy>,
+          },
+          { path: "tv", element: <Lazy><TVPairView /></Lazy> },
         ],
-    }
+      },
+    ],
+  },
 ];
-

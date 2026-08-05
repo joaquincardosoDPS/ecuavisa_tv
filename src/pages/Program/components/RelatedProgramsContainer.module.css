@@ -1,0 +1,16 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.5s ease-out;
+  min-height: calc(100vh - 281px);
+}
+
+.loadingText {
+  color: var(--clr-primary-title);
+}
+
+.emptyText {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+}
+

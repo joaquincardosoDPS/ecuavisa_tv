@@ -4,11 +4,10 @@
  */
 
 import type { DeviceAdInfo } from '../types';
-import { ADS_FALLBACK_DOMAIN } from '@/config-global';
 
-const DEFAULT_FALLBACK_DOMAIN = ADS_FALLBACK_DOMAIN || 'https://www.latina.pe';
+const DEFAULT_FALLBACK_DOMAIN = 'https://www.ecuavisa.com';
 
-var cachedInfo: DeviceAdInfo | null = null;
+let cachedInfo: DeviceAdInfo | null = null;
 
 /**
  * Obtiene info de ads del dispositivo (cachéa resultado).
@@ -33,7 +32,7 @@ function getGenericAdInfo(): DeviceAdInfo {
         // Generador simple de UUID v4 de fallback
         const generateUUID = () => {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
         };
@@ -57,15 +56,15 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
     vastUrl = cleanedUrl;
 
-    var qIndex = vastUrl.indexOf('?');
-    var base = qIndex === -1 ? vastUrl : vastUrl.substring(0, qIndex);
-    var queryString = qIndex === -1 ? '' : vastUrl.substring(qIndex + 1);
+    const qIndex = vastUrl.indexOf('?');
+    let base = qIndex === -1 ? vastUrl : vastUrl.substring(0, qIndex);
+    const queryString = qIndex === -1 ? '' : vastUrl.substring(qIndex + 1);
 
-    var paramsMap: Record<string, string> = {};
+    const paramsMap: Record<string, string> = {};
     if (queryString) {
-        var pairs = queryString.split('&');
-        for (var i = 0; i < pairs.length; i++) {
-            var eqIndex = pairs[i].indexOf('=');
+        const pairs = queryString.split('&');
+        for (let i = 0; i < pairs.length; i++) {
+            const eqIndex = pairs[i].indexOf('=');
             if (eqIndex === -1) {
                 paramsMap[pairs[i]] = '';
             } else {
@@ -75,33 +74,29 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
 
     // --- RUDO LIVE -> GOOGLE (workaround CORS http/https mismatch) ---
-    // Solo aplicar si el slug coincide con un ad unit conocido
     if (base.indexOf('rudo.video/ads/vmap/live/') !== -1) {
-        var slugParts = base.split('/');
-        var slug = slugParts[slugParts.length - 1].split('?')[0];
+        const slugParts = base.split('/');
+        const slug = slugParts[slugParts.length - 1].split('?')[0];
 
-        // Ad units por señal — agregar mapeos cuando estén definidos
-        var iuMap: Record<string, string> = {};
-        var iu = iuMap[slug];
+        // Ad units por señal — agregar mapeos de Ecuavisa cuando estén definidos
+        const iuMap: Record<string, string> = {};
+        const iu = iuMap[slug];
 
-        // Solo reescribir si el slug tiene un ad unit mapeado
-        if (iu) {
-            base = 'https://pubads.g.doubleclick.net/gampad/ads';
-            paramsMap['iu'] = encodeURIComponent(iu);
-            paramsMap['output'] = 'xml_vast4';
-            paramsMap['sz'] = '640x480';
-            paramsMap['gdfp_req'] = '1';
-            paramsMap['tfcd'] = '0';
-            paramsMap['npa'] = '0';
+        base = 'https://pubads.g.doubleclick.net/gampad/ads';
+        paramsMap['iu'] = encodeURIComponent(iu);
+        paramsMap['output'] = 'xml_vast4';
+        paramsMap['sz'] = '640x480';
+        paramsMap['gdfp_req'] = '1';
+        paramsMap['tfcd'] = '0';
+        paramsMap['npa'] = '0';
 
-            // Eliminar parámetros exclusivos de Rudo que Google rechaza
-            delete paramsMap['app'];
-            delete paramsMap['dpssid'];
-            delete paramsMap['ndvc'];
-            delete paramsMap['sid'];
-            delete paramsMap['platform'];
-            delete paramsMap['impl'];
-        }
+        // Eliminar parámetros exclusivos de Rudo que Google rechaza
+        delete paramsMap['app'];
+        delete paramsMap['dpssid'];
+        delete paramsMap['ndvc'];
+        delete paramsMap['sid'];
+        delete paramsMap['platform'];
+        delete paramsMap['impl'];
     }
 
     // Agregar parámetros de identificación persistente (Web)
@@ -128,8 +123,8 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
 
     // --- FIXES SOLO PARA GOOGLE AD MANAGER (no aplicar a Rudo) ---
-    var isGoogleAds = base.indexOf('pubads.g.doubleclick.net') !== -1 ||
-                      base.indexOf('googleads.g.doubleclick.net') !== -1;
+    const isGoogleAds = base.indexOf('pubads.g.doubleclick.net') !== -1 ||
+                        base.indexOf('googleads.g.doubleclick.net') !== -1;
 
     if (isGoogleAds) {
         // Helper: detecta valores inválidos en params de URL
@@ -145,7 +140,7 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
         // 1. Corregir url si es inválida
         if (isInvalidUrlParam(paramsMap['url'])) {
             // Usar description_url como fallback si tiene un dominio real
-            var fallbackUrl = (!isInvalidUrlParam(paramsMap['description_url']))
+            const fallbackUrl = (!isInvalidUrlParam(paramsMap['description_url']))
                 ? decodeURIComponent(paramsMap['description_url'])
                 : fallbackDomain || DEFAULT_FALLBACK_DOMAIN;
             paramsMap['url'] = encodeURIComponent(fallbackUrl);
@@ -166,8 +161,8 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
     // ---------------------------------
 
-    var parts: string[] = [];
-    for (var key in paramsMap) {
+    const parts: string[] = [];
+    for (const key in paramsMap) {
         if (Object.prototype.hasOwnProperty.call(paramsMap, key)) {
             parts.push(key + '=' + paramsMap[key]);
         }
@@ -175,87 +170,3 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
 
     return base + '?' + parts.join('&');
 }
-
-/**
- * Resultado de resolver una URL VAST.
- * - `urls`: Array de URLs VAST a intentar (waterfall de prerolls del VMAP)
- */
-export interface ResolvedVast {
-    urls: string[];
-}
-
-/**
- * Pre-resuelve URLs de VMAP de Rudo.
- *
- * Si la URL es de rudo.video/ads/vmap/, fetcha el VMAP y extrae TODAS
- * las AdTagURIs de preroll para que VastPlayer las pruebe en secuencia
- * (waterfall). Esto evita:
- * 1. El problema de CORS (IMA no puede acceder a rudo.video desde su iframe)
- * 2. Perder el waterfall por solo tomar el primer AdTagURI
- *
- * Si la URL NO es de rudo.video, la devuelve como URL única.
- */
-export async function resolveVastUrl(vastUrl: string): Promise<ResolvedVast | null> {
-    if (!vastUrl || vastUrl.trim() === '' || vastUrl === 'none') {
-        return null;
-    }
-
-    // Solo pre-resolver URLs de rudo.video/ads/vmap/
-    if (vastUrl.indexOf('rudo.video/ads/vmap/') === -1) {
-        return { urls: [vastUrl] }; // Ya es una URL directa (Google, etc.)
-    }
-
-    try {
-        console.log('[VAST Resolve] Pre-fetching VMAP:', vastUrl);
-        const response = await fetch(vastUrl);
-        if (!response.ok) {
-            console.warn('[VAST Resolve] HTTP error:', response.status);
-            return null;
-        }
-
-        const xmlText = await response.text();
-
-        // Parsear VMAP XML
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-
-        const parserError = xmlDoc.querySelector('parsererror');
-        if (parserError) {
-            console.warn('[VAST Resolve] Error parsing VMAP XML');
-            return null;
-        }
-
-        // Extraer TODAS las AdTagURIs de prerolls (timeOffset="start")
-        const adBreaks = xmlDoc.querySelectorAll(
-            'vmap\\:AdBreak, AdBreak'
-        );
-        const prerollUrls: string[] = [];
-
-        adBreaks.forEach((adBreak) => {
-            const timeOffset = adBreak.getAttribute('timeOffset');
-            if (timeOffset !== 'start') return; // Solo prerolls
-
-            const adTagUri = adBreak.querySelector(
-                'vmap\\:AdTagURI, AdTagURI'
-            );
-            if (adTagUri && adTagUri.textContent) {
-                const url = adTagUri.textContent.trim();
-                if (url) prerollUrls.push(url);
-            }
-        });
-
-        if (prerollUrls.length === 0) {
-            console.warn('[VAST Resolve] No se encontraron AdTagURIs de preroll en VMAP');
-            return null;
-        }
-
-        console.log(`[VAST Resolve] ${prerollUrls.length} preroll URLs encontradas (waterfall)`);
-        return { urls: prerollUrls };
-
-    } catch (error) {
-        console.error('[VAST Resolve] Error pre-fetching VMAP:', error);
-        return null;
-    }
-}
-
-

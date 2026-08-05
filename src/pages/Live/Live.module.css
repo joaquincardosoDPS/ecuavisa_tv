@@ -1,0 +1,38 @@
+﻿.page {
+    padding-left: 10.5rem;
+    padding-top: 9.5rem;
+    gap: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.playerRow {
+    display: flex;
+    gap: 1.25rem;
+    transition: all 0.5s ease-in-out;
+}
+
+.playerRowExpanded { height: 100%; }
+.playerRowNormal { height: 55%; }
+
+.signalInfo { width: 40%; }
+
+.playerCol {
+    width: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.epgRow {
+    transition: all 0.5s ease-in-out;
+    scrollbar-width: none;
+}
+
+.epgRow::-webkit-scrollbar { display: none; }
+
+.epgRowExpanded { height: 0; opacity: 0; overflow: hidden; }
+.epgRowNormal { height: 45%; opacity: 1; }

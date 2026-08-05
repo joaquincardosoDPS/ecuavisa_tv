@@ -1,117 +1,28 @@
-/* =============================================
-   FONTS — Cargadas localmente (sin CDN)
-   ============================================= */
-
-/* Poppins */
-@font-face {
-	font-family: 'Poppins';
-	src: url('./assets/fonts/Poppins-Light.ttf');
-	font-weight: 300;
-	font-style: normal;
-	font-display: swap;
-}
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 @font-face {
-	font-family: 'Poppins';
-	src: url('./assets/fonts/Poppins-Regular.ttf');
+	font-family: "Gotham";
+	src: url("./assets/fonts/Gotham Book.otf") format("opentype");
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
 }
 
 @font-face {
-	font-family: 'Poppins';
-	src: url('./assets/fonts/Poppins-Medium.ttf');
-	font-weight: 500;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'Poppins';
-	src: url('./assets/fonts/Poppins-SemiBold.ttf');
-	font-weight: 600;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'Poppins';
-	src: url('./assets/fonts/Poppins-Bold.ttf');
+	font-family: "Gotham";
+	src: url("./assets/fonts/Gotham Bold.otf") format("opentype");
 	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
 }
 
-/* Archia */
 @font-face {
-	font-family: 'Archia';
-	src: url('./assets/fonts/02.Archia-Light-webfont/archia-light-webfont.ttf');
-	font-weight: 300;
+	font-family: "Gotham";
+	src: url("./assets/fonts/Gotham Black.otf") format("opentype");
+	font-weight: 900;
 	font-style: normal;
 	font-display: swap;
 }
-
-@font-face {
-	font-family: 'Archia';
-	src: url('./assets/fonts/03.Archia-Regular-webfont/archia-regular-webfont.ttf');
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'Archia';
-	src: url('./assets/fonts/04.Archia-Medium-webfont/archia-medium-webfont.ttf');
-	font-weight: 500;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'Archia';
-	src: url('./assets/fonts/05.Archia-Semibold-webfont/archia-semibold-webfont.ttf');
-	font-weight: 600;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'Archia';
-	src: url('./assets/fonts/06.Archia-Bold-webfont/archia-bold-webfont.ttf');
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
-
-/* CircularXX */
-@font-face {
-	font-family: 'CircularXX';
-	src: url('./assets/fonts/CircularXX-Book.woff2');
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'CircularXX';
-	src: url('./assets/fonts/CircularXX-Regular.woff2');
-	font-weight: 450;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'CircularXX';
-	src: url('./assets/fonts/CircularXX-Medium.woff2');
-	font-weight: 500;
-	font-style: normal;
-	font-display: swap;
-}
-
-/* =============================================
-   CSS VARIABLES
-   ============================================= */
 
 :root {
 	/* Dimensiones de Botones */
@@ -126,26 +37,12 @@
 	--tam-quaternary-button-width: 13vw;
 	--tam-quaternary-button-height: 6vh;
 
-	/* Tipografía — tamaños optimizados para TV (legibles a 3m) */
-	--font-size-heading: 2.8rem;
-	/* Títulos principales de página */
+	/* Tipografía */
 	--font-size-title: 2.5rem;
-	/* Títulos de sección */
 	--font-size-subtitle: 1.5rem;
-	/* Subtítulos, nombres de categoría */
-	--font-size-body: 1.5rem;
-	/* Texto de lectura principal */
-	--font-size-text: 1.3rem;
-	/* Texto secundario / descripciones */
-	--font-size-caption: 1.1rem;
-	/* Texto pequeño, metadatos */
-	--font-size-label: 1.4rem;
-	/* Labels de botones y badges */
-	--font-size-code: 2rem;
-	/* Códigos destacados */
-	--font-size-subtext: 0.9rem;
-	/* Texto auxiliar mínimo */
-	--font-size-icon: 4rem;
+	--font-size-text: 1.2rem;
+	--font-size-subtext: 0.7rem;
+	--font-siz-icon: 4rem;
 
 	--font-weight-title: bold;
 	--font-weight-subtitle: bold;
@@ -153,11 +50,11 @@
 	--font-weight-subtext: normal;
 	--font-weight-button: bold;
 
-	--font-family-title: 'Poppins', Arial, Helvetica, sans-serif;
-	--font-family-subtitle: 'Poppins', Arial, Helvetica, sans-serif;
-	--font-family-text: 'Poppins', Arial, Helvetica, sans-serif;
-	--font-family-button: 'Poppins', Arial, Helvetica, sans-serif;
-	--font-family-category: 'Archia', Arial, Helvetica, sans-serif;
+	--font-family-title: "Gotham", Arial, Helvetica, sans-serif;
+	--font-family-subtitle: "Gotham", Arial, Helvetica, sans-serif;
+	--font-family-text: "Gotham", Arial, Helvetica, sans-serif;
+	--font-family-button: "Gotham", Arial, Helvetica, sans-serif;
+	--font-family-category: "Gotham", Arial, Helvetica, sans-serif;
 
 	/* Bordes y Sombras */
 	--bor-primary-radius: 5rem;
@@ -177,57 +74,74 @@
 	--tam-quaternary-container-height: 15vh;
 
 	/* Cards */
-	--card-w-vertical: 20vh;
-	--card-w-horizontal: 32vh;
+	--card-w-vertical: 15vw;
+	--card-w-horizontal: 15vw;
 
 	/* Avatar */
 	--avatar-size: 200px;
 	--avatar-border-radius: 50%;
 
-	/* Fallbacks de colores — deben coincidir con la API de Latina */
-	--clr-primary: #00453a;
-	--clr-secondary: #01a77e;
-	--clr-primary-title: #ffffff;
-	--clr-secondary-title: #000000;
-	--clr-primary-button: #000000;
-	--clr-secondary-button: #fff200;
-	--clr-primary-subtitle: #ffffff;
-	--clr-secondary-subtitle: #000000;
-	--clr-primary-text: #ffffff;
-	--clr-secondary-text: #000000;
-	--clr-text-primary-button: #ffffff;
-	--clr-text-secondary-button: #000000;
-	--clr-text-tertiary-button: #fff200;
-	--clr-icon: #ffffff;
-	--clr-edit: #fa6428;
-	--foc-primary: #fff200;
-	--foc-secondary: #00b28a;
-	--foc-tertiary: #008e72;
-	--grad-banner: #00453a;
-	--grad-sidebar: linear-gradient(90deg, rgba(0, 112, 90, 1), transparent);
+	/* Variables de fallback para evitar errores antes de la carga de API */
+	--clr-primary: #001a28;
+	--foc-primary: #ff1376;
+	--grad-sidebar: #054668;
 
-	/* Masking */
+	/* EPG Variables */
+	--epg-accent: #00c6ff;
+	--epg-selected: #16309a;
+	--epg-grad-live: linear-gradient(90deg, #0D4B94 0%, #04172E 100%);
+	--epg-grad-inactive: linear-gradient(90deg, #8E9198 0%, #676D73 50%, #04172E 100%);
+	--epg-grad-bg: linear-gradient(180deg, #030105 0%, #030C19 100%);
+	--epg-bar-bg: rgba(22, 8, 99, 0.20);
+
+	/* Masking vars */
 	--mask-right: linear-gradient(90deg, #000 0%, #000 85%, transparent 100%);
 }
 
-/* =============================================
-   RESET & BASE
-   ============================================= */
+/* Clases de utilidad específicas solicitadas */
+.chapter-card-img-full img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 16px;
+	display: block;
+	transition: all 0.2s ease-in-out;
+}
 
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
+.chapter-card-img-full:focus-within img,
+.chapter-card-img-full.focused img {
+	outline: 3px solid var(--foc-primary);
+	outline-offset: -3px;
+	box-shadow: var(--shadow-primary);
 }
 
 html {
 	scrollbar-width: none;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+	font-size: 16px;
+	/* Firefox */
 }
 
 html::-webkit-scrollbar {
 	display: none;
+	/* Chrome, Edge, Safari */
+}
+
+*,
+::before,
+::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: currentColor;
+}
+
+button {
+    padding: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
 }
 
 html,
@@ -239,31 +153,39 @@ body,
 }
 
 body {
-	background-color: var(--clr-primary, #00453a);
-	color: #ffffff;
-	font-family: var(--font-family-title, 'Poppins', Arial, Helvetica, sans-serif) !important;
-	line-height: 1.5;
+	background-color: var(--clr-primary);
+	color: white;
+	font-family: var(--font-family-title);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-/* =============================================
-   UTILITY CLASSES
-   ============================================= */
-
-.chapter-card-img-full img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	border-radius: 16px;
-	display: block;
-
+/* ── Animaciones globales (reemplazo de Tailwind utilities) ── */
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+@keyframes slideInFromTop {
+	from { transform: translateY(-8px); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideInFromLeft {
+	from { transform: translateX(-40px); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+@keyframes zoomIn95 {
+	from { transform: scale(0.95); opacity: 0; }
+	to { transform: scale(1); opacity: 1; }
 }
 
-.chapter-card-img-full:focus-within img,
-.chapter-card-img-full.focused img {
-	outline: 3px solid var(--foc-primary, #fff200);
-	outline-offset: -3px;
-	box-shadow: var(--shadow-primary, 0 0 10px 5px hsla(168, 100%, 41%, 0.75));
-}
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+.animate-slide-in-top { animation: slideInFromTop 0.2s ease-out; }
+.animate-slide-in-left { animation: slideInFromLeft 1s ease-out; }
+.animate-zoom-in { animation: zoomIn95 0.2s ease-out; }
 
 /* Scrollbar discreta */
 .scrollbar-subtle {
@@ -289,7 +211,19 @@ body {
 }
 
 .bg-header-gradient {
+	background-image: linear-gradient(to bottom, var(--clr-primary), transparent);
 	background-image: linear-gradient(to bottom,
-			rgba(0, 26, 40, 0.8),
-			rgba(0, 26, 40, 0));
+			color-mix(in srgb, var(--clr-primary) 80%, transparent),
+			transparent);
+}
+
+.banner-overlay {
+	background: linear-gradient(to bottom, var(--clr-primary) 0%, transparent 20%, transparent 50%, var(--clr-primary) 100%);
+	background: linear-gradient(to bottom,
+			color-mix(in srgb, var(--clr-primary) 80%, transparent) 0%,
+			transparent 20%,
+			transparent 40%,
+			color-mix(in srgb, var(--clr-primary) 40%, transparent) 60%,
+			color-mix(in srgb, var(--clr-primary) 80%, transparent) 80%,
+			var(--clr-primary) 100%);
 }

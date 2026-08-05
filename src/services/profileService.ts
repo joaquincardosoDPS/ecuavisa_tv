@@ -34,7 +34,7 @@ export const profileService = {
      */
     update: async (token: string, id: string, name_perfil: string, avatar: string | null): Promise<ProfileMutationResponse> => {
         const { data } = await api.post<ProfileMutationResponse>(RUDO_PROFILE_UPDATE, {
-            token, id, name_perfil, avatar: avatar ?? '',
+            token, id, name_perfil, avatar: avatar ?? null,
         });
         return data;
     },

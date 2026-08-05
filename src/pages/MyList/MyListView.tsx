@@ -1,194 +1,56 @@
-import { useEffect, useCallback, useRef } from "react";
-import {
-  FocusContext,
-  useFocusable,
-  setFocus,
-} from "@noriginmedia/norigin-spatial-navigation";
-import { useMyListData } from "@/hooks/mylist/useMyListData";
-import { useMyListNavigation } from "@/hooks/mylist/useMyListNavigation";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
-import { Spinner } from "@/components/ui/Spinner";
-import { Button } from "@/components/ui/Button";
-import AlternativeCard from "@/components/ProgramCard/AlternativeCard";
-import type { Program } from "@/interfaces/catalog.interface";
+import ProgramGrid from "@/components/ProgramCard/ProgramGrid";
+import Button from "@/components/ui/Button";
+import { useMyListData } from "@/hooks/mylist/useMyListData";
+import { useHistoryData } from "@/hooks/history/useHistoryData";
+import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
+import { TabSelector } from "./components/TabSelector";
+import { HistoryGrid } from "./components/HistoryGrid";
 import EmptyList from "./components/EmptyList";
-import styles from "./MyList.module.css";
+import { BackButton } from "@/components/ui/BackButton";
+import styles from "./MyListView.module.css";
 
-/** Columnas del grid */
-const COLUMNS = 4;
+type Tab = "favorites" | "history";
 
 function MyListView() {
-  /* ── Hooks de datos y navegación ── */
-  const {
-    favorites,
-    page,
-    isLoading,
-    isLoadingMore,
-    isError,
-    errorMsg,
-    hasMore,
-    loadMore,
-    isAuthenticated,
-  } = useMyListData();
+	useDocumentTitle("Mi Lista");
+	const navigate = useNavigate();
+	const [activeTab, setActiveTab] = useState<Tab>("favorites");
+	const { favorites, isLoading: favLoading, isError: favError, error: favErr, isAuthenticated, fetchNextPage: favNext, hasNextPage: favHasNext, isFetchingNextPage: favFetching } = useMyListData();
+	const { historyItems, isLoading: histLoading, isError: histError, error: histErr, fetchNextPage: histNext, hasNextPage: histHasNext, isFetchingNextPage: histFetching } = useHistoryData();
 
-  const { goToProgram, goToLogin, goToSearch } = useMyListNavigation();
+	const isLoading = activeTab === "favorites" ? favLoading : histLoading;
+	const isError = activeTab === "favorites" ? favError : histError;
+	const error = activeTab === "favorites" ? favErr : histErr;
 
-  /* ── UI / Foco ── */
-  const { ref, focusKey } = useFocusable({
-    focusKey: "MYLIST-VIEW",
-    saveLastFocusedChild: true,
-    trackChildren: true,
-    isFocusBoundary: false,
-    autoRestoreFocus: true,
-  });
-
-  // Foco inicial — solo se ejecuta UNA vez (no al cargar más páginas)
-  const initialFocusSet = useRef(false);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (initialFocusSet.current) return;
-
-    if (!isAuthenticated) {
-      setTimeout(() => setFocus("MYLIST-BTN-LOGIN"), 300);
-      initialFocusSet.current = true;
-    } else if (favorites.length > 0) {
-      setTimeout(() => setFocus(`MYLIST-RESULTS-${favorites[0].id}`), 300);
-      initialFocusSet.current = true;
-    } else if (!isError) {
-      setTimeout(() => setFocus("MYLIST-EMPTY-BTN"), 300);
-      initialFocusSet.current = true;
-    }
-  }, [isLoading, isAuthenticated, favorites.length, isError]);
-
-  /* ── Refs para estabilizar callbacks ──
-   * Los cards memoizados solo se re-renderizan si sus props cambian.
-   * Al leer valores volátiles desde refs, los callbacks nunca cambian
-   * de referencia → los cards existentes no se re-renderizan. */
-  const hasMoreRef = useRef(hasMore);
-  hasMoreRef.current = hasMore;
-
-  const isLoadingMoreRef = useRef(isLoadingMore);
-  isLoadingMoreRef.current = isLoadingMore;
-
-  const loadMoreRef = useRef(loadMore);
-  loadMoreRef.current = loadMore;
-
-  const favLenRef = useRef(favorites.length);
-  favLenRef.current = favorites.length;
-
-  /* ── Scroll infinito: detectar proximidad al fondo ── */
-  const handleScroll = useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const el = e.currentTarget;
-      if (
-        el.scrollHeight - el.scrollTop - el.clientHeight < 300 &&
-        hasMoreRef.current &&
-        !isLoadingMoreRef.current
-      ) {
-        loadMoreRef.current();
-      }
-    },
-    [],
-  );
-
-  /* ── Scroll into view + prefetch al enfocar un card ── */
-  const handleCardFocus = useCallback(
-    (focusKeyCard: string, index: number) => {
-      /* Prefetch: última fila → cargar más (se ejecuta siempre) */
-      const currentRow = Math.floor(index / COLUMNS);
-      const lastRow = Math.floor((favLenRef.current - 1) / COLUMNS);
-
-      if (
-        hasMoreRef.current &&
-        !isLoadingMoreRef.current &&
-        currentRow >= lastRow
-      ) {
-        loadMoreRef.current();
-      }
-
-      /* Scroll into view */
-      const container = ref.current as HTMLElement | null;
-      if (!container) return;
-
-      const child = container.querySelector(
-        `[data-focuskey="${focusKeyCard}"]`,
-      ) as HTMLElement | null;
-      if (!child) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const childRect = child.getBoundingClientRect();
-
-      if (childRect.top < containerRect.top || childRect.bottom > containerRect.bottom) {
-        // scrollBy + smooth no existe en Chrome 38 / webOS 1-3
-        const offset = childRect.top - containerRect.top - 10;
-        container.scrollTop = container.scrollTop + offset;
-      }
-    },
-    [],
-  );
-
-  /* ── onPress estable para los cards ── */
-  const handleProgramPress = useCallback(
-    (key: string) => goToProgram(key),
-    [goToProgram],
-  );
-
-  const programs = favorites as unknown as Program[];
-
-  return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={ref} className={styles.container} onScroll={handleScroll}>
-        <h1 className={styles.title}>Mi Lista</h1>
-
-        {!isAuthenticated ? (
-          <div className={styles.notLoggedIn}>
-            <p className={styles.notLoggedInText}>
-              Inicia sesión para ver tu lista de favoritos.
-            </p>
-            <Button
-              focusKey="MYLIST-BTN-LOGIN"
-              variant="secondary"
-              onPress={goToLogin}
-            >
-              Iniciar sesión
-            </Button>
-          </div>
-        ) : isLoading && page === 1 ? (
-          <FullScreenSpinner />
-        ) : isError ? (
-          <p className={styles.errorText}>{errorMsg}</p>
-        ) : favorites.length === 0 ? (
-          <EmptyList onPress={goToSearch} />
-        ) : (
-          <>
-            <div className={styles.grid}>
-              {programs.map((program, index) => {
-                const cardKey = `MYLIST-RESULTS-${program.id}`;
-                return (
-                  <AlternativeCard
-                    key={program.id}
-                    program={program}
-                    focusKey={cardKey}
-                    index={index}
-                    onCardFocus={handleCardFocus}
-                    onPress={handleProgramPress}
-                  />
-                );
-              })}
-            </div>
-
-            {isLoadingMore && (
-              <div className={styles.loadingMore}>
-                <Spinner />
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </FocusContext.Provider>
-  );
+	return (
+		<div className={styles.pageContainer}>
+			<BackButton />
+			<TabSelector activeTab={activeTab} onTabChange={setActiveTab} />
+			{!isAuthenticated ? (
+				<div className={styles.authPromptContainer}>
+					<p className={styles.authPromptText}>
+						Inicia sesión para ver {activeTab === "favorites" ? "tu lista de favoritos" : "tu historial"}.
+					</p>
+					<Button variant="secondary" onClick={() => navigate("/auth/login")}>Iniciar sesión</Button>
+				</div>
+			) : isLoading ? (
+				<FullScreenSpinner />
+			) : isError ? (
+				<p className={styles.errorMessage}>
+					{error instanceof Error ? error.message : "Error al cargar contenido."}
+				</p>
+			) : activeTab === "favorites" ? (
+				!favorites || favorites.length === 0 ? <EmptyList /> : (
+					<ProgramGrid programs={favorites} cols={5} fetchNextPage={favNext} hasNextPage={favHasNext} isFetchingNextPage={favFetching} />
+				)
+			) : (
+				<HistoryGrid items={historyItems} fetchNextPage={histNext} hasNextPage={histHasNext} isFetchingNextPage={histFetching} />
+			)}
+		</div>
+	);
 }
-
 export default MyListView;
 

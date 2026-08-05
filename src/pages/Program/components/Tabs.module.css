@@ -1,0 +1,36 @@
+.tabsContainer {
+  font-size: 1.25rem;
+  font-weight: 500;
+  height: 15vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tabsWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.separator {
+  width: 1px;
+  height: 2.5rem;
+  background-color: var(--clr-primary-title);
+  display: block;
+}
+
+.finalSeparator {
+  width: 1px;
+  height: 2.5rem;
+  background-color: var(--clr-primary-title);
+  display: block;
+}
+

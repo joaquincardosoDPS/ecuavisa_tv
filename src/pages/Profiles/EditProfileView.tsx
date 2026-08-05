@@ -1,425 +1,80 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { useEditProfileNavigation } from '@/hooks/profiles/useProfilesNavigation';
-import {
-  FocusContext,
-  useFocusable,
-  setFocus,
-} from '@noriginmedia/norigin-spatial-navigation';
-import { useAuthStore } from '@/features/auth/authStore';
-import { profileService } from '@/services/profileService';
-import { useFetch } from '@/hooks/shared/useFetch';
-import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
-import { OnScreenKeyboard } from '@/components/ui/OnScreenKeyboard';
-import { Button } from '@/components/ui/Button';
-import { isInputAction } from '@/utils/keycodes';
-import type { Profile } from '@/interfaces/profile.interface';
-import iconEdit from '@/assets/img/icons/iconos-edit.svg';
-import styles from './EditProfileView.module.css';
-
-// ── Focusable Action Button ──
-
-function ActionButton({
-  focusKey,
-  label,
-  onPress,
-  disabled,
-  baseClass,
-  focusedClass,
-}: {
-  focusKey: string;
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
-  baseClass: string;
-  focusedClass: string;
-}) {
-  const { ref, focused } = useFocusable({
-    focusKey,
-    focusable: !disabled,
-    onEnterPress: onPress,
-  });
-
-  return (
-    <button
-      ref={ref}
-      className={`${styles.actionBtn} ${baseClass} ${focused ? focusedClass : ''}`}
-      onClick={onPress}
-      disabled={disabled}
-    >
-      {label}
-    </button>
-  );
-}
-
-// ── Delete Modal Component con Focus Trap ──
-
-function DeleteModal({
-  name,
-  isDeleting,
-  onCancel,
-  onDelete,
-}: {
-  name: string;
-  isDeleting: boolean;
-  onCancel: () => void;
-  onDelete: () => void;
-}) {
-  const { ref, focusKey } = useFocusable({
-    focusKey: 'DELETE-MODAL',
-    isFocusBoundary: true,
-    trackChildren: true,
-  });
-
-  useEffect(() => {
-    // Forzar foco al abrir
-    setTimeout(() => setFocus('modal-cancel'), 50);
-  }, []);
-
-  return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={ref} className={styles.modalOverlay}>
-        <div className={styles.modalContent}>
-          <p className={styles.modalText}>
-            ¿Quieres borrar el perfil de {name}?
-          </p>
-          <div className={styles.modalActions}>
-            <ActionButton
-              focusKey="modal-cancel"
-              label="Cancelar"
-              onPress={onCancel}
-              baseClass={`${styles.modalBtn} ${styles.modalCancelBtn}`}
-              focusedClass={styles.modalBtnFocused}
-            />
-            <ActionButton
-              focusKey="modal-delete"
-              label={isDeleting ? 'Borrando...' : 'Borrar'}
-              onPress={onDelete}
-              disabled={isDeleting}
-              baseClass={`${styles.modalBtn} ${styles.modalDeleteBtn}`}
-              focusedClass={styles.modalBtnFocused}
-            />
-          </div>
-        </div>
-      </div>
-    </FocusContext.Provider>
-  );
-}
-
-// ── Main View ──
+import { useEditProfile } from "@/hooks/profiles/useEditProfile";
+import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import { BackButton } from "@/components/ui/BackButton";
+import ProfileActionRow from "@/components/ui/ProfileActionRow";
+import Button from "@/components/ui/Button";
+import styles from "./EditProfileView.module.css";
 
 function EditProfileView() {
-  const { id } = useParams<{ id: string }>();
-  const { goToProfiles, goToAvatarSelect } = useEditProfileNavigation();
-  const token = useAuthStore((s) => s.token);
+  const { isCreateMode, existingProfile, isDefaultProfile, name, setName, selectedAvatar, avatarGroups, showDeleteModal, setShowDeleteModal, isDeleting, isSubmitting, submitError, submitSuccess, isLoading, handleSubmit, handleDelete, navigate } = useEditProfile();
+  if (isLoading) return <FullScreenSpinner />;
 
-  const isCreateMode = !id || id === 'nuevo';
-
-  // Fetch existing profiles for edit mode
-  const { data: profilesResponse } = useFetch(
-    () => profileService.getAll(token!),
-    [token],
-    { enabled: !!token && !isCreateMode },
-  );
-
-  const existingProfile: Profile | null = !isCreateMode
-    ? (profilesResponse?.data?.find((p) => p.id === id) ?? null)
-    : null;
-
-  const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
-  const [selectedAvatarUrl, setSelectedAvatarUrl] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const isFirstProfile = profilesResponse?.data
-    ? profilesResponse.data[0]?.id === id
-    : false;
-  const isDefaultProfile = existingProfile?.default === true || isFirstProfile;
-
-  // Receive avatar from AvatarSelectView (must be BEFORE the profile prefill)
-  const location = useLocation();
-  const avatarFromNav = useRef(false);
-
-  useEffect(() => {
-    const state = location.state as { selectedAvatar?: string; selectedAvatarUrl?: string; currentName?: string } | null;
-    if (state?.selectedAvatar) {
-      setSelectedAvatar(state.selectedAvatar);
-      setSelectedAvatarUrl(state.selectedAvatarUrl || null);
-      avatarFromNav.current = true;
-    }
-    if (state?.currentName !== undefined) {
-      setName(state.currentName);
-    }
-  }, [location.state]);
-
-  // Prellenar datos si es edición (no sobreescribir avatar si vino de AvatarSelectView)
-  useEffect(() => {
-    if (existingProfile) {
-      setName(existingProfile.name_perfil);
-      if (!avatarFromNav.current) {
-        setSelectedAvatar(existingProfile.avatar || null);
+  const avatarUrl = (() => {
+    if (selectedAvatar && avatarGroups) {
+      for (const group of avatarGroups) {
+        const found = group.avatars.find((a) => a.id === selectedAvatar);
+        if (found) return found.images?.big || found.images?.medium || found.images?.default || null;
       }
     }
-  }, [existingProfile]);
-
-  // Norigin container
-  const { ref: containerRef, focusKey } = useFocusable({
-    focusKey: 'EDIT-PROFILE-VIEW',
-    saveLastFocusedChild: true,
-    trackChildren: true,
-  });
-
-  // Focus keyboard initially
-  useEffect(() => {
-    setTimeout(() => setFocus('PROFILE-KB-r0-a'), 300);
-  }, []);
-
-  // Back key
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (isInputAction(e, 'Back')) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        e.stopPropagation();
-        if (showDeleteModal) {
-          setShowDeleteModal(false);
-        } else {
-          goToProfiles();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKey, true);
-    return () => window.removeEventListener('keydown', handleKey, true);
-  }, [goToProfiles, showDeleteModal]);
-
-  const activeProfile = useAuthStore((s) => s.activeProfile);
-  const setActiveProfile = useAuthStore((s) => s.setActiveProfile);
-
-  const handleSubmit = async () => {
-    if (!token) return;
-    if (!name.trim()) {
-      setSubmitError('El nombre del perfil es obligatorio.');
-      return;
+    if (existingProfile && !Array.isArray(existingProfile.images)) {
+      return existingProfile.images?.big || existingProfile.images?.medium || existingProfile.images?.default || null;
     }
-
-    setIsSubmitting(true);
-    setSubmitError('');
-
-    try {
-      const avatarToSend = isCreateMode
-        ? selectedAvatar
-        : (selectedAvatar ?? existingProfile?.avatar ?? null);
-
-      console.log('[EditProfile] Submitting:', { isCreateMode, name: name.trim(), avatarToSend, selectedAvatar, existingAvatar: existingProfile?.avatar });
-
-      const response = isCreateMode
-        ? await profileService.create(token, name.trim(), avatarToSend)
-        : await profileService.update(token, id!, name.trim(), avatarToSend);
-
-      if (response.status === 'error') {
-        const rawMsg = response.msj || '';
-        // Mapear errores técnicos de la API a mensajes amigables
-        let friendlyMsg = 'Error al guardar el perfil.';
-        if (rawMsg.toLowerCase().includes('avatar')) {
-          friendlyMsg = 'Debes seleccionar un avatar para el perfil.';
-        } else if (rawMsg.toLowerCase().includes('name') || rawMsg.toLowerCase().includes('nombre')) {
-          friendlyMsg = 'El nombre del perfil es obligatorio.';
-        } else if (rawMsg) {
-          friendlyMsg = rawMsg;
-        }
-        setSubmitError(friendlyMsg);
-        return;
-      }
-
-      // Si se actualizó el perfil activo, actualizar el store y LocalStorage
-      if (!isCreateMode && existingProfile && activeProfile?.id === id) {
-        const updatedProfile: Profile = {
-          ...existingProfile,
-          name_perfil: name.trim(),
-          avatar: avatarToSend || existingProfile.avatar,
-          images: selectedAvatarUrl
-            ? { default: selectedAvatarUrl, medium: selectedAvatarUrl }
-            : existingProfile.images,
-        };
-        setActiveProfile(updatedProfile);
-      }
-
-      setSubmitSuccess(true);
-      setTimeout(() => goToProfiles(), 1200);
-    } catch (err) {
-      console.error('[EditProfile] Error:', err);
-      setSubmitError('Error de conexión. Intenta de nuevo.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDelete = useCallback(async () => {
-    if (!token || !id || isCreateMode) return;
-
-    setIsDeleting(true);
-    try {
-      const response = await profileService.delete(token, id);
-      if (response.status === 'error') {
-        setSubmitError(response.msj || 'Error al eliminar el perfil.');
-        setShowDeleteModal(false);
-        return;
-      }
-      goToProfiles();
-    } catch (err) {
-      console.error('[EditProfile] Delete error:', err);
-      setSubmitError('Error de conexión.');
-      setShowDeleteModal(false);
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [token, id, isCreateMode, goToProfiles]);
-
-  // Avatar URL for preview — prefer selected avatar URL, fallback to existing profile images
-  const getProfileAvatarUrl = (): string | null => {
-    if (selectedAvatarUrl) return selectedAvatarUrl;
-    if (!existingProfile || Array.isArray(existingProfile.images)) return null;
-    return existingProfile.images?.medium || existingProfile.images?.default || null;
-  };
-  const avatarUrl = getProfileAvatarUrl();
-
-  // Navigate to avatar selection
-  const returnPath = isCreateMode ? '/mi-latina/nuevo' : `/mi-latina/${id}`;
-  const goToAvatarSelectPage = useCallback(() => {
-    goToAvatarSelect(selectedAvatar, returnPath, name);
-  }, [goToAvatarSelect, selectedAvatar, returnPath, name]);
-
-  // Focusable avatar edit badge
-  const { ref: editBadgeRef, focused: editBadgeFocused } = useFocusable({
-    focusKey: 'edit-profile-avatar-btn',
-    onEnterPress: goToAvatarSelectPage,
-    onArrowPress: (direction) => {
-      if (direction === 'right') {
-        setFocus('PROFILE-KB');
-        return false;
-      }
-      if (direction === 'down') {
-        setFocus('edit-profile-save');
-        return false;
-      }
-      return true;
-    },
-  });
-
-  if (!isCreateMode && !existingProfile && profilesResponse) {
-    return <FullScreenSpinner />;
-  }
+    return null;
+  })();
 
   return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={containerRef} className={styles.container}>
-        {/* ── Title ── */}
-        <h1 className={styles.title}>
-          {isCreateMode ? 'Crear perfil' : 'Editar perfil'}
-        </h1>
-
-        {/* ── Two-column content ── */}
-        <div className={styles.contentGrid}>
-          {/* Left: Name + Avatar */}
-          <div className={styles.leftColumn}>
-
-            {/* Avatar preview */}
-            <div className={styles.avatarContainer}>
-              <div className={styles.avatarPreview}>
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Avatar"
-                    className={styles.avatarPreviewImg}
-                    draggable={false}
-                    decoding="async"
-                  />
-                ) : (
-                  <span className={styles.avatarPreviewFallback}>
-                    {(name.trim() || existingProfile?.name_perfil || 'Default').charAt(0).toUpperCase()}
-                  </span>
-                )}
+    <div className={styles.pageContainer}>
+      <BackButton />
+      <div className={styles.contentLayout}>
+        <div className={styles.formSection}>
+          <h1 className={styles.pageTitle}>
+            {isCreateMode ? "Nuevo perfil" : "Mi perfil"}
+          </h1>
+          <p className={styles.pageSubtitle}>
+            {isCreateMode ? "Creá tu perfil de Ecuavisa" : "Personalizá tu experiencia en Ecuavisa"}
+          </p>
+          <p className={styles.pageDescription}>
+            {isCreateMode ? "Elige un nombre y avatar obligatorios para crear tu nuevo perfil" : "Personaliza tu experiencia en Ecuavisa y disfruta de contenido hecho para ti"}
+          </p>
+          <div className={styles.actionList}>
+            <ProfileActionRow icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>} label={isCreateMode ? "Elegir avatar *" : "Elegir avatar"} variant="navigation" onClick={() => navigate('avatars')} />
+            <ProfileActionRow icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>} label={isCreateMode ? "Nombre *" : "Nombre"} variant="editable" value={name || (isCreateMode ? "Toca para escribir nombre" : "")} onValueChange={setName} onSave={!isCreateMode ? () => handleSubmit(name, false) : undefined} />
+            {submitError && <p className={styles.errorText}>{submitError}</p>}
+            {submitSuccess && <p className={styles.successText}>{isCreateMode ? "¡Perfil creado con éxito!" : "¡Perfil actualizado!"}</p>}
+            {isCreateMode && (
+              <div className={styles.submitButtonWrapper}>
+                <Button variant="primary" onClick={() => handleSubmit(name, true)} disabled={isSubmitting} className={styles.submitButton}>
+                  {isSubmitting ? "Creando perfil..." : "Crear perfil"}
+                </Button>
               </div>
-              <button
-                ref={editBadgeRef}
-                className={`${styles.avatarEditBadge} ${editBadgeFocused ? styles.avatarEditBadgeFocused : ''}`}
-                onClick={goToAvatarSelectPage}
-              >
-                <img src={iconEdit} alt="Editar" className={styles.avatarEditIcon} />
-              </button>
-            </div>
-
-            {/* Name input (read-only, driven by keyboard) */}
-            <input
-              type="text"
-              placeholder="Nombre del perfil"
-              value={name}
-              className={styles.nameInput}
-              readOnly
-              maxLength={15}
-            />
-          </div>
-
-          {/* Right: Keyboard */}
-          <div className={styles.rightColumn}>
-            <div className={styles.keyboardWrapper}>
-              <OnScreenKeyboard
-                focusKeyPrefix="PROFILE-KB"
-                onInput={(char) => setName((prev) => (prev.length < 15 ? prev + char : prev))}
-                onDelete={() => setName((prev) => prev.slice(0, -1))}
-                onEscapeLeft={() => setFocus('edit-profile-avatar-btn')}
-              />
-            </div>
+            )}
+            {!isCreateMode && !isDefaultProfile && (
+              <ProfileActionRow icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>} label="Eliminar perfil" variant="action" onClick={() => setShowDeleteModal(true)} />
+            )}
           </div>
         </div>
-
-        {/* ── Bottom actions ── */}
-        <div className={styles.bottomActions}>
-          {submitError && <p className={styles.errorText}>{submitError}</p>}
-          {submitSuccess && (
-            <p className={styles.successText}>
-              {isCreateMode ? 'Perfil creado' : 'Perfil actualizado'} ✓
-            </p>
+        <div className={styles.avatarSection}>
+          {avatarUrl ? (
+            <div className={styles.avatarPreviewWrapper}>
+              <img src={avatarUrl} alt={name || "Perfil"} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.3s", opacity: isSubmitting ? 0.4 : 1 }} />
+            </div>
+          ) : (
+            <div className={styles.avatarPlaceholderWrapper}>
+              <div style={{ fontSize: "200px", fontWeight: "bold", fontFamily: "Gotham", lineHeight: "220px", color: "var(--clr-primary-title)", transition: "opacity 0.3s", opacity: isSubmitting ? 0.4 : 1 }}>
+                {(name || existingProfile?.name_perfil || 'U').charAt(0).toUpperCase()}
+              </div>
+            </div>
           )}
-
-          <Button
-            focusKey="edit-profile-save"
-            variant="secondary"
-            onPress={handleSubmit}
-          >
-            {isSubmitting ? 'Guardando...' : isCreateMode ? 'Crear perfil' : 'Guardar cambios'}
-          </Button>
-
-          {!isCreateMode && !isDefaultProfile && (
-            <Button
-              focusKey="edit-profile-delete"
-              variant="tertiary"
-              onPress={() => setShowDeleteModal(true)}
-            >
-              Eliminar perfil
-            </Button>
-          )}
+          <p className={styles.avatarNameText}>
+            {name || existingProfile?.name_perfil || (isCreateMode ? "Nombre de perfil" : "")}
+          </p>
         </div>
       </div>
-
-      {/* ── Delete Modal ── */}
-      {showDeleteModal && (
-        <DeleteModal
-          name={name || existingProfile?.name_perfil || ''}
-          isDeleting={isDeleting}
-          onCancel={() => {
-            setShowDeleteModal(false);
-            setFocus('edit-profile-delete'); // Restaurar foco
-          }}
-          onDelete={handleDelete}
-        />
+      {!isCreateMode && (
+        <ConfirmModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} message={`¿Quieres borrar el perfil de ${existingProfile?.name_perfil || ""}?`} confirmLabel="Borrar" loadingLabel="Borrando..." isLoading={isDeleting} />
       )}
-    </FocusContext.Provider>
+    </div>
   );
 }
-
 export default EditProfileView;

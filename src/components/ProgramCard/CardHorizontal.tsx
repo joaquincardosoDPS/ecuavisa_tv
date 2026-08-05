@@ -1,103 +1,125 @@
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import { useNavigate } from 'react-router-dom';
-import type { Program, Event } from '@/interfaces/catalog.interface';
-import { getEventStatus } from '@/utils/eventStatus';
-import styles from './ProgramCard.module.css';
+import type { Program, Event } from "@/interfaces/catalog.interface";
+import { useProgramsStore } from "@/features/programs/programsStore";
+import { useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getEventStatus } from "@/utils/eventStatus";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import type { EmblaCarouselType } from "embla-carousel";
+import styles from "./ProgramCard.module.css";
 
 interface CardHorizontalProps {
-    program: Program | Event;
-    format?: string;
-    focusKey: string;
-    onCardFocus?: () => void;
-    onArrowLeft?: () => void;
+  program: Program | Event;
+  format?: string;
+  index?: number;
+  emblaApi?: EmblaCarouselType;
+  parentFocusKey?: string;
 }
 
-function CardHorizontal({ program, format, focusKey, onCardFocus, onArrowLeft }: CardHorizontalProps) {
-    const navigate = useNavigate();
+function CardHorizontal({ program, format, index, emblaApi, parentFocusKey }: CardHorizontalProps) {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isProgramsView = pathname === "/programas";
+  const isEvent = format === "event";
+  const eventData = isEvent ? (program as Event) : null;
+  const programData = !isEvent ? (program as Program) : null;
+  const imageSrc = isEvent
+    ? eventData?.image_land?.small || eventData?.image_background?.small
+    : programData?.image_land?.small;
+  const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
+  const showDate = eventStatus !== null && eventStatus.label === "Próximamente";
+  const setActiveProgram = useProgramsStore((state) => state.setActiveProgram);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const isEvent = format === 'event';
-    const eventData = isEvent ? (program as Event) : null;
-    const programData = !isEvent ? (program as Program) : null;
+  const handleClick = () => {
+    if (isEvent && eventData) {
+      if (eventData.skip_view && eventData.program_associated?.key) {
+        navigate(`/programas/${eventData.program_associated.key}`);
+      } else {
+        navigate(`/eventos/${eventData.key}`);
+      }
+    } else {
+      navigate(`/programas/${program.key}`);
+    }
+  };
 
-    const imageSrc = isEvent
-        ? eventData?.image_land?.small
-        : programData?.image_land?.small;
+  const { ref, focused } = useCarouselFocus({
+    focusKey: `${parentFocusKey}-item-${program.id}`,
+    index,
+    emblaApi,
+    onEnterPress: handleClick,
+  });
 
-    const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
-    const showDate = eventStatus !== null && eventStatus.label === 'Próximamente';
+  const handleFocusEnter = () => {
+    if (!isProgramsView || isEvent) return;
+    hoverTimeout.current = setTimeout(() => setActiveProgram(program as Program), 200);
+  };
 
-    const handlePress = () => {
-        if (isEvent && eventData) {
-            if (eventData.skip_view && eventData.program_associated?.key) {
-                navigate(`/programas/${eventData.program_associated.key}`);
-            } else {
-                navigate(`/eventos/${eventData.key}`);
-            }
-        } else {
-            navigate(`/programas/${program.key}`);
-        }
-    };
+  const handleFocusLeave = () => {
+    if (!isProgramsView) return;
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+  };
 
-    const { ref, focused } = useFocusable({
-        focusKey,
-        onEnterPress: handlePress,
-        onFocus: () => onCardFocus?.(),
-        onArrowPress: (direction) => {
-            if (direction === 'left' && onArrowLeft) {
-                onArrowLeft();
-                return false;
-            }
-            return true;
-        },
-    });
+  return (
+    <div className={`${styles.cardWrapper} ${styles.horizontalWrapper}`}>
+      <div
+        ref={ref}
+        tabIndex={0}
+        className={`${[styles.cardImg, styles.cardImgHorizontal].join(" ")} ${styles.horizontalImageContainer} ${focused ? styles.focused : ''}`}
+        onMouseEnter={handleFocusEnter}
+        onMouseLeave={handleFocusLeave}
+        onFocus={handleFocusEnter}
+        onBlur={handleFocusLeave}
+        onClick={handleClick}
+      >
+        {eventStatus && (
+          <span className={styles.badge} style={{ backgroundColor: eventStatus.bgColor, color: eventStatus.textColor }}>
+            {eventStatus.label}
+          </span>
+        )}
+        {imageSrc ? (
+          <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" />
+        ) : (
+          <div className={styles.cardImgFallback}>
+            <span className={styles.cardImgFallbackText}>{program.title}</span>
+          </div>
+        )}
+      </div>
 
-    const classList = [
-        styles.card,
-        styles.horizontal,
-        focused && styles.focused,
-    ].filter(Boolean).join(' ');
-
-    return (
-        <div className={styles.cardWrapper}>
-            <div ref={ref} className={classList} data-focuskey={focusKey} onClick={handlePress}>
-                {/* Event status badge */}
-                {eventStatus && (
-                    <span
-                        className={styles.eventBadge}
-                        style={{ backgroundColor: `var(${eventStatus.colorVar})` }}
-                    >
-                        {eventStatus.label}
-                    </span>
-                )}
-                {imageSrc ? (
-                    <img
-                        src={imageSrc}
-                        alt={program.title}
-                        className={styles.image}
-                        draggable={false}
-                        decoding="async"
-                    />
-                ) : (
-                    <div className={styles.fallback}>
-                        <span className={styles.fallbackText}>{program.title}</span>
-                    </div>
-                )}
-            </div>
-            {showDate && eventData && (
-                <div className={styles.eventDateInfo}>
-                    <span className={styles.eventDateText}>
-                        {(() => {
-                            const d = new Date(eventData.gmt0_unlocked.replace(' ', 'T') + 'Z');
-                            const date = d.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'long' });
-                            const time = d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
-                            return `${date}, ${time} hrs`;
-                        })()}
-                    </span>
-                    <span className={styles.eventDateTitle}>{program.title}</span>
-                </div>
-            )}
+      {showDate && (
+        <div className={styles.cardMeta}>
+          <p className={styles.cardTitle}>
+            {(() => {
+              const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+              const d = new Date(eventData!.gmt0_unlocked.replace(" ", "T") + "Z");
+              const time = d.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit", hour12: false });
+              return `${days[d.getDay()]} | ${time}`;
+            })()}
+          </p>
+          <p className={styles.cardTitle}>{program.title}</p>
         </div>
-    );
+      )}
+      {isEvent && !showDate && eventData && (
+        <div className={styles.cardMeta}>
+          <p className={styles.cardTitle}>{program.title}</p>
+          <p className={styles.cardSubtitle}>{eventData.category?.name || eventData.description_short || ""}</p>
+        </div>
+      )}
+      {!isEvent && programData && (
+        <div className={styles.cardMeta}>
+          <p className={styles.cardTitle}>{program.title}</p>
+          <p className={styles.cardSubtitle}>
+            {(() => {
+              const parts: string[] = [];
+              const totalSeasons = programData.segments?.reduce((acc, seg) => acc + (seg.all_temp?.length || 0), 0) || 0;
+              if (totalSeasons > 0) parts.push(`${totalSeasons} temporada${totalSeasons > 1 ? "s" : ""}`);
+              if (programData["max-cap"]?.chapter) parts.push(`${programData["max-cap"].chapter} capítulo${programData["max-cap"].chapter > 1 ? "s" : ""}`);
+              return parts.join(" · ") || programData.name_category;
+            })()}
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default CardHorizontal;

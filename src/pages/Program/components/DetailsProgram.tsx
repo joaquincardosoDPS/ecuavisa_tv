@@ -1,55 +1,42 @@
-import type { Program } from '@/interfaces/catalog.interface';
-import styles from '../ProgramPage.module.css';
+import type { Program } from "@/interfaces/catalog.interface";
+import styles from "./DetailsProgram.module.css";
 
-interface DetailsProgramProps {
-    programDetail: Program;
-}
+function DetailsProgram({ programDetail }: { programDetail: Program }) {
+  const yearProduction = programDetail.anio_production;
+  const genders = programDetail.genders?.map((gender) => gender.name).join(", ");
+  const casting = programDetail.actors || "";
+  const dimColor = "color-mix(in srgb, var(--clr-primary-title) 60%, transparent)";
 
-/** Formatea el campo actors que puede ser string o array */
-function formatActors(actors: any): string {
-    if (!actors) return '';
-    if (typeof actors === 'string') return actors;
-    if (Array.isArray(actors)) {
-        return actors
-            .map((a: any) => (typeof a === 'string' ? a : a?.name || ''))
-            .filter(Boolean)
-            .join(', ');
-    }
-    return '';
-}
-
-function DetailsProgram({ programDetail }: DetailsProgramProps) {
-    const yearProduction = programDetail.anio_production;
-    const casting = formatActors(programDetail.actors);
-
-    return (
-        <div style={{ marginTop: '2rem', marginLeft: '1rem' }}>
-            <h3 className={styles.detailsHeading}>Sinopsis</h3>
-
-            <div className={styles.detailsSection}>
-                {/* Columna izquierda: sinopsis */}
-                <div className={styles.detailsSynopsis}>
-                    <p className={styles.detailsText}>
-                        {programDetail.description || programDetail.description_short || 'Sinopsis no disponible.'}
-                    </p>
-                </div>
-
-                {/* Columna derecha: metadata */}
-                <div className={styles.detailsMeta}>
-                    {yearProduction && (
-                        <p className={styles.detailsValue}>
-                            Año: {yearProduction}.
-                        </p>
-                    )}
-                    {casting && (
-                        <p className={styles.detailsValue} style={{ marginTop: '0.5rem' }}>
-                            Elenco: {casting}.
-                        </p>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className={styles.detailsContainer}>
+      <h3 className={styles.synopsisTitle}>
+        Sinopsis
+      </h3>
+      <div className={styles.detailsContent}>
+        <div className={styles.descriptionWrapper}>
+          <p style={{ color: dimColor, fontSize: "1.25rem", lineHeight: 1.8, fontWeight: 500 }}>
+            {programDetail.description || programDetail.description_short}
+          </p>
         </div>
-    );
+        <div>
+          <div style={{ color: dimColor, fontSize: "1.25rem", letterSpacing: "0.05em", fontWeight: 500, marginBottom: "0.75rem" }}>
+            <h3>Año:</h3>
+            <p>{yearProduction}</p>
+          </div>
+          <div style={{ color: dimColor, fontSize: "1.25rem", letterSpacing: "0.05em", fontWeight: 500 }}>
+            <h3>Géneros:</h3>
+            <p>{genders}</p>
+          </div>
+        </div>
+        <div style={{ color: dimColor, fontSize: "1.25rem", letterSpacing: "0.05em", fontWeight: 500 }}>
+          <h3>Elenco:</h3>
+          <p>{casting}</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default DetailsProgram;
+
+

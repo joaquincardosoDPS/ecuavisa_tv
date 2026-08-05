@@ -1,0 +1,44 @@
+.cardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.imageWrapper {
+  position: relative;
+  flex-shrink: 0px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  aspect-ratio: 16/9;
+  background-color: var(--clr-primary);
+  transition: all 0.3s;
+}
+
+.textWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.dateText {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--clr-secondary-text);
+}
+
+.titleText {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--clr-secondary-text);
+  margin-top: 0.15rem;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+

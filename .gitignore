@@ -12,13 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Platform builds
-platforms/webos/build/
-platforms/tizen/build/
-platforms/hisense/build/
-*.ipk
-*.wgt
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -29,3 +22,8 @@ platforms/hisense/build/
 *.njsproj
 *.sln
 *.sw?
+
+.agents/*
+/*.txt
+/*.zip
+

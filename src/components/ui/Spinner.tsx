@@ -1,12 +1,15 @@
+﻿import styles from "./Spinner.module.css";
 
+interface SpinnerProps {
+    className?: string;
+    size?: string;
+}
 
-import styles from './Spinner.module.css';
-
-export function Spinner() {
+export function Spinner({ className, size = "3rem" }: SpinnerProps) {
     return (
-        <div className={styles.container}>
-            <div className={styles.track}></div>
-            <div className={styles.spinner}></div>
+        <div className={[styles.wrapper, className].filter(Boolean).join(" ")} style={{ width: size, height: size }}>
+            <div className={[styles.ring, styles.ringOuter].join(" ")} />
+            <div className={[styles.ring, styles.ringInner].join(" ")} />
         </div>
     );
 }

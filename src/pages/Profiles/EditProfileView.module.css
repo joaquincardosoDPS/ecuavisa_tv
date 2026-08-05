@@ -1,288 +1,116 @@
-.container {
+.pageContainer {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  background: #00453a;
-  background: var(--clr-primary, #00453a);
-  padding: 2vh 4vw;
-  overflow: hidden;
+  padding: 6.25rem 10rem 0;
+  background: linear-gradient(to right, #17142C, #2D2533, #3D2E3D);
 }
 
-/* ── Title ── */
-.title {
-  color: #ffffff;
-  color: var(--clr-primary-title, #ffffff);
-  font-size: 2.2vw;
-  font-weight: 700;
-  text-align: center;
-  margin: 0;
-  margin-bottom: 5vh;
-  margin-top: 15vh;
-
-  flex-shrink: 0;
-}
-
-/* ── Main content: 2 columns ── */
-.contentGrid {
+.contentLayout {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
 }
 
-/* ── Left column: name + avatar ── */
-.leftColumn {
+.formSection {
+  width: 50%;
+}
+
+.pageTitle {
+  font-size: 2.25rem;
+  font-weight: bold;
+  line-height: 1.2px;
+  margin-bottom: 3rem;
+  color: var(--clr-primary-title);
+}
+
+.pageSubtitle {
+  font-size: 1.875rem;
+  font-weight: bold;
+  line-height: 1.2px;
+  margin-bottom: 1rem;
+  color: var(--clr-primary-title);
+}
+
+.pageDescription {
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.2px;
+  color: var(--clr-primary-title);
+}
+
+.actionList {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 20vw;
-  margin-right: 3vw;
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
-
-.leftColumn>*+* {
-  margin-top: 4vh;
-}
-
-.columnLabel {
-  color: #ffffff;
-  color: var(--clr-primary-text, #ffffff);
-  font-size: 1rem;
-  font-weight: 500;
-  opacity: 0.8;
-  margin: 0;
-  align-self: flex-start;
-}
-
-/* Avatar preview */
-.avatarContainer {
-  position: relative;
-}
-
-.avatarPreview {
-  width: 12vw;
-  height: 12vw;
-  border-radius: 50%;
-  /* border: 3px solid var(--foc-primary, #fff200); */
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.avatarPreviewImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatarPreviewFallback {
-  font-size: 5vw;
-  font-weight: 700;
-  color: #ffffff;
-  color: var(--clr-primary-text, #ffffff);
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.avatarEditBadge {
-  position: absolute;
-  bottom: 0.3vw;
-  right: 0.3vw;
-  width: 2vw;
-  height: 2vw;
-  border-radius: 50%;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  border: 2px solid transparent;
-  cursor: pointer;
-  outline: none;
-  padding: 0;
-  
-}
-
-.avatarEditBadgeFocused,
-.avatarEditBadge:hover {
-  border-color: #fff200;
-  border-color: var(--foc-primary, #fff200);
-  transform: scale(1.15);
-}
-
-.avatarEditIcon {
-  width: 1.1vw;
-  height: 1.1vw;
-}
-
-/* Name input */
-.nameInput {
-  width: 100%;
-  font-size: 1vw;
-  padding: 1vh 1vw;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background: #01a77e;
-  background: var(--clr-secondary, #01a77e);
-  color: #ffffff;
-  color: var(--clr-primary-text, #ffffff);
-  outline: none;
-  text-align: center;
-}
-
-/* ── Right column: keyboard ── */
-.rightColumn {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 20vw;
-}
-
-.rightColumn>*+* {
-  margin-top: 0.5vh;
-}
-
-.keyboardWrapper {
-  width: 100%;
-}
-
-/* Override keyboard key sizes for this view */
-.keyboardWrapper>div {
-  padding: 0;
-}
-
-.keyboardWrapper button {
-  min-height: 5.5vh;
-  height: 5.5vh;
-  font-size: 1vw;
-  border-radius: 5px;
-  text-transform: none;
-}
-
-/* ── Bottom buttons ── */
-.bottomActions {
-  display: flex;
-  justify-content: center;
-  padding: 1.5rem 0;
-  flex-shrink: 0;
-}
-
-.bottomActions>*+* {
-  margin-left: 1.5rem;
-}
-
-.actionBtn {
-  padding: 0.75rem 2.5rem;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-  
-  outline: none;
-}
-
-.actionBtn:disabled {
-  opacity: 0.5;
-}
-
-/* Botones utilizan estilos nativos del componente UI/Button */
 
 .errorText {
-  color: #fca5a5;
-  font-size: 1.2rem;
-  margin: 0;
-  text-align: center;
-  background: rgba(239, 68, 68, 0.15);
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-weight: 600;
+  font-size: 1.125rem;
 }
 
 .successText {
-  color: #86efac;
-  font-size: 1.2rem;
-  margin: 0;
-  text-align: center;
-  background: rgba(34, 197, 94, 0.15);
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+  font-weight: 600;
+  font-size: 1.125rem;
 }
 
-/* ── Delete modal ── */
-.modalOverlay {
-  position: fixed;
-  top: 0; right: 0; bottom: 0; left: 0;
-  z-index: 200;
+.submitButtonWrapper {
+  margin-top: 1rem;
+}
+
+.submitButton {
+  width: 100%;
+  font-size: 1.25rem;
+  padding: 1rem;
+  font-weight: bold;
+}
+
+.avatarSection {
+  width: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
-}
-
-.modalContent {
-  background: #01a77e;
-  background: var(--clr-secondary, #01a77e);
-  border-radius: 16px;
-  padding: 2.5rem;
-  display: flex;
+  margin-top: 5rem;
   flex-direction: column;
+}
+
+.avatarPreviewWrapper {
+  position: relative;
+  width: 20rem;
+  height: 20rem;
+  border-radius: 40px;
+  outline: 4px solid var(--clr-primary-title);
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  min-width: 22rem;
+  overflow: hidden;
+  background-color: rgba(var(--clr-secondary-button), 0.25);
 }
 
-.modalContent>*+* {
-  margin-top: 1.5rem;
+.avatarPlaceholderWrapper {
+  position: relative;
+  width: 20rem;
+  height: 20rem;
+  background-color: var(--foc-primary);
+  border-radius: 40px;
+  outline: 4px solid var(--clr-primary-title);
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
 }
 
-.modalText {
-  color: #ffffff;
-  color: var(--clr-primary-text, #ffffff);
-  font-size: 1rem;
-  text-align: center;
-  margin: 0;
+.avatarNameText {
+  margin-top: 2.5rem;
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--clr-primary-title);
+  line-height: 1px;
 }
 
-.modalActions {
-  display: flex;
-  width: 100%;
-}
-
-.modalActions>*+* {
-  margin-left: 1rem;
-}
-
-.modalBtn {
-  flex: 1;
-  padding: 0.7rem 1rem;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-transform: uppercase;
-  outline: none;
-  
-}
-
-.modalCancelBtn {
-  background: none;
-  color: #ffffff;
-  color: var(--clr-primary-text, #ffffff);
-}
-
-.modalDeleteBtn {
-  background: #fff200;
-  background: var(--foc-primary, #fff200);
-  color: #ffffff;
-  color: var(--clr-text-secondary-button, #ffffff);
-}
-
-.modalBtnFocused {
-  border-color: #fff;
-  transform: scale(1.03);
-}

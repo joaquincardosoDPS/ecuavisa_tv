@@ -1,0 +1,24 @@
+.detailsContainer {
+  min-height: calc(100vh - 281px);
+}
+
+.synopsisTitle {
+  color: var(--clr-primary-title);
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.detailsContent {
+  animation: fadeIn 0.5s ease-out;
+  display: flex;
+  flex-direction: row;
+  gap: 5rem;
+}
+
+.descriptionWrapper {
+  width: 50%;
+}
+

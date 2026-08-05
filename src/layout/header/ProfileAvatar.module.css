@@ -1,0 +1,23 @@
+﻿.avatar {
+    border-radius: 9999px;
+    overflow: hidden;
+    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sizeSm { width: 2.5rem; height: 2.5rem; font-size: 0.875rem; }
+.sizeMd { width: 3rem;   height: 3rem;   font-size: 1.125rem; }
+.sizeLg { width: 9rem;   height: 9rem;   font-size: 2.25rem; }
+
+.img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.initial {
+    color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent);
+}

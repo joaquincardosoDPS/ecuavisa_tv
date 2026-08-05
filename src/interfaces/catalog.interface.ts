@@ -54,7 +54,7 @@ export interface Program {
     actors?: string;
     skip_view?: boolean;
     name_category: string;
-    category?: { slug: string; name: string };
+
 }
 
 export interface SliderResponse {
@@ -63,7 +63,7 @@ export interface SliderResponse {
     total_records: number;
     total_display_records: number;
     last_page: number;
-    data: Program[];
+    data: (Program | Event)[];
 }
 
 export interface Category {
@@ -85,6 +85,7 @@ export interface CategoriesResponse {
     total_display_records: number;
     last_page: number;
     data: Category[];
+    msj?: string;
 }
 
 // Live Signals Interfaces
@@ -157,6 +158,7 @@ export interface Chapter {
     date_update: string;
     description: string;
     duration: string;
+    duration_seg: number;
     image: string;
     image_land: ImageSet;
     key: string;
@@ -164,6 +166,7 @@ export interface Chapter {
     key_segment: string;
     m3u8: string;
     "max-cap": number;
+    "next-cap": number;
     name_program: string;
     name_segment: string;
     restriction: string;
@@ -171,6 +174,13 @@ export interface Chapter {
     slug: string;
     title: string;
     title_complete: string;
+}
+
+export interface ChapterWithHistory extends Chapter {
+    /** Tiempo de reproducción en segundos (0 si no hay historial) */
+    playbackTime: number;
+    /** Si el episodio fue marcado como finalizado */
+    isFinished: boolean;
 }
 
 export interface ChaptersResponse {
@@ -244,6 +254,7 @@ export interface Event {
     image_background: ImageSet;
     image_port: ImageSet;
     image_land: ImageSet;
+    image_slider?: ImageSet;
     program_associated: ChannelAssociation | null;
     live_associated: ChannelAssociation | null;
     classification: string;

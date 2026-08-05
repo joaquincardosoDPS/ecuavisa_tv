@@ -1,0 +1,64 @@
+﻿.row {
+    align-self: stretch;
+    padding: 1.5rem;
+    background-color: color-mix(in srgb, var(--clr-secondary-button) 25%, transparent);
+    border-radius: 1rem;
+    outline: 2px solid var(--epg-accent);
+    outline-offset: -2px;
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    width: 100%;
+}
+
+.row:hover {
+    background-color: var(--clr-secondary-button);
+    outline-color: var(--clr-primary-title);
+}
+
+.left { display: flex; justify-content: flex-start; align-items: center; gap: 1rem; }
+
+.iconWrap {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--clr-icon);
+}
+
+.iconWrap svg { width: 1.5rem; height: 1.5rem; }
+
+.label {
+    color: var(--clr-primary-title);
+    font-weight: bold;
+    font-size: 1.875rem;
+    line-height: 2.5rem;
+}
+
+.chevronWrap { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; }
+
+.editInput {
+    background: transparent;
+    color: var(--clr-primary-title);
+    text-align: right;
+    font-size: 1.875rem;
+    font-weight: bold;
+    line-height: 2.5rem;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid var(--foc-primary);
+    max-width: 12.5rem;
+}
+
+.editValue {
+    color: var(--clr-primary-title);
+    font-size: 1.875rem;
+    font-weight: bold;
+    line-height: 2.5rem;
+}

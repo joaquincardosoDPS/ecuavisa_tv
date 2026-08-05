@@ -1,0 +1,114 @@
+﻿.wrapper { position: relative; padding-right: 2.5rem; padding-top: 0.875rem; }
+
+.trigger {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.triggerLabel {
+    z-index: 30;
+    color: var(--clr-primary-title);
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.trigger:hover .triggerLabel { color: var(--foc-primary); }
+
+.triggerAvatar {
+    z-index: 30;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.trigger:hover .triggerAvatar { border-color: var(--foc-primary); }
+
+.panel {
+    position: absolute;
+    right: 0;
+    top: -1.25rem;
+    padding-top: 7.5rem;
+    background-color: var(--clr-secondary);
+    border-radius: 0.5rem 0 0 0.5rem;
+    padding-bottom: 1rem;
+    min-width: 16.25rem;
+    z-index: 20;
+    animation: panelIn 0.2s ease-out;
+}
+
+@keyframes panelIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.profileList { display: flex; flex-direction: column; margin-bottom: 1.25rem; }
+
+.profileBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+.profileBtn:hover {
+    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+}
+
+.profileName { color: var(--clr-primary-title); font-size: 0.875rem; font-weight: 500; }
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+.addBtn:hover {
+    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+}
+
+.addIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.addPlus { font-size: 1.25rem; color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent); }
+
+.linkList { display: flex; flex-direction: column; }
+
+.link {
+    padding: 0.5rem 1.25rem;
+    text-align: left;
+    font-size: 0.875rem;
+    color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent);
+    transition: all 0.15s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+.link:hover {
+    color: var(--clr-primary-title);
+    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+}

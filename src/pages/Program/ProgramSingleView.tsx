@@ -1,140 +1,34 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  FocusContext,
-  useFocusable,
-  setFocus,
-} from "@noriginmedia/norigin-spatial-navigation";
 import type { Program } from "@/interfaces/catalog.interface";
-import { useFetch } from "@/hooks/shared/useFetch";
-import { usePageScroll } from "@/hooks/shared/usePageScroll";
-import { useRelatedPrograms } from "@/hooks/program/useRelatedPrograms";
-import { useProgramNavigation } from "@/hooks/program/useProgramNavigation";
-import { catalogService } from "@/services/catalogService";
-import Banner, { BannerBackground } from "./components/Banner";
-import TabsSingle, { type ActiveTab } from "./components/TabsSingle";
+import { useProgramSingleData } from "@/hooks/program/useProgramSingleData";
+import Banner from "./components/Banner";
 import DetailsProgram from "./components/DetailsProgram";
+import TabsSingle from "./components/TabsSingle";
 import RelatedProgramsContainer from "./components/RelatedProgramsContainer";
-import styles from "./ProgramPage.module.css";
+import ChaptersContainer from "./components/ChaptersContainer";
+import styles from "./ProgramSingleView.module.css";
 
 interface ProgramSingleViewProps {
   program: Program;
   setIsLoading: (loading: boolean) => void;
 }
 
-function ProgramSingleView({
-  program: programDetail,
-  setIsLoading,
-}: ProgramSingleViewProps) {
-  // Obtener primer capítulo — idéntico al original: {page:1, limit:1} sin segment/season
-  const { data: chapterData, isLoading: isLoadingChapters } = useFetch(
-    () =>
-      catalogService.getChapters({
-        program: programDetail.key,
-        page: 1,
-        limit: 1,
-      }),
-    [programDetail.key],
-    { enabled: !!programDetail.key },
-  );
-
-  // Obtener programas relacionados con scroll infinito
-  const {
-    programs: relatedPrograms,
-    isLoading: isLoadingRelated,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useRelatedPrograms(programDetail.key, programDetail.category?.slug || programDetail.name_category);
-
-  const chapter = chapterData?.data?.[0] ?? null;
-
-  // Single episode: solo "Recomendados" y "Detalles"
-  const [activeTab, setActiveTab] = useState<ActiveTab>("related");
-
-  // Navegación centralizada
-  const { goToPlayerFromBannerSingle, goToProgram } = useProgramNavigation();
-
-  const { ref, focusKey } = useFocusable({
-    focusKey: "PROGRAM-SINGLE-VIEW",
-    saveLastFocusedChild: true,
-    trackChildren: true,
-    isFocusBoundary: false,
-    autoRestoreFocus: true,
-  });
-
-  // foco imperativo al botón Play al montar
-  useEffect(() => {
-    setFocus("program-single-btn-play");
-  }, []);
-
-  // Page scroll (misma lógica que ProgramView)
-  const [scrollY, setScrollY] = useState(0);
-  const { scrollRef, scrollToTop, scrollToSection } = usePageScroll({
-    onScroll: setScrollY,
-  });
-
-  const handleTabChange = useCallback((tab: ActiveTab) => {
-    setActiveTab(tab);
-  }, []);
-
-  // Señalar al padre que todo cargó
-  useEffect(() => {
-    if (!isLoadingChapters && !isLoadingRelated) {
-      setIsLoading(false);
-    }
-  }, [isLoadingChapters, isLoadingRelated, setIsLoading]);
-
-  const handlePlay = useCallback(() => {
-    goToPlayerFromBannerSingle(programDetail, chapter ?? undefined);
-  }, [goToPlayerFromBannerSingle, programDetail, chapter]);
+function ProgramSingleView({ program: programDetail, setIsLoading }: ProgramSingleViewProps) {
+  const { chapter, relatedPrograms, isLoadingRelatedPrograms, segments, activeTab, setActiveTab, activeSeason, setActiveSeason, activeSegment, tabsRef, scrollToTabs, handleChaptersLoaded } = useProgramSingleData(programDetail, setIsLoading);
 
   return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={ref} className={styles.pageWrapper}>
-        <BannerBackground program={programDetail} scrollY={scrollY} />
-
-        <div ref={scrollRef} className={styles.pageScroller}>
-          <Banner
-            program={programDetail}
-            isSingle={true}
-            chapter={chapter ?? undefined}
-            onBannerFocused={scrollToTop}
-            onPlay={handlePlay}
-          />
-
-          <div data-section="tabs" className={styles.mainContent}>
-            <TabsSingle
-              segments={[]}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              onTabsFocused={(details) => {
-                const evt = details?.event as KeyboardEvent | undefined;
-                if (evt && (evt.key === 'ArrowUp' || evt.keyCode === 38)) {
-                  return;
-                }
-                scrollToSection("tabs", "start", 60);
-              }}
-            />
-
-            <div className={styles.contentArea}>
-              {activeTab === "details" ? (
-                <DetailsProgram programDetail={programDetail} />
-              ) : (
-                <RelatedProgramsContainer
-                  programs={relatedPrograms}
-                  isLoading={isLoadingRelated}
-                  isFetchingNextPage={isFetchingNextPage}
-                  hasNextPage={hasNextPage}
-                  fetchNextPage={fetchNextPage}
-                  onProgramPress={goToProgram}
-                />
-              )}
-            </div>
-          </div>
-        </div>
+    <div className={styles.programContainer}>
+      <Banner program={programDetail} isSingle={true} chapter={chapter ?? undefined} />
+      <TabsSingle segments={segments} activeTab={activeTab} setActiveTab={setActiveTab} tabsRef={tabsRef} scrollToTabs={scrollToTabs} />
+      <div className={styles.programContent}>
+        {activeTab === "details" ? (
+          <DetailsProgram programDetail={programDetail} />
+        ) : activeSegment ? (
+          <ChaptersContainer slug={programDetail.key} programKey={programDetail.key} activeSegment={activeSegment} activeSeason={activeSeason} setActiveSeason={setActiveSeason} onLoaded={handleChaptersLoaded} />
+        ) : (
+          <RelatedProgramsContainer programs={relatedPrograms} isLoading={isLoadingRelatedPrograms} />
+        )}
       </div>
-    </FocusContext.Provider>
+    </div>
   );
 }
-
 export default ProgramSingleView;

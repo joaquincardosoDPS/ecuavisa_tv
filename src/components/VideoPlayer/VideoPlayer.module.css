@@ -1,0 +1,54 @@
+.pipNextEpisodeContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--clr-icon);
+  z-index: 2;
+}
+
+.pipUpNextLabel {
+  font-size: 1rem;
+  color: var(--clr-primary-text);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.pipNextEpisodeTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.pipNextEpisodeMeta {
+  font-size: 1.1rem;
+  color: var(--clr-primary-text);
+  margin-bottom: 24px;
+}
+
+.pipNextCountdown {
+  font-size: 0.9rem;
+  color: var(--clr-primary-text);
+  margin-bottom: 16px;
+}
+
+.pipWatchNowButton {
+  padding: 12px 32px;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--clr-secondary-button, #FA6428);
+  color: var(--clr-text-primary-button, #fff);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.pipDarkOverlay {
+  position: absolute;
+  inset: 0px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%);
+}
+

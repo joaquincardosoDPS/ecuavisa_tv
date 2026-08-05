@@ -1,0 +1,113 @@
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 40vh;
+}
+
+.emptyStateText {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  font-size: 1.125rem;
+  text-align: center;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.historyCard {
+  cursor: pointer;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: var(--clr-secondary);
+  transition: all 0.3s;
+}
+
+.placeholderWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderText {
+  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  font-size: 0.875rem;
+}
+
+.progressBarContainer {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 5px;
+  background-color: rgba(255,255,255,0.2);
+}
+
+.infoWrapper {
+  margin-top: 0.5rem;
+  padding: 0 0.125rem;
+}
+
+.programName {
+  color: var(--clr-primary-title);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1px;
+  -webkit-box-orient: vertical;
+}
+
+.episodeTitle {
+  color: var(--clr-primary-title);
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1px;
+  -webkit-box-orient: vertical;
+  margin-top: 0.125rem;
+}
+
+.remainingTimeText {
+  color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+  font-size: 0.875rem;
+  margin-top: 0.125rem;
+}
+
+.loadingSentinel {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.historyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.loadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+  border-top-color: white;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+

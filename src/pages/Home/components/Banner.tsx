@@ -1,104 +1,98 @@
-import { useState, useCallback } from 'react';
-import type { Program } from '@/interfaces/catalog.interface';
-import { BannerInfo } from './BannerInfo';
-import styles from './Banner.module.css';
+import type { Program, Event } from "@/interfaces/catalog.interface";
+import { BannerInfo } from "./BannerInfo";
+import { useState, useEffect } from "react";
+import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import styles from "../Home.module.css";
 
-interface BannerProps {
-    slider: Program[];
-    /** @deprecated No longer used — kept for API compat */
-    scrollY?: number;
-    /** Callback cuando el botón Play recibe foco */
-    onPlayFocused?: () => void;
-    /** Callback de navegación al programa — inyectado desde el padre */
-    onProgramPress?: (program: Program) => void;
+interface BannerProps { slider: (Program | Event)[]; }
+
+function BannerArrow({ direction, onClick }: { direction: 'left' | 'right', onClick: () => void }) {
+	const { ref, focused } = useCarouselFocus({
+		focusKey: `banner-arrow-${direction}`,
+		isBanner: true,
+		onEnterPress: onClick,
+	});
+
+	return (
+		<button
+			ref={ref}
+			onClick={onClick}
+			className={[
+				styles.bannerArrow,
+				direction === 'left' ? styles.bannerArrowLeft : styles.bannerArrowRight,
+				focused ? styles.focused : ''
+			].join(" ")}
+		>
+			<svg width="30" height="50" viewBox="8 5 8 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+				{direction === 'left' ? <polyline points="15 18 9 12 15 6" /> : <polyline points="9 18 15 12 9 6" />}
+			</svg>
+		</button>
+	);
 }
 
-function Banner({ slider, onPlayFocused, onProgramPress }: BannerProps) {
-    const [currentIndex, setCurrentIndex] = useState(0);
+function Banner({ slider }: BannerProps) {
+	const [currentIndex, setCurrentIndex] = useState(0);
+	const total = slider?.length ?? 0;
 
-    if (!slider || slider.length === 0) return null;
+	const { focusKey: generatedFocusKey } = useFocusable({
+		focusKey: 'zone-banner',
+		saveLastFocusedChild: true,
+	});
 
-    const mainProgram = slider[currentIndex] || slider[0];
-    const total = slider.length;
-    const isFirst = currentIndex === 0;
-    const isLast = currentIndex === total - 1;
+	useEffect(() => {
+		if (slider && slider.length > 0) {
+			// Small timeout ensures elements are rendered before focusing
+			const timeout = setTimeout(() => {
+				setFocus(`banner-play-${slider[0].id}`);
+			}, 100);
+			return () => clearTimeout(timeout);
+		}
+	}, [slider]);
 
-    const goNext = useCallback(() => {
-        setCurrentIndex((prev) => Math.min(prev + 1, total - 1));
-    }, [total]);
+	if (!slider || slider.length === 0) return null;
 
-    const goPrev = useCallback(() => {
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
-    }, []);
+	return (
+		<FocusContext.Provider value={generatedFocusKey}>
+			<div className={styles.bannerRoot}>
+				{slider.map((program, i) => (
+					<div
+						key={program.id}
+						className={styles.bannerSlide}
+						style={{
+							backgroundImage: `url(${program.image_slider?.big || program.image_land?.default})`,
+							opacity: i === currentIndex ? 1 : 0,
+							zIndex: i === currentIndex ? 1 : 0,
+						}}
+					>
+						<div className={[styles.bannerOverlay, "banner-overlay"].join(" ")} />
+					</div>
+				))}
 
-    return (
-        <div className={styles.wrapper}>
-            {/* Imagen de fondo con fade */}
-            <div className={styles.bgImageWrapper}>
-                <img
-                    src={mainProgram.image_slider?.big || mainProgram.image_land?.default}
-                    alt={mainProgram.title}
-                    className={styles.bgImage}
-                    decoding="async"
-                    key={mainProgram.id}
-                />
-            </div>
+				<div className={styles.bannerControls}>
+					<BannerArrow direction="left" onClick={() => setCurrentIndex((i) => (i - 1 + total) % total)} />
 
-            {/* Gradiente overlay */}
-            <div className={styles.overlay} />
+					<div className={styles.bannerInfoWrap}>
+						{slider.map((program, i) => (
+							<div
+								key={program.id}
+								className={styles.bannerInfoSlide}
+								style={{
+									opacity: i === currentIndex ? 1 : 0,
+									transform: i === currentIndex ? "translateY(0)" : "translateY(20px)",
+									pointerEvents: i === currentIndex ? "auto" : "none",
+								}}
+							>
+								<BannerInfo program={program} isBannerFocused={i === currentIndex} />
+							</div>
+						))}
+					</div>
 
-            {/* Contenido (logo, descripción, botón) */}
-            <div className={styles.content}>
-                <BannerInfo
-                    program={mainProgram}
-                    onPlayFocused={onPlayFocused}
-                    onSlideNext={isLast ? undefined : goNext}
-                    onSlidePrev={isFirst ? undefined : goPrev}
-                    isFirstSlide={isFirst}
-                    onPress={() => onProgramPress?.(mainProgram)}
-                />
-            </div>
-
-            {/* Flechas — solo para magic mouse (sin foco) */}
-            {total > 1 && (
-                <>
-                    <button
-                        className={styles.arrowBtn + ' ' + styles.arrowLeft}
-                        onClick={goPrev}
-                        type="button"
-                        tabIndex={-1}
-                    >
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                        </svg>
-                    </button>
-                    <button
-                        className={styles.arrowBtn + ' ' + styles.arrowRight}
-                        onClick={goNext}
-                        type="button"
-                        tabIndex={-1}
-                    >
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" />
-                        </svg>
-                    </button>
-                </>
-            )}
-
-            {/* Dots indicadores */}
-            {total > 1 && (
-                <div className={styles.dots}>
-                    {slider.map((_, i) => (
-                        <span
-                            key={i}
-                            className={`${styles.dot} ${i === currentIndex ? styles.dotActive : ''}`}
-                            onClick={() => setCurrentIndex(i)}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+					<BannerArrow direction="right" onClick={() => setCurrentIndex((i) => (i + 1) % total)} />
+				</div>
+			</div>
+		</FocusContext.Provider>
+	);
 }
 
 export default Banner;

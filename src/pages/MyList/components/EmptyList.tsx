@@ -1,41 +1,21 @@
-import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import plusRaw from "@/assets/img/icons/plus.svg?raw";
-import styles from "../MyList.module.css";
+import { useNavigate } from "react-router-dom";
+import styles from "./EmptyList.module.css";
 
-interface EmptyListProps {
-  onPress?: () => void;
-}
-
-function EmptyList({ onPress }: EmptyListProps) {
-  const { ref, focused } = useFocusable({
-    focusKey: "MYLIST-EMPTY-BTN",
-    onEnterPress: () => onPress?.(),
-  });
-
-  const btnClass = [
-    styles.emptyBtn,
-    focused && styles.emptyBtnFocused,
-  ].filter(Boolean).join(" ");
-
+function EmptyList() {
+  const navigate = useNavigate();
   return (
-    <div className={styles.emptyContainer}>
+    <div className={styles.emptyListContainer}>
       <button
-        ref={ref}
-        className={btnClass}
-        onClick={() => onPress?.()}
-        dangerouslySetInnerHTML={{
-          __html: plusRaw
-            .replace(/width="[^"]*"/, 'width="80"')
-            .replace(/height="[^"]*"/, 'height="80"')
-            .replace(/stroke="[^"]*"/, 'stroke="currentColor"'),
-        }}
-      />
-      <h1 className={styles.emptyTitle}>Tu lista está vacía</h1>
-      <p className={styles.emptySubtitle}>
-        El contenido que agregues a tu lista aparecerá aquí
-      </p>
+        onClick={() => navigate('/buscar')}
+        className={styles.addButton}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 4v16m8-8H4"/>
+        </svg>
+      </button>
+      <h1 className={styles.titleText}>Tu lista está vacía</h1>
+      <p className={styles.subtitleText}>El contenido que agregues a tu lista aparecerá aquí</p>
     </div>
   );
 }
-
 export default EmptyList;

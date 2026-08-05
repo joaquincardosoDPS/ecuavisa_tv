@@ -1,6 +1,6 @@
-import React from "react";
-import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import React, { useState } from "react";
 import iconoVolverRaw from "@/assets/img/icons/iconos-volver.svg?raw";
+import styles from "./PlayerTopBar.module.css";
 
 interface PlayerTopBarProps {
   title: string;
@@ -14,21 +14,9 @@ const PlayerTopBarComponent = ({
   title,
   description,
   isVisible,
-  isLive: _isLive = false,
   onBackClick,
 }: PlayerTopBarProps) => {
-  const { ref, focused } = useFocusable({
-    focusKey: "PLAYER-BTN-BACK",
-    onEnterPress: () => onBackClick?.(),
-    onArrowPress: (direction) => {
-      if (direction === "up" || direction === "left" || direction === "right") return false;
-      if (direction === "down") {
-        setFocus("PLAYER-BTN-PLAYPAUSE");
-        return false;
-      }
-      return true;
-    },
-  });
+  const [backHovered, setBackHovered] = useState(false);
 
   return (
     <div
@@ -43,24 +31,20 @@ const PlayerTopBarComponent = ({
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "space-between",
+        gap: "10px",
         color: "var(--clr-primary-text)",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          marginTop: "20px",
-        }}
+      <div className={styles.leftSection}
       >
         {/* Botón Volver */}
         <button
-          ref={ref}
           onClick={onBackClick}
+          onMouseEnter={() => setBackHovered(true)}
+          onMouseLeave={() => setBackHovered(false)}
           style={{
-            width: "64px",
-            height: "64px",
+            width: "56px",
+            height: "56px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -70,53 +54,38 @@ const PlayerTopBarComponent = ({
             flexShrink: 0,
             background: "none",
             border: "none",
-            color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+            color: backHovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
             transition: "color 0.15s ease",
-            borderRadius: "50%",
           }}
         >
           <span
-            style={{ display: "inline-flex", width: 28, height: 28 }}
             dangerouslySetInnerHTML={{
               __html: iconoVolverRaw
-                .replace(/width="[^"]*"/, 'width="28"')
-                .replace(/height="[^"]*"/, 'height="28"'),
-            }}
+                .replace(/width="[^"]*"/, 'width="20"')
+                .replace(/height="[^"]*"/, 'height="20"'),
+            }} className={styles.iconSpan}
           />
         </button>
 
         {/* Textos */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            pointerEvents: "none",
-            maxWidth: "60vw",
-            marginLeft: "10px",
-          }}
+        <div className={styles.textContainer}
         >
-          <h1
-            style={{
-              margin: 0,
-              fontWeight: 500,
-              fontSize: "1.8rem",
-              lineHeight: 1,
-            }}
+          <h1 className={styles.title}
           >
             {title}
           </h1>
           {description && (
-            <h2
-              style={{
-                fontWeight: 500,
-                fontSize: "1.3rem",
-                opacity: 0.9,
-              }}
+            <h2 className={styles.description}
             >
               {description}
             </h2>
           )}
         </div>
+      </div>
+      <div className={styles.rightSection}
+      >
+        {/* <CastButton />
+        <SubtitlesButton /> */}
       </div>
     </div>
   );

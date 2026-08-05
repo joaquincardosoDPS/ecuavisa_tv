@@ -1,131 +1,37 @@
-import { useEffect, useState, useCallback } from "react";
-import {
-  FocusContext,
-  useFocusable,
-  setFocus,
-} from "@noriginmedia/norigin-spatial-navigation";
-import { useLiveData } from "@/hooks/live/useLiveData";
+﻿import { useLiveSignal } from "@/hooks/live/useLiveSignal";
+import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
-import { LivePlayer } from "@/components/LivePlayer/LivePlayer";
-import { LiveStatusBar } from "./components/LiveStatusBar";
-import { LiveGrid } from "./components/LiveGrid";
-
-import styles from "./LiveView.module.css";
+import EPGGrid from "./components/EPGGrid";
+import LivePlayerSection from "./components/LivePlayerSection";
+import LiveSignalInfo from "./components/LiveSignalInfo";
+import bgLogin from "@/assets/img/bg_login.png";
+import styles from "./Live.module.css";
 
 function LiveView() {
-  /* ── Hook de datos ── */
-  const {
-    playlistPremium,
-    epg,
-    isLoading,
-    selectedSignal,
-    selectedKeyLive,
-    currentEvent,
-    now,
-    selectSignal,
-    setSelectedKeyLive,
-  } = useLiveData();
+  useDocumentTitle("En Vivo");
+  const { selectedSignal, epg, playlistPremium, isLoading, expanded, handleSelectSignal, toggleExpand } = useLiveSignal();
 
-  /* ── Estado UI (fullscreen) ── */
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  /* ── Foco ── */
-  const { ref: containerRef, focusKey } = useFocusable({
-    focusKey: "LIVE-VIEW",
-    saveLastFocusedChild: true,
-    trackChildren: true,
-  });
-
-  // Seleccionar señal → fullscreen directo
-  const handleSelectSignal = useCallback((keyLive: string) => {
-    selectSignal(keyLive);
-    setIsFullscreen(true);
-    setTimeout(() => setFocus("LIVE-BTN-BACK"), 200);
-  }, [selectSignal]);
-
-  // Callback de salida de fullscreen
-  const handleExitFullscreen = useCallback(() => {
-    setIsFullscreen(false);
-    setTimeout(() => setFocus("LIVE-GRID"), 100);
-  }, []);
-
-  // Uso para salir de pantalla completa
-  useEffect(() => {
-    if (!isFullscreen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const code = e.keyCode;
-      if (code === 27 || code === 8 || code === 10009 || code === 461) {
-        e.preventDefault();
-        e.stopPropagation();
-        handleExitFullscreen();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isFullscreen, handleExitFullscreen]);
+  if (isLoading) return <FullScreenSpinner />;
 
   return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={containerRef} className={styles.liveContainer}>
-        {isLoading && <FullScreenSpinner />}
-
-        {/* ── Top: video preview + channel info ── */}
-        <div
-          className={`${styles.topSection} ${isLoading ? styles.topSectionHidden : ""} ${isFullscreen ? styles.topSectionFullscreen : ""}`}
-        >
-          {/* LivePlayer auto-contenido */}
-          <div className={`${styles.videoPreview} ${isFullscreen ? styles.videoPreviewFullscreen : ""}`}>
-            {selectedSignal && (
-              <LivePlayer
-                streamSrc={selectedSignal.m3u8 ?? ""}
-                assetKey={selectedSignal.DPSDAIAssetKey || null}
-                vastUrl={selectedSignal.vast || null}
-                signalName={selectedSignal.name_live}
-                currentEvent={currentEvent}
-                isFullscreen={isFullscreen}
-                onBack={handleExitFullscreen}
-              />
-            )}
+    <div
+      className={styles.page}
+      style={{ background: `url(${bgLogin}) top center / 100% auto no-repeat` }}
+    >
+      <div className={[styles.playerRow, expanded ? styles.playerRowExpanded : styles.playerRowNormal].join(" ")}>
+        {!expanded && (
+          <div className={styles.signalInfo}>
+            <LiveSignalInfo signal={selectedSignal} epg={epg} />
           </div>
-
-          {/* Channel info (solo en preview, no fullscreen) */}
-          {!isFullscreen && selectedSignal && (
-            <div className={styles.channelInfo}>
-              <h2 className={styles.channelName}>{selectedSignal.name_live}</h2>
-              {currentEvent && (
-                <>
-                  <p className={styles.channelProgram}>{currentEvent.title}</p>
-                  {currentEvent.synopsis && (
-                    <p className={styles.channelDescription}>
-                      {currentEvent.synopsis}
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* ── Status Bar ── */}
-        {!isFullscreen && !isLoading && (
-          <LiveStatusBar
-            epg={epg}
-            selectedKeyLive={selectedKeyLive}
-          />
         )}
-
-        {/* ── Grid ── */}
-        <LiveGrid
-          playlistPremium={playlistPremium}
-          epg={epg}
-          now={now}
-          isFullscreen={isFullscreen}
-          isLoading={isLoading}
-          onSelectSignal={handleSelectSignal}
-          onRowFocus={setSelectedKeyLive}
-        />
+        <div className={expanded ? undefined : styles.playerCol} style={expanded ? { width: "100%", display: "flex", alignItems: "center", justifyContent: "center" } : undefined}>
+          <LivePlayerSection signal={selectedSignal} isExpanded={expanded} onToggleExpand={toggleExpand} />
+        </div>
       </div>
-    </FocusContext.Provider>
+      <div className={[styles.epgRow, expanded ? styles.epgRowExpanded : styles.epgRowNormal].join(" ")}>
+        <EPGGrid epg={epg} signals={playlistPremium} selectedKeyLive={selectedSignal?.key_live} onSelectSignal={handleSelectSignal} />
+      </div>
+    </div>
   );
 }
 

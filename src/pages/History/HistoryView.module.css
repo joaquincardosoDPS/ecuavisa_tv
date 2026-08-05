@@ -1,0 +1,128 @@
+.pageContainer {
+  padding: 7.5rem 0 0 12rem;
+  min-height: calc(100vh - 84px);
+}
+
+.pageTitle {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.authPromptContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
+  gap: 1rem;
+}
+
+.authPromptText {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  font-size: 1.125rem;
+}
+
+.errorMessage {
+  color: #f87171;
+  text-align: center;
+  padding: 5rem 0;
+}
+
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
+  gap: 1rem;
+}
+
+.emptyStateText {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  font-size: 1.125rem;
+  text-align: center;
+}
+
+.historyGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.historyCard {
+  cursor: pointer;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: var(--clr-secondary);
+  transition: all 0.2s;
+}
+
+.placeholderWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholderText {
+  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  font-size: 0.875rem;
+}
+
+.progressBarContainer {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 5px;
+  background-color: rgba(255,255,255,0.2);
+}
+
+.infoWrapper {
+  margin-top: 0.5rem;
+  padding: 0 0.125rem;
+}
+
+.programName {
+  color: var(--clr-primary-title);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1px;
+  -webkit-box-orient: vertical;
+}
+
+.episodeTitle {
+  color: var(--clr-primary-title);
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1px;
+  -webkit-box-orient: vertical;
+  margin-top: 0.125rem;
+}
+
+.remainingTimeText {
+  color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+  font-size: 0.875rem;
+  margin-top: 0.125rem;
+}
+
+.historyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

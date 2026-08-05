@@ -1,107 +1,75 @@
-import { useFocusable, setFocus } from '@noriginmedia/norigin-spatial-navigation';
-import type { Program } from '@/interfaces/catalog.interface';
-import { SIDEBAR_FOCUS_KEY } from '@/layout/sidebar/constants';
-import PlayIcon from '@/assets/img/icons/play.svg';
-import styles from './BannerInfo.module.css';
+import type { Program, Event } from "@/interfaces/catalog.interface";
+import { useNavigate } from "react-router-dom";
+import Button from "@/components/ui/Button";
+import { getEventStatus } from "@/utils/eventStatus";
+import { PlayButton } from "@/components/icons/play-button";
+import { InfoCircle } from "@/components/icons/info-circle";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import styles from "../Home.module.css";
 
-interface BannerInfoProps {
-    program: Program;
-    onPlayFocused?: () => void;
-    /** Ir al siguiente slide (undefined si ya es el último) */
-    onSlideNext?: () => void;
-    /** Ir al slide anterior (undefined si ya es el primero) */
-    onSlidePrev?: () => void;
-    /** true si estamos en el primer slide */
-    isFirstSlide?: boolean;
-    /** Callback de navegación — inyectado desde el padre */
-    onPress?: () => void;
+interface BannerInfoProps { 
+  program: Program | Event; 
+  isBannerFocused?: boolean;
 }
 
-export function BannerInfo({ program, onPlayFocused, onSlideNext, onSlidePrev, isFirstSlide, onPress }: BannerInfoProps) {
-    const { ref, focused } = useFocusable({
-        focusKey: 'BANNER-PLAY',
-        onEnterPress: () => onPress?.(),
-        onFocus: () => onPlayFocused?.(),
-        onArrowPress: (dir: string) => {
-            if (dir === 'left') {
-                if (onSlidePrev) {
-                    onSlidePrev();
-                } else if (isFirstSlide) {
-                    setFocus(SIDEBAR_FOCUS_KEY);
-                }
-                return false;
-            }
-            if (dir === 'right') {
-                if (onSlideNext) {
-                    onSlideNext();
-                }
-                return false;
-            }
-            if (dir === 'up') return false;
-            return true;
-        },
-    });
+export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
+  const navigate = useNavigate();
+  if (!program) return null;
+  const isEvent = "type" in program;
+  const eventData = isEvent ? (program as Event) : null;
+  const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
 
-    if (!program) return null;
+  const handleClick = () => {
+    if (isEvent && eventData) {
+      if (eventData.skip_view && eventData.program_associated?.key) navigate(`/programas/${eventData.program_associated.key}`);
+      else navigate(`/eventos/${eventData.key}`);
+    } else {
+      navigate(`/programas/${program.key}`);
+    }
+  };
 
-    // Géneros como texto separado por comas
-    const genresText = program.genders?.map((g) => g.name).join(', ');
+  const { ref: playRef, focused: playFocused } = useCarouselFocus({
+    focusKey: `banner-play-${program.id}`,
+    isBanner: true,
+    onEnterPress: handleClick,
+  });
 
-    return (
-        <>
-            {/* Logo del programa */}
-            <div className={styles.logoWrapper}>
-                {program.image_logo?.medium ? (
-                    <img
-                        src={program.image_logo.medium}
-                        alt={program.title}
-                        className={styles.logo}
-                    />
-                ) : (
-                    <h2 className={styles.fallbackTitle}>
-                        {program.title}
-                    </h2>
-                )}
-            </div>
+  const { ref: infoRef, focused: infoFocused } = useCarouselFocus({
+    focusKey: `banner-info-${program.id}`,
+    isBanner: true,
+    onEnterPress: handleClick,
+  });
 
-            {/* Descripción + Metadata */}
-            <div className={styles.descriptionBlock}>
-                <p className={styles.description}>
-                    {program.description_short}
-                </p>
-
-                <div className={styles.metaRow}>
-                    {program.classification && (
-                        <span className={styles.classificationBadge}>
-                            {typeof program.classification === 'object'
-                                ? (program.classification as { name?: string }).name
-                                : program.classification}
-                        </span>
-                    )}
-                    {program.anio_production && (
-                        <span>{program.anio_production}</span>
-                    )}
-                    {genresText && (
-                        <>
-                            <span className={styles.metaSeparator}>|</span>
-                            <span className={styles.genres}>{genresText}</span>
-                        </>
-                    )}
-                </div>
-            </div>
-
-            {/* Botón "Ver ahora" */}
-            <button
-                ref={ref}
-                type="button"
-                className={`${styles.playButton} ${focused ? styles.focused : ''}`}
-                onClick={onPress}
-            >
-                <span className={styles.playButtonContent}>
-                    <img src={PlayIcon} alt="" className={styles.playIcon} />
-                    <span className={styles.playText}>Ver ahora</span>
-                </span>
-            </button>
-        </>
-    );
+  return (
+    <div className={styles.infoRoot}>
+      {eventStatus && (
+        <span className={styles.eventBadge} style={{ backgroundColor: eventStatus.bgColor, color: eventStatus.textColor }}>
+          {eventStatus.label}
+        </span>
+      )}
+      <div className={styles.infoMeta}>
+        {program.image_logo?.medium && (
+          <div className={styles.logoWrap}>
+            <img src={program.image_logo.default} alt={program.title} className={styles.logoImg} />
+          </div>
+        )}
+        <div>
+          <h2 className={styles.infoTitle}>{program.title}</h2>
+          <p className={styles.infoDesc}>{program.description_short}</p>
+        </div>
+      </div>
+      <div className={styles.infoBtns}>
+        <div ref={playRef} tabIndex={isBannerFocused ? 0 : -1} className={playFocused ? styles.focused : ''}>
+          <Button variant="primary" onClick={handleClick}>
+            <PlayButton width={30} height={30} className={styles.playbuttonStyle1} /> Ver en vivo
+          </Button>
+        </div>
+        <div ref={infoRef} tabIndex={isBannerFocused ? 0 : -1} className={infoFocused ? styles.focused : ''}>
+          <Button variant="primary" onClick={handleClick}>
+            <InfoCircle width={30} height={30} className={styles.infocircleStyle2} /> Informacion
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }

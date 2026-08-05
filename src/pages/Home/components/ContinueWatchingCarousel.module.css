@@ -1,147 +1,136 @@
-/* ══════════════════════════════════════════════
-   Seguir Viendo — idéntico al original
-   ══════════════════════════════════════════════ */
-
-.section {
-    padding: 0 1rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.sectionTitle {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 1rem;
-    padding-left: 1rem;
-    text-transform: capitalize;
-    font-family: Archia, 'Archia', Arial, Helvetica, sans-serif, Arial, Helvetica, sans-serif;
-    font-family: Archia, var(--font-family-category, 'Archia', Arial, Helvetica, sans-serif), Arial, Helvetica, sans-serif;
-}
-
-/* Track horizontal */
-.wrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    margin: -25px -20px;
-    padding: 25px 20px;
-}
-
-.track {
-    display: flex;
-    flex-direction: row;
-    transition: transform 0.3s ease;
-    will-change: transform;
-}
-
-.track > * + * {
-    margin-left: 18px;
-}
-
-/* ── Card wrapper (column: card + title) ── */
 .cardWrapper {
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
+  flex-shrink: 0;
+  width: 15vw;
+  cursor: pointer;
 }
 
-/* ── Card (idéntico al HomeCard horizontal) ── */
-.card {
-    position: relative;
-    flex-shrink: 0;
-    width: 20vw;
-    height: 21vh;
-    overflow: hidden;
-    cursor: pointer;
-    border-radius: 32px;
-    background-color: hsla(165, 99%, 33%, 1);
-    box-sizing: border-box;
-    overflow: visible;
+.cardImageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: var(--clr-secondary);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  border: 2px solid transparent;
 }
 
-.card.focused,
-.card:hover {
-    z-index: 10;
-    transform: scale(1.02);
+.cardWrapper:hover .cardImageContainer,
+.cardImageContainer.focused {
+  border-color: var(--foc-primary);
+  box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
 }
 
-/* ── Image ── */
-.image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: 28px;
-    box-sizing: border-box;
+.cardImageContainer.focused {
+  transform: scale(1.05);
 }
 
-.card.focused .image,
-.card:hover .image {
-    border: 4px solid #fff200;
-    border: 4px solid var(--foc-primary, #fff200);
-    z-index: 2;
-    position: relative;
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  transform: scale(1.1);
 }
 
-
-
-/* Fallback */
-.fallback {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 28px;
+.cardWrapper:hover .cardImage,
+.cardImageContainer.focused .cardImage {
+  transform: scale(1.0);
 }
 
-.fallbackText {
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 500;
-    font-family: Archia, Arial, Helvetica, sans-serif;
+.titleWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ── Progress bar (superpuesta en la parte inferior) ── */
-.progressWrapper {
-    position: absolute;
-    bottom: 0.3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 2rem);
-    border-radius: 0 0 5px 5px;
-    overflow: hidden;
+.fallbackTitle {
+  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  font-size: 0.875rem;
+}
+
+.progressTrack {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.3125rem;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .progressBar {
-    height: 5px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 0 0 5px 5px;
+  height: 100%;
+  background-color: var(--foc-primary);
+  transition: width 0.3s ease;
 }
 
-.progressFill {
-    height: 100%;
-    background-color: #fff200;
-    background-color: var(--foc-primary, #fff200);
-    transition: width 0.3s ease;
+.infoContainer {
+  margin-top: 0.5rem;
+  padding: 0 0.125rem;
 }
 
-/* ── Title debajo del card ── */
-.cardTitle {
-    font-weight: 600;
-    color: #ffffff;
-    font-size: 18px;
-    width: 20vw;
-    padding-top: 8px;
-    font-family: Archia, Arial, Helvetica, sans-serif;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.programName {
+  color: var(--clr-primary-title);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
-/* Spacer final */
-.endSpacer {
-    flex-shrink: 0;
-    width: 5rem;
+.eventTitle {
+  color: var(--clr-primary-title);
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  margin-top: 0.125rem;
 }
+
+.duration {
+  color: var(--clr-primary-title);
+  font-size: 1rem;
+  margin-top: 0.125rem;
+}
+
+.carouselContainer {
+  padding-left: 6.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.carouselTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--clr-primary-title);
+  text-transform: capitalize;
+  margin-bottom: 1rem;
+}
+
+.carouselWrapper {
+  position: relative;
+}
+
+.emblaViewport {
+  overflow: hidden;
+  cursor: grab;
+  padding: 0.25rem 0;
+  margin-left: -0.25rem;
+  padding-left: 0.25rem;
+}
+
+.emblaContainer {
+  display: flex;
+  align-items: stretch;
+  transform: translate3d(0,0,0);
+  gap: 1.25rem;
+}
+
+.carouselSpacer {
+  flex: none;
+  width: 4rem;
+}
+

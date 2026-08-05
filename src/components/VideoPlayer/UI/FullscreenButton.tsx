@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import iconoFullscreenRaw from "@/assets/img/icons/iconos-fullscreen.svg?raw";
+import styles from "./FullscreenButton.module.css";
 
 interface FullscreenButtonProps {
   onClick?: () => void;
@@ -31,10 +32,9 @@ const FullscreenButtonComponent = ({ onClick }: FullscreenButtonProps) => {
       title="Pantalla completa"
     >
       <span
-        style={{ display: "inline-flex", width: 28, height: 28 }}
         dangerouslySetInnerHTML={{
           __html: resizeSvg(iconoFullscreenRaw, 28),
-        }}
+        }} className={styles.iconWrapper}
       />
     </button>
   );

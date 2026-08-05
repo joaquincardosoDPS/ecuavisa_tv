@@ -1,19 +1,10 @@
-import { Spinner } from "./Spinner";
-import styles from './FullScreenSpinner.module.css';
+﻿import { Spinner } from "./Spinner";
+import styles from "./FullScreenSpinner.module.css";
 
-interface FullScreenSpinnerProps {
-    /** Si true, muestra el logo encima del spinner (para splash screen) */
-    showLogo?: boolean;
-    logo?: string;
-}
-
-export function FullScreenSpinner({ showLogo, logo }: FullScreenSpinnerProps) {
+export function FullScreenSpinner() {
     return (
-        <div className={styles.overlay}>
-            {showLogo && logo && (
-                <img src={logo} alt="Logo" className={styles.logo} draggable={false} />
-            )}
-            <Spinner />
+        <div className={styles.wrapper}>
+            <Spinner size="4rem" />
         </div>
     );
 }

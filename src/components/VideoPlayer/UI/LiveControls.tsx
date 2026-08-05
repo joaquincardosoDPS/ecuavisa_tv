@@ -3,6 +3,7 @@ import iconoPlayRaw from "@/assets/img/icons/iconos-play.svg?raw";
 import iconoPauseRaw from "@/assets/img/icons/iconos-pause.svg?raw";
 import iconoVolumenRaw from "@/assets/img/icons/iconos-volumen.svg?raw";
 import iconoFullscreenRaw from "@/assets/img/icons/iconos-fullscreen.svg?raw";
+import styles from "./LiveControls.module.css";
 
 interface LiveControlsProps {
   playing?: boolean;
@@ -83,27 +84,11 @@ const LiveButton = ({
 
 /* ─── Badge "En Vivo" ─── */
 const LiveBadge = () => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      color: "var(--clr-primary-text)",
-      fontSize: "0.85rem",
-      fontWeight: 600,
-      letterSpacing: "0.5px",
-      userSelect: "none",
-    }}
+  <div className={styles.liveBadgeWrapper}
   >
-    <span
-      style={{
-        width: "8px",
-        height: "8px",
-        borderRadius: "50%",
-        backgroundColor: "var(--foc-primary)",
-        animation: "livePulse 1.5s ease-in-out infinite",
-      }}
+    <span className={styles.livePulseDot}
     />
-    <span style={{ marginLeft: "6px" }}>EN VIVO</span>
+    EN VIVO
     <style>{`
       @keyframes livePulse {
         0%, 100% { opacity: 1; }
@@ -124,39 +109,31 @@ const LiveControlsComponent = ({
   onFullscreen,
 }: LiveControlsProps) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        width: "100%",
-      }}
+    <div className={styles.controlsContainer}
     >
       {/* Izquierda: Play/Pause + En Vivo */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div className={styles.leftControls}>
         <LiveButton
           onClick={onPlayPause}
-          title={playing ? "Pausar" : "Reproducir"}
+          title={playing ? "Pausar" : "Ver ahora"}
           icon={playing ? iconoPauseRaw : iconoPlayRaw}
         />
-        <span style={{ marginLeft: "8px" }}><LiveBadge /></span>
+        <LiveBadge />
       </div>
 
       {/* Derecha: Volumen + Fullscreen */}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div className={styles.rightControls}>
         <VolumePopover
           volume={volume}
           muted={muted}
           onVolumeChange={onVolumeChange}
           onMuteToggle={onMuteToggle}
         />
-        <span style={{ marginLeft: "4px" }}>
-          <LiveButton
-            onClick={onFullscreen}
-            title="Pantalla completa"
-            icon={iconoFullscreenRaw}
-          />
-        </span>
+        <LiveButton
+          onClick={onFullscreen}
+          title="Pantalla completa"
+          icon={iconoFullscreenRaw}
+        />
       </div>
     </div>
   );
@@ -178,9 +155,8 @@ const VolumePopover = ({
 
   return (
     <div
-      style={{ position: "relative", display: "flex", alignItems: "center" }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => setIsHovered(false)} className={styles.volumePopoverContainer}
     >
       <button
         onClick={onMuteToggle}
@@ -214,15 +190,7 @@ const VolumePopover = ({
           transition: "opacity 0.2s ease",
         }}
       >
-        <div
-          style={{
-            padding: "12px 8px",
-            backgroundColor: "rgba(0, 0, 0, 0.85)",
-            borderRadius: "8px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+        <div className={styles.volumeSliderWrapper}
         >
           <input
             type="range"
@@ -231,16 +199,7 @@ const VolumePopover = ({
             step={0.01}
             value={muted ? 0 : volume}
             onChange={(e) => onVolumeChange?.(parseFloat(e.target.value))}
-            style={{
-              writingMode: "vertical-lr",
-              direction: "rtl",
-              width: "4px",
-              height: "80px",
-              accentColor: "#fff",
-              cursor: "pointer",
-              appearance: "auto",
-            }}
-            title="Volumen"
+            title="Volumen" className={styles.volumeInput}
           />
         </div>
       </div>

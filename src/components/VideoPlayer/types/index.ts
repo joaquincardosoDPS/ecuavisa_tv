@@ -2,11 +2,6 @@
 // All types used by the VideoPlayer module are defined here.
 // External consumers should import types from '@/components/VideoPlayer'.
 
-import type { AdBreakCuepoint } from '@/services/adsService';
-
-export type { AdBreakCuepoint } from '@/services/adsService';
-
-
 export interface ImageSet {
     small: string;
     medium: string;
@@ -63,25 +58,19 @@ export interface VideoPlayerProps {
     description?: string;
     isLive?: boolean;
     vastUrl?: string;
-    /** Array de URLs VAST pre-resueltas (waterfall de prerolls) */
-    vastUrls?: string[];
     livetoken?: string;
     rudoKey?: string;
     autoplay?: boolean;
     onBack?: () => void;
+    episodes?: Chapter[];
+    currentEpisodeKey?: string;
+    onEpisodeSelect?: (episode: Chapter) => void;
     hideUI?: boolean;
     onQualitiesChange?: (qualities: { value: string; label: string }[]) => void;
     onQualityChange?: (quality: string) => void;
     onAdsPlaying?: () => void;
     onAdsFinished?: () => void;
-    /** Callback en cada timeupdate con currentTime y duration */
-    onTimeUpdate?: (currentTime: number, duration: number) => void;
-    /** Callback cuando el video termina naturalmente */
-    onEnded?: () => void;
-    /** Activa el modo PiP visual (video encogido a esquina) */
-    pipMode?: boolean;
-    /** Fuerza los controles (TopBar + Controls) a permanecer visibles */
-    forceControlsVisible?: boolean;
+    programBackgroundImage?: string;
     initialSeconds?: number;
     /** Slug del capítulo para guardado de historial "Seguir viendo" */
     vodSlug?: string;
@@ -89,16 +78,6 @@ export interface VideoPlayerProps {
     userToken?: string;
     /** ID del perfil activo */
     userProfile?: string;
-    /** Callback para reiniciar el capítulo actual */
-    onRestartChapter?: () => void;
-    /** Callback para pasar al siguiente capítulo */
-    onNextChapter?: () => void;
-    /** Si hay un capítulo siguiente disponible */
-    hasNextChapter?: boolean;
-    /** Cuepoints de midroll con timestamps y URLs VAST */
-    midrollCuepoints?: AdBreakCuepoint[];
-    /** URLs VAST de postroll */
-    postrollVastUrls?: string[];
 }
 
 export interface VodMediaInfo {

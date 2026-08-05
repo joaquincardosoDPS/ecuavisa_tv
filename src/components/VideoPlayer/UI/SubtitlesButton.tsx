@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import iconoSubtitle from "@/assets/img/icons/iconos-subtitle.svg";
+import styles from "./SubtitlesButton.module.css";
 
 interface SubtitlesButtonProps {
   active?: boolean;
@@ -17,17 +18,7 @@ const SubtitlesButtonComponent = ({
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "8px",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      title={active ? "Desactivar subtítulos" : "Activar subtítulos"}
+      title={active ? "Desactivar subtítulos" : "Activar subtítulos"} className={styles.buttonStyle1}
     >
       <img
         src={iconoSubtitle}

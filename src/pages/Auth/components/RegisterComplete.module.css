@@ -1,0 +1,47 @@
+.divStyle1 {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--clr-primary);
+}
+
+.divStyle2 {
+  position: relative;
+  z-index: 10;
+  width: 50%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3rem;
+}
+
+.h1Style3 {
+  font-size: 1.875rem;
+  color: var(--foc-primary);
+  margin-bottom: 0.75rem;
+}
+
+.pStyle4 {
+  color: var(--clr-primary-title, #fff);
+  margin-bottom: 0.75rem;
+}
+
+.imgStyle5 {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  height: 100%;
+  width: 50%;
+  object-fit: cover;
+  object-position: left;
+  pointer-events: none;
+  user-select: none;
+}
+
+.imgStyle6 {
+  width: 5rem;
+  margin-bottom: 2.5rem;
+}

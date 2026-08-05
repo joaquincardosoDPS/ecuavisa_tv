@@ -1,30 +1,53 @@
+// src/hooks/shared/useAppInitilization.ts
+import { useQuery } from '@tanstack/react-query';
 import { fetchAppConfig } from '../../services/configService';
 import { useConfigStore } from '../../features/config/useConfigStore';
 import { useAuthStore } from '../../features/auth/authStore';
-import { registerTVKeys } from '../../utils/platform';
-import { applyConfigToCSS } from '../../utils/applyConfigToCSS';
+import { initGtag } from './useGoogleAnalytics';
 import { useEffect, useRef } from 'react';
-import { useFetch } from './useFetch';
 
 export const useAppInitialization = () => {
     const setConfig = useConfigStore((state) => state.setConfig);
     const sessionChecked = useRef(false);
 
-    const query = useFetch(() => fetchAppConfig(), []);
+    const query = useQuery({
+        queryKey: ['app-config'],
+        queryFn: fetchAppConfig,
+        staleTime: Infinity,
+    });
 
     useEffect(() => {
         if (query.data?.data) {
             const configData = query.data.data;
             setConfig(configData);
-            registerTVKeys();
 
+            // Título del sitio
             if (configData.name) {
                 document.title = configData.name;
             }
 
-            // Aplicar colores/fuentes de la API a CSS (con soporte ponyfill para webOS 3)
-            applyConfigToCSS(configData);
 
+            // Injecta variables CSS dinámicamente
+            const root = document.documentElement;
+
+            Object.entries(configData).forEach(([key, value]) => {
+                // Filtra solo las propiedades de estilo
+                if (
+                    key.startsWith('clr-') ||
+                    key.startsWith('foc-') ||
+                    key.startsWith('grad-')
+                ) {
+                    root.style.setProperty(`--${key}`, value as string);
+                }
+            });
+
+            // Inicializar Google Analytics si el cliente tiene key-analytics configurado
+            const analyticsKey = configData["key-analytics"];
+            if (analyticsKey) {
+                initGtag(analyticsKey);
+            }
+
+            // Validar sesión una vez al cargar la app
             if (!sessionChecked.current) {
                 sessionChecked.current = true;
                 const { token, validateSession } = useAuthStore.getState();

@@ -1,92 +1,77 @@
-/* ── SearchView ── */
-.container {
-    display: flex;
-    flex-direction: column;
-    padding: 2rem 3rem;
-    height: 100vh;
-    box-sizing: border-box;
-    overflow: hidden;
+.pageContainer {
+  padding: 6.25rem 6.25rem 4rem 6.25rem;
 }
 
-/* Barra de búsqueda (display only) */
-.inputWrapper {
-    margin-bottom: 1.5rem;
+.activeQueryHeader {
+  margin-bottom: 2rem;
 }
 
-.inputDisplay {
-    display: flex;
-    align-items: center;
-    background-color: #2C404B;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1.5rem;
-    font-size: var(--font-size-subtitle, 1.5rem);
-    font-weight: 500;
-    color: #b0b0b0;
-    color: var(--clr-secondary-text, #b0b0b0);
-    min-height: 2.5rem;
+.resultsTitle {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: var(--clr-primary-title);
 }
 
-.placeholder {
-    opacity: 0.4;
-    font-weight: 400;
+.highlightedQuery {
+  color: var(--clr-secondary-button);
 }
 
-/* Cursor parpadeante */
-.cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1.4em;
-    background-color: #fff200;
-    background-color: var(--foc-primary, #fff200);
-    margin-left: 2px;
-    animation: blink 1s step-end infinite;
+.resultsCount {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  font-size: 1rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
 }
 
-@keyframes blink {
-
-    0%,
-    50% {
-        opacity: 1;
-    }
-
-    51%,
-    100% {
-        opacity: 0;
-    }
+.emptyQueryHeader {
+  margin-bottom: 2rem;
 }
 
-/* Layout principal: teclado + resultados */
-.content {
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    min-height: 0;
+.searchTitle {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--clr-primary-title);
 }
 
-/* Teclado — ancho fijo */
-.keyboardPanel {
-    flex: 0 0 20vw;
-    padding-right: 1.5rem;
-    display: flex;
-    align-items: flex-start;
+.searchSubtitle {
+  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  font-size: 1rem;
 }
 
-/* Resultados — 75% del ancho */
-.resultsPanel {
-    flex: 1;
-    min-width: 0;
-    /* Altura explícita: Chrome 38 no resuelve height:100% en cadenas flex */
-    max-height: calc(100vh - 10rem);
-    overflow: hidden;
+.noResultsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  gap: 0.75rem;
 }
 
-/* Texto de hint (sin búsqueda) */
-.hint {
-    color: #b0b0b0;
-    color: var(--clr-secondary-text, #b0b0b0);
-    font-size: 1.4rem;
-    font-size: var(--font-size-label, 1.4rem);
-    font-weight: 400;
-    opacity: 0.5;
+.noResultsText {
+  color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent);
+  font-size: 1.125rem;
+  text-align: center;
 }
+
+.noResultsQuery {
+  font-weight: 600;
+  color: var(--clr-primary-title);
+}
+
+.noResultsSuggestion {
+  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin: 2.5rem 0;
+}
+
+.loadMoreButton {
+  border-radius: 9999px;
+}
+

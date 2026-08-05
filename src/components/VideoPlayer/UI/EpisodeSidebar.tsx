@@ -1,5 +1,6 @@
 import React from "react";
 import type { ProgramChapter } from "../types";
+import styles from "./EpisodeSidebar.module.css";
 
 interface EpisodeSidebarProps {
   episodes: ProgramChapter[];
@@ -25,15 +26,7 @@ const EpisodeItemComponent = ({ episode, isCurrent, onSelect, onCloseAll, curren
       onClick={() => {
         if (episode.key !== currentEpisodeKey) onSelect(episode);
         else onCloseAll();
-      }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: "12px 16px",
-        cursor: "pointer",
-        borderRadius: "8px",
-        transition: "background-color 0.2s ease",
-      }}
+      }} className={styles.episodeItem}
     >
       <span
         style={{
@@ -99,7 +92,7 @@ const EpisodeSidebarComponent = ({
           overflowY: "auto",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", paddingBottom: "50vh", paddingTop: "50vh" }}>
+        <div className={styles.episodeList}>
           {episodes.map((episode, index) => (
             <EpisodeItem
               key={episode.key || index}

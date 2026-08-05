@@ -9,7 +9,7 @@ const lockStyle: React.CSSProperties = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  color: '#FFFFFF',
+  color: 'var(--clr-icon)',
   fontSize: '5em',
 };
 

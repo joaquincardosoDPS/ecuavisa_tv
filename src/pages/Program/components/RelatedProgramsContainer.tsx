@@ -1,150 +1,26 @@
-import { useRef, useCallback } from 'react';
-import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
-import type { Program } from '@/interfaces/catalog.interface';
-import styles from '../ProgramPage.module.css';
-
-/** Cuántos cards antes del final dispara la carga */
-const PREFETCH_THRESHOLD = 3;
-
-interface RelatedCardProps {
-    program: Program;
-    focusKey: string;
-    onCardFocus?: () => void;
-    onPress?: (programKey: string) => void;
-}
-
-/** Card individual de programa recomendado — layout horizontal como el original */
-function RelatedCard({ program, focusKey, onCardFocus, onPress }: RelatedCardProps) {
-    const imageSrc = program.image_land?.small;
-
-    const handleSelect = () => {
-        onPress?.(program.key);
-    };
-
-    const { ref, focused } = useFocusable({
-        focusKey,
-        onEnterPress: handleSelect,
-        onFocus: () => onCardFocus?.(),
-    });
-
-    return (
-        <div
-            ref={ref}
-            className={`${styles.relatedCard} ${focused ? styles.relatedCardFocused : ''}`}
-            onClick={handleSelect}
-            data-focuskey={focusKey}
-        >
-            {imageSrc ? (
-                <img
-                    src={imageSrc}
-                    alt={program.title}
-                    className={styles.relatedCardImg}
-                    draggable={false}
-                    decoding="async"
-                />
-            ) : (
-                <div className={styles.relatedCardFallback}>
-                    <span className={styles.relatedCardFallbackText}>{program.title}</span>
-                </div>
-            )}
-        </div>
-    );
-}
+import type { Program } from "@/interfaces/catalog.interface";
+import ProgramGrid from "@/components/ProgramCard/ProgramGrid";
+import styles from "./RelatedProgramsContainer.module.css";
 
 interface RelatedProgramsContainerProps {
-    programs: Program[];
-    isLoading?: boolean;
-    isFetchingNextPage?: boolean;
-    hasNextPage?: boolean;
-    fetchNextPage?: () => void;
-    onRowFocused?: () => void;
-    onProgramPress?: (programKey: string) => void;
-    onContentFocused?: () => void;
+  programs: Program[];
+  isLoading?: boolean;
 }
 
-function RelatedProgramsContainer({
-    programs,
-    isLoading = false,
-    isFetchingNextPage = false,
-    hasNextPage = false,
-    fetchNextPage,
-    onProgramPress,
-    onContentFocused,
-}: RelatedProgramsContainerProps) {
-    const gridRef = useRef<HTMLDivElement>(null);
-
-    const { ref, focusKey } = useFocusable({
-        focusKey: 'PROGRAM-RELATED',
-        saveLastFocusedChild: true,
-        trackChildren: true,
-        isFocusBoundary: false,
-        onFocus: () => onContentFocused?.(),
-    });
-
-    /** scroll al card enfocado con margen inferior + prefetch */
-    const handleCardFocus = useCallback((index: number) => {
-        const grid = gridRef.current;
-        const scrollContainer = grid?.parentElement;
-        if (grid && scrollContainer) {
-            const children = grid.children;
-            if (index >= 0 && index < children.length) {
-                const child = children[index] as HTMLElement;
-                const containerRect = scrollContainer.getBoundingClientRect();
-                const childRect = child.getBoundingClientRect();
-
-                // Si el card queda abajo del área visible (o muy pegado al borde)
-                const bottomMargin = 80; // px de margen extra abajo
-                const overflowBottom = (childRect.bottom + bottomMargin) - containerRect.bottom;
-                if (overflowBottom > 0) {
-                    scrollContainer.scrollTop += overflowBottom;
-                }
-
-                // Si el card queda arriba del área visible
-                const overflowTop = containerRect.top - childRect.top;
-                if (overflowTop > 0) {
-                    scrollContainer.scrollTop -= overflowTop + bottomMargin;
-                }
-            }
-        }
-
-        // Prefetch cuando el foco llega a los últimos N cards
-        if (hasNextPage && fetchNextPage && index >= programs.length - PREFETCH_THRESHOLD) {
-            fetchNextPage();
-        }
-    }, [hasNextPage, fetchNextPage, programs.length]);
-
-    if (isLoading) {
-        return <p className={styles.statusText}>Cargando programas relacionados...</p>;
-    }
-
-    if (programs.length === 0) {
-        return (
-            <p className={styles.emptyText}>
-                No hay sugerencias disponibles.
-            </p>
-        );
-    }
-
-    return (
-        <FocusContext.Provider value={focusKey}>
-            <div ref={ref} className={styles.relatedGrid}>
-                <div ref={gridRef} className={styles.relatedGridInner}>
-                    {programs.map((program, index) => (
-                        <RelatedCard
-                            key={program.id}
-                            program={program}
-                            focusKey={`PROGRAM-RELATED-${program.id}-${index}`}
-                            onCardFocus={() => handleCardFocus(index)}
-                            onPress={onProgramPress}
-                        />
-                    ))}
-                    {isFetchingNextPage && (
-                        <p className={styles.statusText}>Cargando más...</p>
-                    )}
-                </div>
-            </div>
-        </FocusContext.Provider>
-    );
+function RelatedProgramsContainer({ programs, isLoading = false }: RelatedProgramsContainerProps) {
+  return (
+    <div className={styles.container}>
+      {isLoading ? (
+        <p className={styles.loadingText}>Cargando programas relacionados...</p>
+      ) : programs.length > 0 ? (
+        <ProgramGrid programs={programs} cols={5} />
+      ) : (
+        <p className={styles.emptyText}>
+          No hay programas relacionados disponibles.
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default RelatedProgramsContainer;

@@ -1,10 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { catalogService } from "@/services/catalogService";
 import { useAuthStore } from "@/features/auth/authStore";
 import { historyService } from "@/services/historyService";
-import { adsService } from "@/services/adsService";
-import type { AdBreakCuepoint } from "@/services/adsService";
 import type { Chapter } from "@/interfaces/catalog.interface";
 
 /** Segundos antes de terminar en los que el player se achica */
@@ -18,8 +16,12 @@ export function usePlayerEpisode() {
     chapter: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const token = useAuthStore((s) => s.token);
   const activeProfile = useAuthStore((s) => s.activeProfile);
+
+  // resumeTime pasado desde HistoryView / ContinueWatchingCarousel
+  const stateResumeTime = (location.state as { resumeTime?: number } | null)?.resumeTime;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,18 +31,15 @@ export function usePlayerEpisode() {
   const [vodSlug, setVodSlug] = useState("");
   const [chapterImage, setChapterImage] = useState("");
   const [programKey, setProgramKey] = useState("");
-  const [m3u8, setM3u8] = useState("");
-  const [vastUrl, setVastUrl] = useState<string | undefined>(undefined);
-  const [vastUrls, setVastUrls] = useState<string[]>([]);
-  const [midrollCuepoints, setMidrollCuepoints] = useState<AdBreakCuepoint[]>([]);
-  const [postrollVastUrls, setPostrollVastUrls] = useState<string[]>([]);
+  const [chapterTitle, setChapterTitle] = useState("");
+  const [chapterNumber, setChapterNumber] = useState<number | null>(null);
+  const [seasonNumber, setSeasonNumber] = useState<number | null>(null);
   const [initialSeconds, setInitialSeconds] = useState<number | undefined>(
     undefined,
   );
   const [nextChapter, setNextChapter] = useState<Chapter | null>(null);
-  const [episodes, setEpisodes] = useState<Chapter[]>([]);
 
-  // Shrink state
+  // Estado de minimización
   const [isShrunk, setIsShrunk] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(SHRINK_THRESHOLD_SECONDS);
   const isShrunkRef = useRef(false);
@@ -48,8 +47,21 @@ export function usePlayerEpisode() {
   const autoPlayCancelledRef = useRef(false);
   const nextChapterRef = useRef<Chapter | null>(null);
 
-  // Keep ref in sync with state
+  // Mantener ref sincronizado con el estado
   nextChapterRef.current = nextChapter;
+
+  /** Marca el capítulo actual como finalizado en el historial */
+  const markAsFinished = () => {
+    if (token && activeProfile && vodSlug) {
+      historyService.saveProgress({
+        token,
+        profile: activeProfile.id,
+        vod: vodSlug,
+        time: 0,
+        end: 1,
+      });
+    }
+  };
 
   const handleTimeUpdate = (currentTime: number, duration: number) => {
     if (duration > 0) {
@@ -69,6 +81,7 @@ export function usePlayerEpisode() {
         // Auto-play next chapter when countdown ends
         if (secs <= 1 && !autoPlayCancelledRef.current && segment) {
           autoPlayCancelledRef.current = true;
+          markAsFinished();
           navigate(`/play/${program}/${segment}/${nextChapterRef.current.season}/${nextChapterRef.current.chapter}`);
         }
       }
@@ -84,19 +97,19 @@ export function usePlayerEpisode() {
 
   const playNext = () => {
     if (nextChapter && segment && program) {
+      markAsFinished();
       navigate(`/play/${program}/${segment}/${nextChapter.season}/${nextChapter.chapter}`);
     }
   };
 
   const goBack = () => {
-    const slug = programKey || program;
-    navigate(`/programas/${slug}`);
+    navigate(`/programas/${programKey}`);
   };
 
   const goToEpisodes = () => {
-    const slug = programKey || program;
-    if (slug) {
-      navigate(`/programas/${slug}`);
+    if (programKey) {
+      markAsFinished();
+      navigate(`/programas/${programKey}`);
     }
   };
 
@@ -117,21 +130,24 @@ export function usePlayerEpisode() {
         const seasonNum = parseInt(season, 10);
         const chapterNum = parseInt(chapter, 10);
 
-        // Optimización: si season > 0 o chapter > 0, NO es single_episode.
-        // season=0 Y chapter=0 es la ruta usada para single_episode.
-        const isNoSegments = seasonNum === 0 && chapterNum === 0;
+        // Obtener detalle del programa para saber si es single_episode
+        const programDetail = program
+          ? (await catalogService.getProgramDetail(program))?.data
+          : null;
+        const isNoSegments = programDetail?.single_episode === true;
 
         // Cargar capítulo actual
-        let chapterData: Chapter | undefined;
+        let chapterData: import("@/interfaces/catalog.interface").Chapter | undefined;
 
         if (isNoSegments) {
+          // Programa single_episode: obtener capítulos sin segmento
           const response = await catalogService.getChapters({
             program: program!,
-            page: 1,
-            limit: 1,
+            no_segments: true,
           });
           chapterData = response?.data?.[0];
         } else {
+          // Programa con segmentos: obtener capítulo específico
           const response = await catalogService.getChapterBySlug({
             program,
             segment,
@@ -143,95 +159,57 @@ export function usePlayerEpisode() {
 
         if (!chapterData?.key) {
           if (!cancelled) {
-            setError("Capítulo no encontrado");
-            setLoading(false);
+            navigate("/404", { replace: true });
           }
           return;
         }
 
-        if (cancelled) return;
+        if (!cancelled) {
+          setCurrentKey(chapterData.key);
+          setEpisodeTitle(chapterData.name_program || chapterData.title || "");
+          setProgramTitle(`T${chapterData.season}:E${chapterData.chapter}`);
+          setVodSlug(chapterData.slug);
+          setChapterImage(chapterData.image_land?.big || "");
+          setProgramKey(chapterData.key_program || "");
+          setChapterTitle(chapterData.title || "");
+          setChapterNumber(chapterData.chapter ?? null);
+          setSeasonNumber(chapterData.season ?? null);
 
-        // Setear datos esenciales del capítulo
-        setCurrentKey(chapterData.key);
-        setEpisodeTitle(chapterData.name_program || chapterData.title || "");
-        setProgramTitle(isNoSegments ? "" : `T${chapterData.season}:E${chapterData.chapter}`);
-        setVodSlug(chapterData.slug);
-        setM3u8(chapterData.m3u8);
-        setChapterImage(chapterData.image_land?.big || "");
-        setProgramKey(chapterData.key_program || "");
+          let resolvedInitialSeconds: number | undefined;
 
-        // Obtener VAST URL para ads (esencial antes de montar el player)
-        try {
-          const vmapData = await adsService.getVodAds(chapterData.key);
-          if (!cancelled && vmapData) {
-            const allPrerollUrls = adsService.getAllPrerollVastUrls(vmapData);
-            if (allPrerollUrls.length > 0) {
-              setVastUrls(allPrerollUrls);
-              setVastUrl(allPrerollUrls[0]); // backward compat
-            }
-
-            // Midroll y postroll
-            const midrolls = adsService.getMidrollAdBreaks(vmapData);
-            const postrolls = adsService.getPostrollVastUrls(vmapData);
-            setMidrollCuepoints(midrolls);
-            setPostrollVastUrls(postrolls);
-          }
-        } catch {
-          // Ads not available, continue without
-        }
-
-        if (cancelled) return;
-
-        // Data esencial + ads lista → desbloquear el player
-        setLoading(false);
-
-        // Cargar historial, siguiente capítulo y episodios en paralelo
-        // (no bloquean el montaje del player)
-        const promises: Promise<void>[] = [];
-
-        if (token && activeProfile) {
-          // Si se pasó resumeTime explícito en el state (incluso 0), usarlo
-          // sin consultar el historial. Esto permite reiniciar desde el inicio.
-          const navState = window.history.state?.usr as { resumeTime?: number } | undefined;
-          const explicitResume = navState?.resumeTime;
-
-          if (explicitResume !== undefined) {
-            if (!cancelled && explicitResume > 0) {
-              setInitialSeconds(explicitResume);
-            }
-            // Si es 0, no seteamos initialSeconds → el player inicia desde 0
-          } else {
-            promises.push((async () => {
-              try {
-                const timelineRes = await historyService.getTimeline(
-                  token,
-                  activeProfile.id,
-                  [chapterData!.slug],
-                );
-                const timelineItem = timelineRes.data?.[0];
-                if (
-                  !cancelled &&
-                  timelineItem &&
-                  timelineItem.end === 0 &&
-                  timelineItem.time > 0
-                ) {
-                  setInitialSeconds(timelineItem.time);
-                }
-              } catch {
-                // Timeline not available, start from beginning
+          // Priorizar resumeTime del location.state (viene de HistoryView / ContinueWatchingCarousel)
+          if (typeof stateResumeTime === 'number' && stateResumeTime > 0) {
+            resolvedInitialSeconds = stateResumeTime;
+          } else if (token && activeProfile) {
+            try {
+              const timelineRes = await historyService.getTimeline(
+                token,
+                activeProfile.id,
+                [chapterData.slug],
+              );
+              const timelineItem = timelineRes.data?.[0];
+              if (
+                timelineItem &&
+                timelineItem.end === 0 &&
+                timelineItem.time > 0
+              ) {
+                resolvedInitialSeconds = timelineItem.time;
               }
-            })());
+            } catch {
+              // Timeline no disponible, iniciar desde el principio
+            }
           }
-        }
+          setInitialSeconds(resolvedInitialSeconds);
 
-        if (!isNoSegments) {
-          promises.push((async () => {
+          // Intentar cargar el siguiente capítulo (solo si tiene segmentos y next-cap > 0)
+          const nextCapNum = chapterData["next-cap"];
+          if (!isNoSegments && nextCapNum > 0) {
             try {
               const nextRes = await catalogService.getChapterBySlug({
                 program,
                 segment,
                 season: seasonNum,
-                chapter: chapterNum + 1,
+                chapter: nextCapNum,
               });
               if (!cancelled && nextRes?.data?.key) {
                 setNextChapter(nextRes.data);
@@ -241,28 +219,12 @@ export function usePlayerEpisode() {
             } catch {
               if (!cancelled) setNextChapter(null);
             }
-          })());
+          } else {
+            if (!cancelled) setNextChapter(null);
+          }
 
-          promises.push((async () => {
-            try {
-              const chaptersRes = await catalogService.getChapters({
-                program: program!,
-                segment,
-                season: seasonNum,
-                limit: 50,
-              });
-              if (!cancelled && chaptersRes?.data) {
-                setEpisodes(chaptersRes.data);
-              }
-            } catch {
-              // Episodes list not critical
-            }
-          })());
-        } else {
-          if (!cancelled) setNextChapter(null);
+          setLoading(false);
         }
-
-        await Promise.all(promises);
       } catch {
         if (!cancelled) {
           setError("Error al cargar el episodio");
@@ -276,9 +238,10 @@ export function usePlayerEpisode() {
     return () => {
       cancelled = true;
     };
-  }, [program, segment, season, chapter, token, activeProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-fetch when route params or auth change, not on navigate/program/stateResumeTime reference changes
+  }, [segment, season, chapter, token, activeProfile]);
 
-  // Reset state on episode change
+  // Resetear estado al cambiar de episodio
   useEffect(() => {
     setIsShrunk(false);
     isShrunkRef.current = false;
@@ -287,12 +250,21 @@ export function usePlayerEpisode() {
     setNextChapter(null);
     setRemainingSeconds(SHRINK_THRESHOLD_SECONDS);
     setInitialSeconds(undefined);
-    setMidrollCuepoints([]);
-    setPostrollVastUrls([]);
   }, [segment, season, chapter]);
 
+
+  // Prevenir scroll en la página del player
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, []);
+
   return {
-    // Data
+    // Datos
     loading,
     error,
     currentKey,
@@ -302,28 +274,25 @@ export function usePlayerEpisode() {
     chapterImage,
     initialSeconds,
     nextChapter,
-    episodes,
-    m3u8,
-    vastUrl,
-    vastUrls,
-    midrollCuepoints,
-    postrollVastUrls,
     segment,
 
-    // Shrink
+    // Minimización
     isShrunk,
     remainingSeconds,
     expandPlayer,
     handleTimeUpdate,
 
-    // Auth (pass-through for VideoPlayer)
+    // Autenticación
     token,
     activeProfile,
 
-    // Navigation
+    // Navegación
     playNext,
     goBack,
     goToEpisodes,
     programKey,
+    chapterTitle,
+    chapterNumber,
+    seasonNumber,
   };
 }

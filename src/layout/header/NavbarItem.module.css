@@ -1,0 +1,38 @@
+.item {
+    display: flex;
+    align-items: center;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 9999px;
+    transition: all 0.2s;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--clr-primary-title);
+}
+
+.itemActive {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+    opacity: 1;
+}
+
+.itemInactive {
+    opacity: 0.7;
+}
+
+.itemInactive:hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+}
+
+.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    border-radius: 0.375rem;
+    width: 1.375rem;
+    height: 1.375rem;
+}

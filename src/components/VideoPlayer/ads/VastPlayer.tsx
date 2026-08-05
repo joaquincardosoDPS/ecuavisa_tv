@@ -1,17 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Player, PlayerOptions } from '@glomex/vast-ima-player';
-import { getDeviceAdInfo, appendAdParamsToVastUrl, resolveVastUrl } from './deviceAdService';
+import { Player, PlayerOptions, loadImaSdk } from '@glomex/vast-ima-player';
+import { getDeviceAdInfo, appendAdParamsToVastUrl } from './deviceAdService';
 import he from 'he';
 import './VastPlayer.css';
+import styles from "./VastPlayer.module.css";
 
 interface VastPlayerProps {
-    /** URL única de VAST (legacy, se resuelve con resolveVastUrl) */
-    url?: string;
-    /** Array de URLs VAST pre-resueltas (waterfall, tiene prioridad sobre url) */
-    vastUrls?: string[];
-    /** Elemento DOM donde montar el portal. Si no se pasa, usa document.body (fullscreen). */
-    portalTarget?: HTMLElement | null;
+    url: string;
     onAdsPlaying?: () => void;
     onAdsFinished?: () => void;
 }
@@ -19,18 +15,13 @@ interface VastPlayerProps {
 /**
  * Reproductor de publicidad VAST con IMA SDK
  */
-const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsFinished }: VastPlayerProps) => {
+const VastPlayerComponent = ({ url, onAdsPlaying, onAdsFinished }: VastPlayerProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const imaPlayerRef = useRef<any>(null);
+    const imaPlayerRef = useRef<Player | null>(null);
     const mountIdRef = useRef(0);
     const adTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const resizeObserverRef = useRef<ResizeObserver | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-
-    // Dependencia estable: si vastUrls existe, usar su join como key.
-    // Si no, usar url. Esto evita doble-mount cuando ambos llegan en renders separados.
-    const adsKey = vastUrls && vastUrls.length > 0 ? vastUrls.join('|') : (url || '');
 
     useEffect(() => {
         // Cada mount obtiene un ID único; si otro mount ocurre, el ID cambia
@@ -44,235 +35,151 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                     console.warn('[VAST] Refs no disponibles');
                     return;
                 }
-                // Determinar URLs a usar: vastUrls (pre-resueltas) o url (legacy)
-                let rawUrls: string[] = [];
-                if (vastUrls && vastUrls.length > 0) {
-                    rawUrls = vastUrls;
-                } else if (url && url.trim() !== '' && url !== 'none') {
-                    // Resolver via VMAP si es rudo.video, o pasar directo
-                    const resolved = await resolveVastUrl(url);
-                    if (resolved && resolved.urls.length > 0) {
-                        rawUrls = resolved.urls;
-                    }
-                }
-
-                if (rawUrls.length === 0) {
-                    console.log('[VAST] Sin URLs de ads, finalizando');
+                if (!url || url.trim() === '' || url === 'none') {
+                    console.log('[VAST] Sin URL, finalizando');
                     onAdsFinished?.();
                     return;
                 }
 
-                if (isStale()) return;
+                console.log('[VAST] Cargando ads:', url);
 
-                // Obtener info del dispositivo y enriquecer URLs
+                // Obtener info del dispositivo y enriquecer URL
                 const adInfo = await getDeviceAdInfo();
-                const enrichedUrls = rawUrls.map((rawUrl) => {
-                    let decodedUrl = he.decode(rawUrl);
-                    while (decodedUrl.indexOf('&amp;') !== -1) {
-                        decodedUrl = decodedUrl.replace(/&amp;/g, '&');
-                    }
-                    return appendAdParamsToVastUrl(decodedUrl, adInfo);
-                });
 
-                console.log(`[VAST] ${enrichedUrls.length} URL(s) de ads para intentar`);
-
-                if (isStale()) return;
-
-                // IMA SDK se carga desde index.html (<script src="ima3.js">).
-                const getImaNamespace = (): Promise<any> => {
-                    return new Promise((resolve, reject) => {
-                        const w = window as any;
-                        if (w.google?.ima?.AdsRequest) {
-                            resolve(w.google.ima);
-                            return;
-                        }
-                        let elapsed = 0;
-                        const check = () => {
-                            if (w.google?.ima?.AdsRequest) {
-                                resolve(w.google.ima);
-                                return;
-                            }
-                            elapsed += 200;
-                            if (elapsed >= 10000) {
-                                const keys = w.google?.ima ? Object.keys(w.google.ima) : [];
-                                console.error('[VAST] IMA SDK no disponible. keys:', keys,
-                                    '¿Falta <script src="ima3.js"> en index.html?');
-                                reject(new Error('IMA SDK client-side no disponible'));
-                                return;
-                            }
-                            setTimeout(check, 200);
-                        };
-                        setTimeout(check, 200);
-                    });
-                };
-
-                const imaNamespace = await getImaNamespace();
-                console.log('[VAST] IMA SDK listo, keys:', Object.keys(imaNamespace));
-
-                if (isStale()) return;
-
-                // Configurar settings
-                if (imaNamespace.settings) {
-                    try {
-                        imaNamespace.settings.setLocale('es_cl');
-                        imaNamespace.settings.setVpaidMode(imaNamespace.ImaSdkSettings?.VpaidMode?.ENABLED ?? 1);
-                        imaNamespace.settings.setNumRedirects(8);
-                        imaNamespace.settings.setPlayerType('hlsjs');
-                        imaNamespace.settings.setPlayerVersion('1.0.0');
-                        imaNamespace.settings.setAutoPlayAdBreaks(true);
-                    } catch (e) {
-                        console.warn('[VAST] Error configurando IMA settings:', e);
-                    }
+                let decodedUrl = he.decode(url);
+                while (decodedUrl.indexOf('&amp;') !== -1) {
+                    decodedUrl = decodedUrl.replace(/&amp;/g, '&');
                 }
 
-                const adsRenderingSettings = new imaNamespace.AdsRenderingSettings();
+                const enrichedUrl = appendAdParamsToVastUrl(decodedUrl, adInfo);
+                console.log('[VAST] URL enriquecida:', enrichedUrl);
+
+                if (isStale()) return;
+
+                // Cargar IMA SDK
+                const ima = await loadImaSdk();
+                console.log('[VAST] IMA SDK cargado');
+
+                if (isStale()) return;
+
+                ima.settings.setLocale('es_cl');
+                ima.settings.setVpaidMode(ima.ImaSdkSettings.VpaidMode.ENABLED);
+                ima.settings.setNumRedirects(8);
+                ima.settings.setPlayerType('hlsjs');
+                ima.settings.setPlayerVersion('1.0.0');
+                ima.settings.setAutoPlayAdBreaks(true);
+
+                const adsRenderingSettings = new ima.AdsRenderingSettings();
                 adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
                 adsRenderingSettings.loadVideoTimeout = 15000;
                 adsRenderingSettings.enablePreloading = true;
                 adsRenderingSettings.autoAlign = true;
                 adsRenderingSettings.uiElements = [
-                    imaNamespace.UiElements.COUNTDOWN,
-                    imaNamespace.UiElements.AD_ATTRIBUTION,
+                    ima.UiElements.COUNTDOWN,
+                    ima.UiElements.AD_ATTRIBUTION,
                 ];
 
+                // No usar autoResize — IMA lo sobreescribe a width:0
                 const playerOptions = new PlayerOptions();
+
+                const imaPlayer = new Player(
+                    ima,
+                    videoRef.current!,
+                    containerRef.current!,
+                    adsRenderingSettings,
+                    playerOptions,
+                );
+                imaPlayerRef.current = imaPlayer;
+
+                const adsRequest = new ima.AdsRequest();
+                adsRequest.adTagUrl = enrichedUrl;
+                adsRequest.setAdWillAutoPlay(true);
+                adsRequest.setAdWillPlayMuted(false);
 
                 // Helper: forzar dimensiones del contenedor y sus hijos IMA
                 const forceContainerSize = () => {
-                    const target = portalTarget || document.body;
-                    const w = portalTarget ? target.offsetWidth : window.innerWidth;
-                    const h = portalTarget ? target.offsetHeight : window.innerHeight;
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
                     if (containerRef.current) {
                         containerRef.current.style.setProperty('width', `${w}px`, 'important');
                         containerRef.current.style.setProperty('height', `${h}px`, 'important');
+                        // Forzar también los divs hijos que IMA crea (ad containers)
                         const imaDivs = containerRef.current.querySelectorAll(':scope > div');
                         imaDivs.forEach((div) => {
                             (div as HTMLElement).style.setProperty('width', `${w}px`, 'important');
                             (div as HTMLElement).style.setProperty('height', `${h}px`, 'important');
                         });
                     }
+                    // También llamar resizeAd en el player
+                    try {
+                        imaPlayer.resizeAd(w, h);
+                    } catch { /* ignore */ }
                 };
 
-                // Listener de resize
+                // Timeout de seguridad: si el ad no inicia en 30s, continuar
+                adTimeoutRef.current = setTimeout(() => {
+                    console.warn('[VAST] Timeout - continuando sin ad');
+                    setIsLoading(false);
+                    onAdsFinished?.();
+                }, 30000);
+
+                // Event listeners del IMA player
+                imaPlayer.addEventListener('AdStarted', (event: CustomEvent) => {
+                    const podInfo = event.detail?.ad?.getAdPodInfo?.();
+                    console.log('[VAST] Ad started', podInfo);
+                    setIsLoading(false);
+                    if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
+                    // Forzar dimensiones cuando el ad empieza
+                    forceContainerSize();
+                    onAdsPlaying?.();
+                });
+
+                // Si el ad se pausa (SIMID/TrueView play button), reanudar automáticamente
+                imaPlayer.addEventListener('AdPaused', () => {
+                    console.log('[VAST] Ad pausado, reanudando automáticamente');
+                    try { videoRef.current?.play(); } catch { /* ignore */ }
+                });
+
+                imaPlayer.addEventListener('AdAllAdsCompleted', () => {
+                    console.log('[VAST] Todos los ads completados');
+                    if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
+                    onAdsFinished?.();
+                });
+
+                imaPlayer.addEventListener('AdError', (event: CustomEvent) => {
+                    const detail = event?.detail;
+                    const code = detail?.errorCode || 'unknown';
+                    const msg = detail?.message || detail?.error?.message || 'Unknown';
+                    const vastCode = detail?.vastErrorCode || detail?.error?.vastErrorCode || 'N/A';
+                    console.warn('[VAST] AdError:', { code, vastCode, msg });
+
+                    if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
+                    setIsLoading(false);
+                    onAdsFinished?.();
+                });
+
+                imaPlayer.addEventListener('AdContentResumeRequested', () => {
+                    console.log('[VAST] Resume content');
+                    if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
+                    onAdsFinished?.();
+                });
+
+                // Listener de resize de ventana
                 const handleResize = () => forceContainerSize();
                 window.addEventListener('resize', handleResize);
 
-                if (resizeObserverRef.current) {
-                    resizeObserverRef.current.disconnect();
-                }
-                const observeTarget = portalTarget || containerRef.current;
-                if (observeTarget) {
-                    resizeObserverRef.current = new ResizeObserver(() => {
-                        forceContainerSize();
-                    });
-                    resizeObserverRef.current.observe(observeTarget);
-                }
+                imaPlayer.playAds(adsRequest);
+                console.log('[VAST] playAds ejecutado');
 
-                // ── Waterfall: intentar cada URL de ads en secuencia ──
-                let urlIndex = 0;
-
-                const tryNextUrl = () => {
-                    if (isStale()) return;
-                    if (urlIndex >= enrichedUrls.length) {
-                        // Todas las URLs fallaron → continuar sin ad
-                        // NO quitamos el spinner — se desmontará con el componente
-                        console.log('[VAST] Todas las URLs de ads fallaron, continuando sin ad');
-                        onAdsFinished?.();
-                        return;
-                    }
-
-                    const currentUrl = enrichedUrls[urlIndex];
-                    console.log(`[VAST] Intentando URL ${urlIndex + 1}/${enrichedUrls.length}:`, currentUrl.substring(0, 80) + '...');
-
-                    // Destruir player anterior si existe
-                    if (imaPlayerRef.current) {
-                        try { imaPlayerRef.current.destroy?.(); } catch (_e) { /* ignore */ }
-                        imaPlayerRef.current = null;
-                    }
-
-                    const imaPlayer = new Player(
-                        imaNamespace,
-                        videoRef.current!,
-                        containerRef.current!,
-                        adsRenderingSettings,
-                        playerOptions,
-                    );
-                    imaPlayerRef.current = imaPlayer;
-
-                    const adsRequest = new imaNamespace.AdsRequest();
-                    adsRequest.adTagUrl = currentUrl;
-                    adsRequest.setAdWillAutoPlay(true);
-                    adsRequest.setAdWillPlayMuted(false);
-
-                    // Timeout de seguridad per-URL
-                    if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
-                    adTimeoutRef.current = setTimeout(() => {
-                        console.warn(`[VAST] Timeout URL ${urlIndex + 1}, probando siguiente`);
-                        urlIndex++;
-                        tryNextUrl();
-                    }, 15000);
-
-                    // Event listeners
-                    imaPlayer.addEventListener('AdStarted', (event: any) => {
-                        const podInfo = event.detail?.ad?.getAdPodInfo?.();
-                        console.log('[VAST] Ad started', podInfo);
-                        setIsLoading(false);
-                        if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
-                        forceContainerSize();
-                        try { imaPlayer.resizeAd(
-                            portalTarget ? (portalTarget || document.body).offsetWidth : window.innerWidth,
-                            portalTarget ? (portalTarget || document.body).offsetHeight : window.innerHeight,
-                        ); } catch (_e) { /* ignore */ }
-                        onAdsPlaying?.();
-                    });
-
-                    imaPlayer.addEventListener('AdPaused', () => {
-                        console.log('[VAST] Ad pausado, reanudando automáticamente');
-                        try { videoRef.current?.play(); } catch (_e) { /* ignore */ }
-                    });
-
-                    imaPlayer.addEventListener('AdAllAdsCompleted', () => {
-                        console.log('[VAST] Todos los ads completados');
-                        if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
-                        onAdsFinished?.();
-                    });
-
-                    imaPlayer.addEventListener('AdError', (event: any) => {
-                        const detail = event?.detail;
-                        const code = detail?.errorCode || 'unknown';
-                        const msg = detail?.message || detail?.error?.message || 'Unknown';
-                        const vastCode = detail?.vastErrorCode || detail?.error?.vastErrorCode || 'N/A';
-                        console.warn(`[VAST] AdError URL ${urlIndex + 1}:`, { code, vastCode, msg });
-
-                        if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
-
-                        // Intentar siguiente URL del waterfall
-                        urlIndex++;
-                        tryNextUrl();
-                    });
-
-                    imaPlayer.addEventListener('AdContentResumeRequested', () => {
-                        console.log('[VAST] Resume content');
-                        if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
-                        onAdsFinished?.();
-                    });
-
-                    imaPlayer.playAds(adsRequest);
-                    console.log(`[VAST] playAds ejecutado (URL ${urlIndex + 1})`);
-
-                    forceContainerSize();
-                    setTimeout(forceContainerSize, 100);
-                    setTimeout(forceContainerSize, 300);
-                    setTimeout(forceContainerSize, 500);
-                    setTimeout(forceContainerSize, 1000);
-                    setTimeout(forceContainerSize, 2000);
-                };
-
-                // Iniciar waterfall
-                tryNextUrl();
+                // Forzar dimensiones inmediatamente y con delay (IMA las setea async)
+                forceContainerSize();
+                setTimeout(forceContainerSize, 100);
+                setTimeout(forceContainerSize, 500);
+                setTimeout(forceContainerSize, 1000);
 
             } catch (error) {
                 console.error('[VAST] Error cargando ads:', error);
+                setIsLoading(false);
                 onAdsFinished?.();
             }
         };
@@ -280,92 +187,52 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
         initAds();
 
         // Cleanup
+        // Capture ref values for cleanup to satisfy exhaustive-deps
+        const videoElement = videoRef.current;
+
         return () => {
             if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
             if (imaPlayerRef.current) {
                 try {
                     imaPlayerRef.current.destroy?.();
-                } catch (_e) {
+                } catch {
                     // Silenciar errores de destroy
                 }
                 imaPlayerRef.current = null;
             }
-            if (videoRef.current) {
-                videoRef.current.pause();
-                videoRef.current.removeAttribute('src');
-                videoRef.current.load();
-            }
-            if (resizeObserverRef.current) {
-                resizeObserverRef.current.disconnect();
-                resizeObserverRef.current = null;
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.removeAttribute('src');
+                videoElement.load();
             }
             console.log('[VAST] Cleanup completo');
         };
-    }, [adsKey]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const isInline = !!portalTarget;
+    }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return createPortal(
         <div
             id="adVideoContainer"
             ref={containerRef}
-            className={isInline ? undefined : 'vast-container'}
-            style={isInline ? {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 9999,
-                background: '#000',
-            } : undefined}
+            className="vast-container"
         >
             <video
                 id="adVideoElement"
                 ref={videoRef}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    background: 'black',
-                }}
-                playsInline
+                playsInline className={styles.adVideo}
             />
             {isLoading && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: '#000',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 10000,
-                    }}
+                <div className={styles.loadingOverlay}
                 >
-                    <div
-                        style={{
-                            width: '48px',
-                            height: '48px',
-                            border: '4px solid rgba(255,255,255,0.3)',
-                            borderTop: '4px solid #fff',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                            marginBottom: '16px',
-                        }}
+                    <div className={styles.loadingSpinner}
                     />
-                    <span style={{ color: '#fff', fontSize: '1.1rem' }}>
+                    <span className={styles.loadingText}>
                         Cargando publicidad...
                     </span>
                     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 </div>
             )}
         </div>,
-        portalTarget || document.body
+        document.body
     );
 };
 
