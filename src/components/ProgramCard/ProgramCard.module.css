@@ -23,7 +23,8 @@
 }
 
 .cardImg:hover,
-.cardImg:focus {
+.cardImg:focus,                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+.cardImg.focused {
     z-index: 10;
     outline: none;
     /* Al hacer hover coloreamos el borde (ahora visible) y agregamos el glow exterior */
@@ -41,7 +42,8 @@
 }
 
 .cardImg:hover img,
-.cardImg:focus img {
+.cardImg:focus img,
+.cardImg.focused img {
     transform: scale(1.0);
 }
 
@@ -68,7 +70,8 @@
 }
 
 .cardImg:hover .cardImgFallback,
-.cardImg:focus .cardImgFallback {
+.cardImg:focus .cardImgFallback,
+.cardImg.focused .cardImgFallback {
     transform: scale(1.0);
 }
 
