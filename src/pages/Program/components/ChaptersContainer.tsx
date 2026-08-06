@@ -3,6 +3,7 @@ import { useChapters } from "@/hooks/program/useChapters";
 import { useEffect } from "react";
 import ChapterCard from "@/pages/Event/components/ChapterCard";
 import Button from "@/components/ui/Button";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import styles from "../Program.module.css";
 
 interface Props {
@@ -14,6 +15,38 @@ interface Props {
   onLoaded?: () => void;
   onFirstChapter?: (chapter: Chapter) => void;
   showChapter?: boolean;
+}
+
+function SeasonItem({ focusKey, temp, isActive, onSelect }: { focusKey: string; temp: number; isActive: boolean; onSelect: () => void }) {
+  const { ref, focused } = useSpatialFocus({
+    focusKey,
+    onEnterPress: onSelect,
+  });
+
+  return (
+    <div
+      ref={ref}
+      onClick={onSelect}
+      className={[styles.seasonItem, isActive ? styles.seasonActive : styles.seasonInactive, focused ? styles.seasonFocused : ""].join(" ")}
+    >
+      Temporada {temp}
+    </div>
+  );
+}
+
+function LoadMore({ programKey, onClick, isFetching }: { programKey: string; onClick: () => void; isFetching: boolean }) {
+  const { ref, focused } = useSpatialFocus({
+    focusKey: `load-more-${programKey}`,
+    onEnterPress: onClick,
+  });
+
+  return (
+    <div ref={ref} className={[styles.loadMoreWrap, focused ? styles.loadMoreFocused : ""].join(" ")}>
+      <Button variant="tertiary" onClick={onClick} disabled={isFetching} className={styles.loadMoreBtn}>
+        {isFetching ? "Cargando..." : "Ver mas"}
+      </Button>
+    </div>
+  );
 }
 
 function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setActiveSeason, onLoaded, onFirstChapter, showChapter = true }: Props) {
@@ -30,13 +63,13 @@ function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setA
         {activeSegment?.all_temp.map((temp) => {
           const isSeasonActive = activeSeason === temp;
           return (
-            <div
+            <SeasonItem
               key={temp}
-              onClick={() => setActiveSeason(temp)}
-              className={[styles.seasonItem, isSeasonActive ? styles.seasonActive : styles.seasonInactive].join(" ")}
-            >
-              Temporada {temp}
-            </div>
+              focusKey={`season-${activeSegment.key}-${temp}`}
+              temp={temp}
+              isActive={isSeasonActive}
+              onSelect={() => setActiveSeason(temp)}
+            />
           );
         })}
       </div>
@@ -59,11 +92,11 @@ function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setA
             ))}
           </div>
           {hasNextPage && (
-            <div className={styles.loadMoreWrap}>
-              <Button variant="tertiary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className={styles.loadMoreBtn}>
-                {isFetchingNextPage ? "Cargando..." : "Ver mas"}
-              </Button>
-            </div>
+            <LoadMore
+              programKey={programKey}
+              onClick={() => { if (!isFetchingNextPage) fetchNextPage(); }}
+              isFetching={isFetchingNextPage}
+            />
           )}
         </>
       ) : (

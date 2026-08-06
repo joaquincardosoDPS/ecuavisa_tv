@@ -18,7 +18,7 @@ function ProgramView({ program: programDetail, slug, setIsLoading }: ProgramView
   return (
     <div className={styles.viewContainer}>
       <Banner program={programDetail} firstChapter={firstChapter} />
-      <div>
+      <div className={styles.programBody}>
         <Tabs
           program={programDetail}
           activeSegment={activeSegment}

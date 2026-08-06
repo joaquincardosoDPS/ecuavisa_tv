@@ -1,4 +1,5 @@
 ﻿import { useNavigate } from "react-router-dom";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import styles from "./BackButton.module.css";
 
 export function BackButton({ fallback = "/" }: { fallback?: string }) {
@@ -12,12 +13,17 @@ export function BackButton({ fallback = "/" }: { fallback?: string }) {
 		}
 	};
 
+	const { ref, focused } = useSpatialFocus({
+		focusKey: "back-button",
+		onEnterPress: handleBack,
+	});
+
 	return (
-		<button className={styles.btn} onClick={handleBack}>
+		<button ref={ref} className={[styles.btn, focused ? styles.focused : ""].join(" ")} onClick={handleBack}>
 			<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
 				<polyline points="15 18 9 12 15 6" />
 			</svg>
-			<h2 className={styles.label}>Volver</h2>
+			<h2 className={styles.label}>{/*Volver*/}</h2>
 		</button>
 	);
 }

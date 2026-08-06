@@ -34,3 +34,36 @@
   display: block;
 }
 
+.tabButton {
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s, text-shadow 0.2s;
+  font-size: 1.875rem;
+  font-weight: normal;
+  color: var(--clr-primary-title);
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.tabActive {
+  font-weight: bold;
+}
+
+.tabFocused {
+  position: relative;
+  transform: scale(1.05);
+  text-shadow: 0 0 20px rgba(255, 19, 118, 0.4);
+}
+
+.tabFocused::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.5rem;
+  height: 3px;
+  border-radius: 9999px;
+  background-color: var(--foc-primary);
+  box-shadow: 0 0 12px rgba(255, 19, 118, 0.6);
+}
+

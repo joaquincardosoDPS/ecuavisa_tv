@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { Chapter } from "@/interfaces/catalog.interface";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import styles from "./ChapterCard.module.css";
 
 interface ChapterCardProps {
@@ -33,8 +34,13 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
   const progress = isFinished ? 100 : getProgress(playbackTime, chapter.duration_seg);
   const hasProgress = progress > 0;
 
+  const { ref, focused } = useSpatialFocus({
+    focusKey: `chapter-${programKey}-${chapter.key_segment}-${chapter.season}-${chapter.chapter}`,
+    onEnterPress: handleClick,
+  });
+
   return (
-    <div onClick={handleClick} className={styles.cardContainer}>
+    <div ref={ref} onClick={handleClick} className={[styles.cardContainer, focused ? styles.focused : ""].join(" ")}>
       <div className={styles.imageWrapper}>
         <img src={imageSrc} alt={chapter.title} loading="lazy" className={styles.thumbnailImage} />
         {hasProgress && (

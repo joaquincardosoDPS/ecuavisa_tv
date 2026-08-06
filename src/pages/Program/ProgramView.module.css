@@ -1,5 +1,10 @@
 .viewContainer {
-  margin-left: 10rem;
+  /* El banner se dibuja full-bleed (background fijo); el contenido queda alineado a la izquierda */
+}
+
+.programBody {
+  padding-left: 6.25rem;
+  padding-right: 6.25rem;
 }
 
 .viewContent {

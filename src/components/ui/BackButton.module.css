@@ -11,3 +11,9 @@
 }
 
 .label { padding-left: 1rem; }
+
+.btn.focused {
+    color: var(--foc-primary, #ff1376);
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 12px rgba(255, 19, 118, 0.5));
+}

@@ -12,7 +12,15 @@
   border-radius: 0.5rem;
   aspect-ratio: 16/9;
   background-color: var(--clr-primary);
+  box-sizing: border-box;
+  border: 2px solid transparent;
   transition: all 0.3s;
+}
+
+.cardContainer.focused .imageWrapper {
+  border-color: var(--foc-primary);
+  box-shadow: 0 0 20px rgba(255, 19, 118, 0.4);
+  transform: scale(1.02);
 }
 
 .progressBarContainer {

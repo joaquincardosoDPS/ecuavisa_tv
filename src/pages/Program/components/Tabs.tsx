@@ -1,5 +1,6 @@
-import type { RefObject } from "react";
+import type { RefObject, ReactNode } from "react";
 import type { Program, Segment } from "@/interfaces/catalog.interface";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import styles from "./Tabs.module.css";
 
 interface TabsProps {
@@ -13,6 +14,23 @@ interface TabsProps {
   requestScroll: () => void;
 }
 
+function TabButton({ focusKey, isActive, onSelect, children }: { focusKey: string; isActive: boolean; onSelect: () => void; children: ReactNode }) {
+  const { ref, focused } = useSpatialFocus({
+    focusKey,
+    onEnterPress: onSelect,
+  });
+
+  return (
+    <button
+      ref={ref}
+      onClick={onSelect}
+      className={[styles.tabButton, isActive ? styles.tabActive : "", focused ? styles.tabFocused : ""].join(" ")}
+    >
+      {children}
+    </button>
+  );
+}
+
 function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDetails, tabsRef }: TabsProps) {
   return (
     <div ref={tabsRef} className={styles.tabsContainer}>
@@ -22,22 +40,20 @@ function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDe
           return (
             <div key={segment.key} className={styles.tabItem}>
               {idx > 0 && <span className={styles.separator} />}
-              <button
-                onClick={() => { setActiveSegment(segment); setShowDetails(false); }}
-                style={{ cursor: "pointer", transition: "color 0.2s", fontSize: "1.875rem", fontWeight: isActive ? "bold" : "normal", color: "var(--clr-primary-title)", background: "none", border: "none" }}
+              <TabButton
+                focusKey={`tab-${segment.key}`}
+                isActive={isActive}
+                onSelect={() => { setActiveSegment(segment); setShowDetails(false); }}
               >
                 {segment.name}
-              </button>
+              </TabButton>
             </div>
           );
         })}
         <span className={styles.finalSeparator} />
-        <button
-          onClick={() => setShowDetails(true)}
-          style={{ cursor: "pointer", transition: "color 0.2s", fontSize: "1.875rem", fontWeight: showDetails ? "bold" : "normal", color: "var(--clr-primary-title)", background: "none", border: "none" }}
-        >
+        <TabButton focusKey="tab-details" isActive={showDetails} onSelect={() => setShowDetails(true)}>
           Detalles
-        </button>
+        </TabButton>
       </div>
     </div>
   );
