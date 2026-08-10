@@ -52,14 +52,14 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
       <div className={styles.textContainer}>
         {showChapter ? (
           <>
-            <h1>Capítulo {chapter.chapter}</h1>
-            <h2 className={styles.chapterTitle}>{chapter.title}</h2>
+            <h1 className={styles.titleText}>{chapter.title}</h1>
+            <p className={styles.chapterMeta}>Temporada {chapter.season} - Capítulo {chapter.chapter}</p>
           </>
         ) : (
           <div className={styles.infoContainer}>
-            <p className={styles.durationText}>{formatDuration(chapter.duration_seg)}</p>
+            {/*<p className={styles.durationText}>{formatDuration(chapter.duration_seg)}</p>*/}
             <h4 className={styles.titleText}>{chapter.title}</h4>
-            <p className={styles.descriptionText}>{chapter.description}</p>
+            {/*<p className={styles.descriptionText}>{chapter.description}</p>*/}
           </div>
         )}
       </div>

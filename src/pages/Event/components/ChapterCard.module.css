@@ -37,41 +37,42 @@
   color: var(--clr-primary-title);
 }
 
-.chapterTitle {
-  color: var(--clr-primary-text);
+.chapterMeta {
+  color: var(--clr-primary-title);
   font-size: 1rem;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2px;
-  -webkit-box-orient: vertical;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.85;
 }
 
 .infoContainer {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  height: 100%;
 }
 
 .durationText {
   color: var(--clr-primary-title);
   font-weight: bold;
   font-size: 1rem;
-  line-height: 1.25px;
+  line-height: 1.25;
 }
 
 .titleText {
   font-size: 1.25rem;
   font-weight: bold;
-  line-height: 1.5px;
+  line-height: 1.5;
 }
 
 .descriptionText {
   color: var(--clr-primary-title);
   font-size: 1rem;
-  line-height: 1.5px;
+  line-height: 1.5;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2px;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
