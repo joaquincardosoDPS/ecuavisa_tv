@@ -1,11 +1,11 @@
-import type { Program } from "@/interfaces/catalog.interface";
+import type { Program, Segment } from "@/interfaces/catalog.interface";
 import { useProgramSingleData } from "@/hooks/program/useProgramSingleData";
 import Banner from "./components/Banner";
+import Tabs from "./components/Tabs";
 import DetailsProgram from "./components/DetailsProgram";
-import TabsSingle from "./components/TabsSingle";
-import RelatedProgramsContainer from "./components/RelatedProgramsContainer";
 import ChaptersContainer from "./components/ChaptersContainer";
-import styles from "./ProgramSingleView.module.css";
+import RelatedProgramsContainer from "./components/RelatedProgramsContainer";
+import styles from "./ProgramView.module.css";
 
 interface ProgramSingleViewProps {
   program: Program;
@@ -13,22 +13,48 @@ interface ProgramSingleViewProps {
 }
 
 function ProgramSingleView({ program: programDetail, setIsLoading }: ProgramSingleViewProps) {
-  const { chapter, relatedPrograms, isLoadingRelatedPrograms, segments, activeTab, setActiveTab, activeSeason, setActiveSeason, activeSegment, tabsRef, scrollToTabs, handleChaptersLoaded } = useProgramSingleData(programDetail, setIsLoading);
+  const { chapter, relatedPrograms, isLoadingRelatedPrograms, activeSegment, setActiveSegment, showDetails, setShowDetails, showRelated, setShowRelated, activeSeason, setActiveSeason, tabsRef, scrollToTabs, requestScroll, handleChaptersLoaded } = useProgramSingleData(programDetail, setIsLoading);
+
+  const selectSegment = (segment: Segment) => setActiveSegment(segment);
+  const selectDetails = () => setShowDetails(true);
+  const selectRelated = () => setShowRelated(true);
 
   return (
-    <div className={styles.programContainer}>
-      <Banner program={programDetail} isSingle={true} chapter={chapter ?? undefined} />
-      <TabsSingle segments={segments} activeTab={activeTab} setActiveTab={setActiveTab} tabsRef={tabsRef} scrollToTabs={scrollToTabs} />
-      <div className={styles.programContent}>
-        {activeTab === "details" ? (
-          <DetailsProgram programDetail={programDetail} />
-        ) : activeSegment ? (
-          <ChaptersContainer slug={programDetail.key} programKey={programDetail.key} activeSegment={activeSegment} activeSeason={activeSeason} setActiveSeason={setActiveSeason} onLoaded={handleChaptersLoaded} />
-        ) : (
-          <RelatedProgramsContainer programs={relatedPrograms} isLoading={isLoadingRelatedPrograms} />
-        )}
+    <div className={styles.viewContainer}>
+      <Banner program={programDetail} firstChapter={chapter ?? undefined} />
+      <div className={styles.programBody}>
+        <Tabs
+          program={programDetail}
+          activeSegment={activeSegment}
+          setActiveSegment={setActiveSegment}
+          showDetails={showDetails}
+          setShowDetails={setShowDetails}
+          tabsRef={tabsRef}
+          scrollToTabs={scrollToTabs}
+          requestScroll={requestScroll}
+          relatedTab={{ active: showRelated, onSelect: selectRelated }}
+          onSelectSegment={selectSegment}
+          onSelectDetails={selectDetails}
+        />
+        <div className={styles.viewContent}>
+          {showDetails ? (
+            <DetailsProgram programDetail={programDetail} />
+          ) : showRelated ? (
+            <RelatedProgramsContainer programs={relatedPrograms} isLoading={isLoadingRelatedPrograms} />
+          ) : (
+            <ChaptersContainer
+              slug={programDetail.key}
+              programKey={programDetail.key}
+              activeSegment={activeSegment}
+              activeSeason={activeSeason}
+              setActiveSeason={setActiveSeason}
+              onLoaded={handleChaptersLoaded}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
 export default ProgramSingleView;

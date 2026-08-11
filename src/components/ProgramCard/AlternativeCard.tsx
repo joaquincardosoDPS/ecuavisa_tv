@@ -1,17 +1,26 @@
 import type { Program } from "@/interfaces/catalog.interface";
 import { useNavigate } from "react-router-dom";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import styles from "./ProgramCard.module.css";
 
 function AlternativeCard({ program }: { program: Program }) {
     const navigate = useNavigate();
     const imageSrc = program?.image_land?.small;
 
+    const handleClick = () => navigate(`/programas/${program.key}`);
+
+    const { ref, focused } = useSpatialFocus({
+        focusKey: `program-card-${program.key}`,
+        onEnterPress: handleClick,
+    });
+
     return (
         <div className={styles.cardWrapper}>
             <div
+                ref={ref}
                 tabIndex={0}
-                className={`${[styles.cardImg, styles.cardImgHorizontal].join(" ")} ${styles.fullWidthCard}`}
-                onClick={() => navigate(`/programas/${program.key}`)}
+                className={`${[styles.cardImg, styles.cardImgHorizontal].join(" ")} ${styles.fullWidthCard} ${focused ? styles.focused : ""}`}
+                onClick={handleClick}
             >
                 {imageSrc ? (
                     <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" />

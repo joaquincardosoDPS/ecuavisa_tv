@@ -23,12 +23,14 @@ function EventView() {
   if (isLoading) return <FullScreenSpinner />;
 
   return (
-    <div className={styles.eventContainer}>
+    <div className={styles.viewContainer}>
       <Banner event={event} />
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className={styles.eventContent}>
-        {activeTab === "relacionados" && <EventsContainer events={events} />}
-        {activeTab === "detalles" && event && <DetailEvent event={event} />}
+      <div className={styles.programBody}>
+        <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className={styles.viewContent}>
+          {activeTab === "relacionados" && <EventsContainer events={events} />}
+          {activeTab === "detalles" && event && <DetailEvent event={event} />}
+        </div>
       </div>
     </div>
   );

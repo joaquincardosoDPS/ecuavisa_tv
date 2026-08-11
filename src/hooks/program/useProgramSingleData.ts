@@ -3,7 +3,8 @@ import type { Program, Segment, Chapter } from "@/interfaces/catalog.interface";
 import { useQuery } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalogService";
 import { useAnalytics } from "@/layout/AnalyticsWrapper";
-import type { ActiveTab } from "@/pages/Program/components/TabsSingle";
+
+type ActiveTab = "related" | "details" | Segment;
 
 interface UseProgramSingleDataReturn {
   chapter: Chapter | null;
@@ -11,11 +12,14 @@ interface UseProgramSingleDataReturn {
   isLoadingRelatedPrograms: boolean;
   segments: Segment[];
   hasSegments: boolean;
-  activeTab: ActiveTab;
-  setActiveTab: (tab: ActiveTab) => void;
+  activeSegment: Segment | null;
+  setActiveSegment: (segment: Segment) => void;
+  showDetails: boolean;
+  setShowDetails: (show: boolean) => void;
+  showRelated: boolean;
+  setShowRelated: (show: boolean) => void;
   activeSeason: number | null;
   setActiveSeason: (season: number | null) => void;
-  activeSegment: Segment | null;
   tabsRef: React.RefObject<HTMLDivElement | null>;
   scrollToTabs: () => void;
   requestScroll: () => void;
@@ -60,6 +64,18 @@ export function useProgramSingleData(
     hasSegments ? (segments[0].all_temp?.[0] ?? 1) : null
   );
 
+  // Derivados con la misma forma que usa Tabs (vista multi-capitulo)
+  const activeSegment: Segment | null =
+    typeof activeTab === "object" ? activeTab : null;
+  const showDetails = activeTab === "details";
+  const showRelated = activeTab === "related";
+
+  const setActiveSegment = (segment: Segment) => setActiveTabState(segment);
+  const setShowDetails = (show: boolean) =>
+    setActiveTabState(show ? "details" : hasSegments ? segments[0] : "related");
+  const setShowRelated = (show: boolean) =>
+    setActiveTabState(show ? "related" : hasSegments ? segments[0] : "details");
+
   const tabsRef = useRef<HTMLDivElement>(null);
   const pendingScroll = useRef(false);
 
@@ -86,12 +102,6 @@ export function useProgramSingleData(
     pendingScroll.current = true;
   };
 
-  // Wrapper para setActiveTab que también dispara scroll
-  const setActiveTab = (tab: ActiveTab) => {
-    setActiveTabState(tab);
-    requestScroll();
-  };
-
   const handleChaptersLoaded = () => {
     if (pendingScroll.current) {
       pendingScroll.current = false;
@@ -115,20 +125,20 @@ export function useProgramSingleData(
   }, [isLoadingChapters, isLoadingRelatedPrograms, setIsLoading]);
 
   // Segmento activo para ChaptersContainer
-  const activeSegment: Segment | null =
-    typeof activeTab === "object" ? activeTab : null;
-
   return {
     chapter,
     relatedPrograms,
     isLoadingRelatedPrograms,
     segments,
     hasSegments,
-    activeTab,
-    setActiveTab,
+    activeSegment,
+    setActiveSegment,
+    showDetails,
+    setShowDetails,
+    showRelated,
+    setShowRelated,
     activeSeason,
     setActiveSeason,
-    activeSegment,
     tabsRef,
     scrollToTabs,
     requestScroll,

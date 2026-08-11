@@ -1,9 +1,13 @@
-.eventContainer {
-  width: 100%;
-  position: relative;
+.viewContainer {
+  /* El banner se dibuja full-bleed (background fijo); el contenido queda alineado a la izquierda */
 }
 
-.eventContent {
-  margin: 2.5rem 6.25rem 0 6.25rem;
+.programBody {
+  padding-left: 6.25rem;
+  padding-right: 6.25rem;
+}
+
+.viewContent {
+  margin-bottom: 2.5rem;
 }
 

@@ -12,12 +12,6 @@ interface ChapterCardProps {
   isFinished?: boolean;
 }
 
-function formatDuration(seconds: number): string {
-  const hrs = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  return hrs > 0 ? `${hrs} hrs ${mins} min` : `${mins} min`;
-}
-
 function getProgress(playbackTime: number, durationSeg: number): number {
   if (durationSeg <= 0 || playbackTime <= 0) return 0;
   return Math.min(100, (playbackTime / durationSeg) * 100);

@@ -1,5 +1,6 @@
-import { useRef } from "react";
-import styles from "./Tabs.module.css";
+import type { ReactNode } from "react";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
+import styles from "@/pages/Program/components/Tabs.module.css";
 
 export type TabKey = "relacionados" | "detalles";
 
@@ -8,27 +9,34 @@ interface TabsProps {
   setActiveTab: (tab: TabKey) => void;
 }
 
-function Tabs({ activeTab, setActiveTab }: TabsProps) {
-  const tabsRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    }, 50);
-  };
-
-  const getTabStyle = (isActive: boolean) => ({
-    paddingBottom: "1.25rem", paddingLeft: "0.5rem", paddingRight: "0.5rem", height: "100%", cursor: "pointer", borderBottom: "4px solid", marginBottom: "-2px", transition: "colors 0.2s",
-    borderColor: isActive ? "var(--clr-primary-title)" : "transparent",
-    color: isActive ? "var(--clr-primary-title)" : "var(--clr-secondary-text)",
-    background: "none", borderTop: "none", borderLeft: "none", borderRight: "none", fontSize: "1.25rem", fontWeight: 500
+function TabButton({ focusKey, isActive, onSelect, children }: { focusKey: string; isActive: boolean; onSelect: () => void; children: ReactNode }) {
+  const { ref, focused } = useSpatialFocus({
+    focusKey,
+    onEnterPress: onSelect,
   });
 
   return (
-    <div ref={tabsRef} className={styles.tabsContainer}>
-      <div className={styles.tabsList}>
-        <button onClick={() => { setActiveTab("relacionados"); scrollToBottom(); }} style={getTabStyle(activeTab === "relacionados")}>Relacionados</button>
-        <button onClick={() => { setActiveTab("detalles"); scrollToBottom(); }} style={getTabStyle(activeTab === "detalles")}>Detalles</button>
+    <button
+      ref={ref}
+      onClick={onSelect}
+      className={[styles.tabButton, isActive ? styles.tabActive : "", focused ? styles.tabFocused : ""].join(" ")}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Tabs({ activeTab, setActiveTab }: TabsProps) {
+  return (
+    <div className={styles.tabsContainer}>
+      <div className={styles.tabsWrapper}>
+        <TabButton focusKey="event-tab-related" isActive={activeTab === "relacionados"} onSelect={() => setActiveTab("relacionados")}>
+          Relacionados
+        </TabButton>
+        <span className={styles.finalSeparator} />
+        <TabButton focusKey="event-tab-details" isActive={activeTab === "detalles"} onSelect={() => setActiveTab("detalles")}>
+          Detalles
+        </TabButton>
       </div>
     </div>
   );

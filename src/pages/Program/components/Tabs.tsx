@@ -3,6 +3,11 @@ import type { Program, Segment } from "@/interfaces/catalog.interface";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import styles from "./Tabs.module.css";
 
+interface RelatedTab {
+  active: boolean;
+  onSelect: () => void;
+}
+
 interface TabsProps {
   program: Program;
   activeSegment: Segment | null;
@@ -12,6 +17,12 @@ interface TabsProps {
   tabsRef: RefObject<HTMLDivElement | null>;
   scrollToTabs: () => void;
   requestScroll: () => void;
+  /** Pestaña "Relacionados" opcional (películas) con el mismo foco/movimiento */
+  relatedTab?: RelatedTab;
+  /** Override de selección de segmento (permite limpiar la pestaña Relacionados) */
+  onSelectSegment?: (segment: Segment) => void;
+  /** Override de selección de Detalles */
+  onSelectDetails?: () => void;
 }
 
 function TabButton({ focusKey, isActive, onSelect, children }: { focusKey: string; isActive: boolean; onSelect: () => void; children: ReactNode }) {
@@ -31,19 +42,36 @@ function TabButton({ focusKey, isActive, onSelect, children }: { focusKey: strin
   );
 }
 
-function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDetails, tabsRef }: TabsProps) {
+function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDetails, tabsRef, relatedTab, onSelectSegment, onSelectDetails }: TabsProps) {
+  const handleSelectSegment = (segment: Segment) => {
+    if (onSelectSegment) {
+      onSelectSegment(segment);
+      return;
+    }
+    setActiveSegment(segment);
+    setShowDetails(false);
+  };
+
+  const handleSelectDetails = () => {
+    if (onSelectDetails) {
+      onSelectDetails();
+      return;
+    }
+    setShowDetails(true);
+  };
+
   return (
     <div ref={tabsRef} className={styles.tabsContainer}>
       <div className={styles.tabsWrapper}>
         {program.segments.map((segment, idx) => {
-          const isActive = !showDetails && activeSegment?.id === segment.id;
+          const isActive = !showDetails && !relatedTab?.active && activeSegment?.id === segment.id;
           return (
             <div key={segment.key} className={styles.tabItem}>
               {idx > 0 && <span className={styles.separator} />}
               <TabButton
                 focusKey={`tab-${segment.key}`}
                 isActive={isActive}
-                onSelect={() => { setActiveSegment(segment); setShowDetails(false); }}
+                onSelect={() => handleSelectSegment(segment)}
               >
                 {segment.name}
               </TabButton>
@@ -51,7 +79,15 @@ function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDe
           );
         })}
         <span className={styles.finalSeparator} />
-        <TabButton focusKey="tab-details" isActive={showDetails} onSelect={() => setShowDetails(true)}>
+        {relatedTab && (
+          <>
+            <TabButton focusKey="tab-related" isActive={relatedTab.active} onSelect={relatedTab.onSelect}>
+              Relacionados
+            </TabButton>
+            <span className={styles.finalSeparator} />
+          </>
+        )}
+        <TabButton focusKey="tab-details" isActive={showDetails} onSelect={handleSelectDetails}>
           Detalles
         </TabButton>
       </div>

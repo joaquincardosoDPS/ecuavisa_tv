@@ -19,12 +19,15 @@
   line-height: 1.8;
   font-weight: 500;
   margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--clr-primary-title) 15%, transparent);
 }
 
 .infoList {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  
 }
 
 .infoRow {
@@ -32,7 +35,6 @@
   flex-direction: column;
   gap: 0.25rem;
   padding: 1.25rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--clr-primary-title) 15%, transparent);
 }
 
 .infoLabel {
