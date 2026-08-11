@@ -22,9 +22,15 @@
     opacity: 0.7;
 }
 
-.itemInactive:hover {
+.itemInactive:hover,
+.itemInactive.focused {
     opacity: 1;
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: var(--foc-primary);
+}
+
+.itemActive.focused {
+    background-color: var(--foc-primary);
+    border-color: var(--foc-primary);
 }
 
 .icon {

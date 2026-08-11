@@ -5,6 +5,7 @@ import { getEventStatus } from "@/utils/eventStatus";
 import { PlayButton } from "@/components/icons/play-button";
 import { InfoCircle } from "@/components/icons/info-circle";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "../Home.module.css";
 
 interface BannerInfoProps { 
@@ -32,12 +33,50 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
     focusKey: `banner-play-${program.id}`,
     isBanner: true,
     onEnterPress: handleClick,
+    onArrowPress: (direction) => {
+      if (direction === 'left') {
+        setFocus('banner-arrow-left');
+        return false;
+      }
+      if (direction === 'right') {
+        setFocus(`banner-info-${program.id}`);
+        return false;
+      }
+      if (direction === 'down') {
+        setFocus('zone-live-epg');
+        return false;
+      }
+      if (direction === 'up') {
+        setFocus('zone-header');
+        return false;
+      }
+      return true;
+    }
   });
 
   const { ref: infoRef, focused: infoFocused } = useCarouselFocus({
     focusKey: `banner-info-${program.id}`,
     isBanner: true,
     onEnterPress: handleClick,
+    onArrowPress: (direction) => {
+      if (direction === 'left') {
+        setFocus(`banner-play-${program.id}`);
+        return false;
+      }
+      if (direction === 'right') {
+        setFocus('banner-arrow-right');
+        return false;
+      }
+      if (direction === 'down') {
+        setFocus('zone-live-epg');
+        return false;
+      }
+      if (direction === 'up') {
+        setFocus('zone-header');
+        return false;
+      }
+      return true;
+    }
   });
 
   return (
@@ -59,16 +98,12 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
         </div>
       </div>
       <div className={styles.infoBtns}>
-        <div ref={playRef} tabIndex={isBannerFocused ? 0 : -1} className={playFocused ? styles.focused : ''}>
-          <Button variant="primary" onClick={handleClick}>
-            <PlayButton width={30} height={30} className={styles.playbuttonStyle1} /> Ver en vivo
-          </Button>
-        </div>
-        <div ref={infoRef} tabIndex={isBannerFocused ? 0 : -1} className={infoFocused ? styles.focused : ''}>
-          <Button variant="primary" onClick={handleClick}>
-            <InfoCircle width={30} height={30} className={styles.infocircleStyle2} /> Informacion
-          </Button>
-        </div>
+        <Button ref={playRef} variant="primary" onClick={handleClick} tabIndex={isBannerFocused ? 0 : -1} focused={playFocused}>
+          <PlayButton width={30} height={30} className={styles.playbuttonStyle1} /> Ver en vivo
+        </Button>
+        <Button ref={infoRef} variant="primary" onClick={handleClick} tabIndex={isBannerFocused ? 0 : -1} focused={infoFocused}>
+          <InfoCircle width={30} height={30} className={styles.infocircleStyle2} /> Informacion
+        </Button>
       </div>
     </div>
   );

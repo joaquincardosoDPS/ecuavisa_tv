@@ -24,11 +24,46 @@
   background: var(--epg-bar-bg);
 }
 
+.epgHeaderBackground {
+  position: absolute;
+  inset: 0px;
+  opacity: 0.5;
+  background: var(--epg-grad-bg);
+}
+
 .epgTimelineScroll {
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+}
+
+.epgTimeMarkContainer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  padding: 0 0.125rem;
+}
+
+.epgTimeMark {
+  height: 100%;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  transition: all 0.3s;
+  color: var(--clr-primary-title);
+}
+
+.epgTimeMarkCurrent {
+  background: linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10);
+}
+
+.epgTimeMarkNormal {
+  background: rgba(255, 255, 255, 0.10);
 }
 
 .epgChannelsScroll {
@@ -48,20 +83,37 @@
   transition: all 0.2s;
 }
 
+.epgChannelLogo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 0.5rem;
+}
+
+.epgChannelLogoSelected {
+  background: var(--epg-grad-live);
+  border: 2px solid var(--clr-primary-title);
+}
+
+.epgChannelLogoNormal {
+  background: var(--epg-grad-inactive);
+}
+
 .epgChannelInfo {
   font-weight: bold;
 }
 
 .epgChannelLabel {
-  margin-left: 1rem;
+  margin: 0 0 0 1rem;
   font-size: 1rem;
   color: var(--clr-primary-title);
   text-align: left;
-  line-height: 1.25px;
+  line-height: 1.25;
 }
 
 .epgChannelTitle {
-  margin-left: 1rem;
+  margin: 0 0 0 1rem;
   font-weight: bold;
   font-size: 1.875rem;
 }
@@ -76,17 +128,64 @@
   scrollbar-width: none;
 }
 
+.epgEventsWrapper {
+  position: relative;
+  height: 100%;
+}
+
+.epgEventPos {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  padding: 0.125rem;
+}
+
+.epgEventCard {
+  height: 100%;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  transition: all 0.3s;
+  border: 1px solid color-mix(in srgb, var(--epg-accent) 40%, transparent);
+}
+
+.epgEventCardSmall {
+  padding: 0;
+  text-align: center;
+}
+
+.epgEventCardLarge {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.epgEventHighlight {
+  background: linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10);
+}
+
+.epgEventSelectedNotNow {
+  background: color-mix(in srgb, var(--epg-selected) 40%, transparent);
+}
+
+.epgEventNormal {
+  background: color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+}
+
 .epgEventTitle {
+  margin: 0;
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--clr-primary-title);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.25px;
+  line-height: 1.25;
 }
 
 .epgEventTime {
+  margin: 0;
   font-size: 1rem;
   font-weight: bold;
   color: var(--clr-primary-title);
@@ -103,20 +202,26 @@
   overflow: hidden;
 }
 
+.epgNoEventsCard {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--epg-accent) 40%, transparent);
+  left: 2px;
+  width: calc(100% - 4px);
+}
+
 .epgNoEventsText {
+  margin: 0;
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--clr-primary-title);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.25px;
+  line-height: 1.25;
 }
-
-.epgHeaderBackground {
-  position: absolute;
-  inset: 0px;
-  opacity: 0.5;
-  background: var(--epg-grad-bg);
-}
-

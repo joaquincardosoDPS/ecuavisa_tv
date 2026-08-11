@@ -13,23 +13,18 @@
     transition: all 0.3s;
     background-color: var(--clr-primary);
     border-radius: 0.5rem;
-    
-    /* Solución de Layout + Borde visible:
-       Declaramos el borde desde el inicio como transparente y forzamos
-       border-box para que el borde crezca hacia adentro, sobre la imagen,
-       sin desplazar los elementos exteriores. */
+
     box-sizing: border-box;
     border: 2px solid transparent;
 }
 
 .cardImg:hover,
-.cardImg:focus,                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+.cardImg:focus,
 .cardImg.focused {
     z-index: 10;
     outline: none;
-    /* Al hacer hover coloreamos el borde (ahora visible) y agregamos el glow exterior */
     border-color: var(--foc-primary);
-    box-shadow: 0 0 20px rgba(255,19,118,0.3);
+    box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
 }
 
 .cardImg img {
@@ -139,6 +134,7 @@
 .cardTitle {
     color: var(--clr-primary-title);
     font-size: 1rem;
+    margin-top: 0rem;
     font-weight: bold;
     overflow: hidden;
     display: -webkit-box;
@@ -197,13 +193,17 @@
     background-color: color-mix(in srgb, var(--clr-primary) 60%, transparent);
 }
 
-.carouselWrapper:hover .carouselArrow { opacity: 0.3; }
+.carouselWrapper:hover .carouselArrow {
+    opacity: 0.3;
+}
 
 .carouselArrow.canScroll {
     cursor: pointer;
 }
 
-.carouselWrapper:hover .carouselArrow.canScroll { opacity: 1; }
+.carouselWrapper:hover .carouselArrow.canScroll {
+    opacity: 1;
+}
 
 .carouselArrow.canScroll:hover {
     background-color: var(--foc-primary);
@@ -220,7 +220,9 @@
     transform: translateY(-50%);
 }
 
-.carouselSpacer { flex: none; }
+.carouselSpacer {
+    flex: none;
+}
 
 /* ── CarrouselContainer ── */
 .containerSection {
@@ -267,7 +269,7 @@
     width: 60%;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 20px 13px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 20px 13px rgba(0, 0, 0, 0.5));
 }
 
 .containerIconTitle {
@@ -292,11 +294,25 @@
     gap: 1rem;
 }
 
-.grid4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.grid5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.grid6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.grid3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
 .loadMore {
     display: flex;
@@ -313,65 +329,88 @@
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 .fullWidthCard {
-  width: 100%;
+    width: 100%;
 }
 
 
 .viewMoreText {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: var(--clr-primary-title);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--clr-primary-title);
+}
+
+.viewMoreCard {
+    background-color: var(--clr-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.viewMoreCardVertical {
+    width: var(--card-w-vertical);
+    aspect-ratio: 2 / 3;
+    border-radius: 0.75rem;
+}
+
+.viewMoreCardHorizontal {
+    width: var(--card-w-horizontal);
+    aspect-ratio: 16 / 9;
+    border-radius: 0.5rem;
 }
 
 
 .horizontalWrapper {
-  width: var(--card-w-horizontal);
+    width: var(--card-w-horizontal);
 }
 
 .horizontalImageContainer {
-  width: var(--card-w-horizontal);
+    width: var(--card-w-horizontal);
 }
 
 
 .verticalImageContainer {
-  width: var(--card-w-vertical);
+    width: var(--card-w-vertical);
 }
 
 .rankingIconImage {
-  position: absolute;
-  inset: 0px;
-  width: 100%;
-  height: 100%;
+    position: absolute;
+    inset: 0px;
+    width: 100%;
+    height: 100%;
 }
 
 
 .categoryFontContainer {
-  font-family: var(--font-family-category);
+    font-family: var(--font-family-category);
 }
 
 .carouselFlexContainer {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 .carouselItemContainer {
-  flex: 1;
-  min-width: 0px;
+    flex: 1;
+    min-width: 0px;
 }
 
 
 .loadingText {
-  font-size: 1.25rem;
+    font-size: 1.25rem;
 }
 
 .errorText {
-  color: #f87171;
-  font-size: 1.25rem;
+    color: #f87171;
+    font-size: 1.25rem;
 }
-

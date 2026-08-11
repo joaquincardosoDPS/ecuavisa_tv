@@ -18,14 +18,11 @@
 
 /* Efecto hover: ring-2 (borde por fuera sin romper el layout) y glow */
 .cardWrapper:hover .cardImageContainer,
-.cardImageContainer.focused {
+.cardWrapper.focused .cardImageContainer {
   box-shadow: 0 0 0 2px var(--foc-primary), 0 0 20px rgba(255, 19, 118, 0.3);
 }
 
-/* TV Rule: Al estar enfocado con D-Pad, sí aplicamos el scale(1.05) según el manual de TV */
-.cardImageContainer.focused {
-  transform: scale(1.05);
-}
+/* TV Rule: Al estar enfocado con D-Pad, aplicamos el mismo efecto que el hover sin escalar el contenedor entero para mantener consistencia con ProgramCard */
 
 .cardImage {
   width: 100%;
@@ -38,7 +35,7 @@
 
 /* Y al hacer hover o estar focused, se reduce a scale(1.0) */
 .cardWrapper:hover .cardImage,
-.cardImageContainer.focused .cardImage {
+.cardWrapper.focused .cardImage {
   transform: scale(1.0);
 }
 

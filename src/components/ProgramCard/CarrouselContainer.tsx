@@ -4,11 +4,11 @@ import styles from "./ProgramCard.module.css";
 
 interface CarrouselContainerProps {
 	category: Category;
+	autoFocusFirst?: boolean;
 }
 
-function CarrouselContainer({ category }: CarrouselContainerProps) {
+function CarrouselContainer({ category, autoFocusFirst }: CarrouselContainerProps) {
 	if (!category.programs.length) return null;
-	console.log("DEBUG: ", category)
 
 	return (
 		<div
@@ -17,7 +17,7 @@ function CarrouselContainer({ category }: CarrouselContainerProps) {
 			<h2 className={styles.containerTitle}>{category.title}</h2>
 			<div className={styles.carouselFlexContainer}>
 				<div className={styles.carouselItemContainer}>
-					<CardCarrousel programs={category.programs} categorySlug={category.key} />
+					<CardCarrousel programs={category.programs} categorySlug={category.key} autoFocusFirst={autoFocusFirst} />
 				</div>
 			</div>
 		</div>

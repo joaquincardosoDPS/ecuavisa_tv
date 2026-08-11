@@ -1,21 +1,24 @@
 import type { Program, Event } from "@/interfaces/catalog.interface";
 import { useProgramsStore } from "@/features/programs/programsStore";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getEventStatus } from "@/utils/eventStatus";
+import { formatEventDayTime } from "@/utils/formatDate";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import type { EmblaCarouselType } from "embla-carousel";
 import styles from "./ProgramCard.module.css";
+import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 
 interface CardHorizontalProps {
   program: Program | Event;
   format?: string;
-  index?: number;
-  emblaApi?: EmblaCarouselType;
+  index: number;
+  emblaApi?: EmblaCarouselType | null;
   parentFocusKey?: string;
+  autoFocusFirst?: boolean;
 }
 
-function CardHorizontal({ program, format, index, emblaApi, parentFocusKey }: CardHorizontalProps) {
+function CardHorizontal({ program, format, index, emblaApi, parentFocusKey, autoFocusFirst }: CardHorizontalProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isProgramsView = pathname === "/programas";
@@ -42,13 +45,6 @@ function CardHorizontal({ program, format, index, emblaApi, parentFocusKey }: Ca
     }
   };
 
-  const { ref, focused } = useCarouselFocus({
-    focusKey: `${parentFocusKey}-item-${program.id}`,
-    index,
-    emblaApi,
-    onEnterPress: handleClick,
-  });
-
   const handleFocusEnter = () => {
     if (!isProgramsView || isEvent) return;
     hoverTimeout.current = setTimeout(() => setActiveProgram(program as Program), 200);
@@ -58,6 +54,24 @@ function CardHorizontal({ program, format, index, emblaApi, parentFocusKey }: Ca
     if (!isProgramsView) return;
     if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
   };
+
+  const focusKey = `${parentFocusKey}-item-${program.id}`;
+  const { ref, focused } = useCarouselFocus({
+    focusKey,
+    index,
+    emblaApi: emblaApi ?? undefined,
+    onEnterPress: handleClick,
+    onFocus: handleFocusEnter,
+  });
+
+  useEffect(() => {
+    if (autoFocusFirst) {
+      const timeout = setTimeout(() => {
+        setFocus(focusKey);
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [autoFocusFirst, focusKey]);
 
   return (
     <div className={`${styles.cardWrapper} ${styles.horizontalWrapper}`}>
@@ -88,12 +102,7 @@ function CardHorizontal({ program, format, index, emblaApi, parentFocusKey }: Ca
       {showDate && (
         <div className={styles.cardMeta}>
           <p className={styles.cardTitle}>
-            {(() => {
-              const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-              const d = new Date(eventData!.gmt0_unlocked.replace(" ", "T") + "Z");
-              const time = d.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit", hour12: false });
-              return `${days[d.getDay()]} | ${time}`;
-            })()}
+            {formatEventDayTime(eventData!.gmt0_unlocked)}
           </p>
           <p className={styles.cardTitle}>{program.title}</p>
         </div>

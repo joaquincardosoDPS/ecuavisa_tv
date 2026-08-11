@@ -7,11 +7,36 @@ import styles from "../Home.module.css";
 
 interface BannerProps { slider: (Program | Event)[]; }
 
-function BannerArrow({ direction, onClick }: { direction: 'left' | 'right', onClick: () => void }) {
+function BannerArrow({ direction, onClick, currentProgramId }: { direction: 'left' | 'right', onClick: () => void, currentProgramId: string | number }) {
 	const { ref, focused } = useCarouselFocus({
 		focusKey: `banner-arrow-${direction}`,
 		isBanner: true,
 		onEnterPress: onClick,
+		onArrowPress: (dir) => {
+			if (direction === 'left') {
+				if (dir === 'left') return false;
+				if (dir === 'right') {
+					setFocus(`banner-play-${currentProgramId}`);
+					return false;
+				}
+			}
+			if (direction === 'right') {
+				if (dir === 'right') return false;
+				if (dir === 'left') {
+					setFocus(`banner-info-${currentProgramId}`);
+					return false;
+				}
+			}
+			if (dir === 'down') {
+				setFocus('zone-live-epg');
+				return false;
+			}
+			if (dir === 'up') {
+				setFocus('zone-header');
+				return false;
+			}
+			return true;
+		}
 	});
 
 	return (
@@ -70,7 +95,7 @@ function Banner({ slider }: BannerProps) {
 				))}
 
 				<div className={styles.bannerControls}>
-					<BannerArrow direction="left" onClick={() => setCurrentIndex((i) => (i - 1 + total) % total)} />
+					<BannerArrow direction="left" onClick={() => setCurrentIndex((i) => (i - 1 + total) % total)} currentProgramId={slider[currentIndex].id} />
 
 					<div className={styles.bannerInfoWrap}>
 						{slider.map((program, i) => (
@@ -88,7 +113,7 @@ function Banner({ slider }: BannerProps) {
 						))}
 					</div>
 
-					<BannerArrow direction="right" onClick={() => setCurrentIndex((i) => (i + 1) % total)} />
+					<BannerArrow direction="right" onClick={() => setCurrentIndex((i) => (i + 1) % total)} currentProgramId={slider[currentIndex].id} />
 				</div>
 			</div>
 		</FocusContext.Provider>

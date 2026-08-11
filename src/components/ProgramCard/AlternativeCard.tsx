@@ -1,16 +1,23 @@
 import type { Program } from "@/interfaces/catalog.interface";
 import { useNavigate } from "react-router-dom";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import styles from "./ProgramCard.module.css";
 
-function AlternativeCard({ program }: { program: Program }) {
+function AlternativeCard({ program, index, onFocus }: { program: Program; index?: number; onFocus?: () => void }) {
     const navigate = useNavigate();
     const imageSrc = program?.image_land?.small;
+
+    const { ref, focused } = useCarouselFocus({
+        focusKey: `program-grid-item-${index ?? program.id}`,
+        onEnterPress: () => navigate(`/programas/${program.key}`),
+        onFocus,
+    });
 
     return (
         <div className={styles.cardWrapper}>
             <div
-                tabIndex={0}
-                className={`${[styles.cardImg, styles.cardImgHorizontal].join(" ")} ${styles.fullWidthCard}`}
+                ref={ref}
+                className={`${[styles.cardImg, styles.cardImgHorizontal].join(" ")} ${styles.fullWidthCard} ${focused ? styles.focused : ""}`}
                 onClick={() => navigate(`/programas/${program.key}`)}
             >
                 {imageSrc ? (

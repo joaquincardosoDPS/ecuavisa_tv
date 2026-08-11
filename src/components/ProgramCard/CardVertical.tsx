@@ -1,20 +1,24 @@
 import type { Program, Event } from "@/interfaces/catalog.interface";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RankingIcon from "@/assets/img/icons/iconos-ranking.svg";
 import { getEventStatus } from "@/utils/eventStatus";
+import { formatEventFullDate } from "@/utils/formatDate";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import type { EmblaCarouselType } from "embla-carousel";
+import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./ProgramCard.module.css";
 
 interface CardVerticalProps {
   program: Program | Event;
   format?: string;
-  index?: number;
-  emblaApi?: EmblaCarouselType;
+  index: number;
+  emblaApi?: EmblaCarouselType | null;
   parentFocusKey?: string;
+  autoFocusFirst?: boolean;
 }
 
-function CardVertical({ program, format, index, emblaApi, parentFocusKey }: CardVerticalProps) {
+function CardVertical({ program, format, index, emblaApi, parentFocusKey, autoFocusFirst }: CardVerticalProps) {
   const navigate = useNavigate();
   const isEvent = format === "event";
   const isRanking = format === "ranking";
@@ -36,12 +40,23 @@ function CardVertical({ program, format, index, emblaApi, parentFocusKey }: Card
     }
   };
 
+  const focusKey = `${parentFocusKey}-item-${program.id}`;
   const { ref, focused } = useCarouselFocus({
-    focusKey: `${parentFocusKey}-item-${program.id}`,
+    focusKey,
     index,
-    emblaApi,
+    emblaApi: emblaApi ?? undefined,
     onEnterPress: handleClick,
   });
+
+  useEffect(() => {
+    if (autoFocusFirst) {
+      const timeout = setTimeout(() => {
+        console.log("[CardVertical] Auto-focusing first card:", focusKey);
+        setFocus(focusKey);
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [autoFocusFirst, focusKey]);
 
   return (
     <div className={styles.cardWrapper}>
@@ -66,12 +81,7 @@ function CardVertical({ program, format, index, emblaApi, parentFocusKey }: Card
 
         {showDate && (
           <div className={styles.dateBanner}>
-            {(() => {
-              const d = new Date(eventData!.gmt0_unlocked.replace(" ", "T") + "Z");
-              const date = d.toLocaleDateString("es-CL", { weekday: "short", day: "numeric", month: "long" });
-              const time = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false });
-              return `${date}, ${time} hrs`;
-            })()}
+            {formatEventFullDate(eventData!.gmt0_unlocked)}
           </div>
         )}
 

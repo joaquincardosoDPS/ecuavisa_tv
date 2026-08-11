@@ -1,4 +1,4 @@
-﻿.btn {
+.btn {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -27,7 +27,9 @@
     color: var(--clr-primary-title);
 }
 
-.primary:hover:not(:disabled) {
+.primary:hover:not(:disabled),
+.primary:focus:not(:disabled),
+.primary.focused:not(:disabled) {
     background-color: var(--clr-primary-button);
     color: var(--clr-text-primary-button);
     border-color: transparent;
@@ -39,7 +41,9 @@
     border-color: transparent;
 }
 
-.secondary:hover:not(:disabled) {
+.secondary:hover:not(:disabled),
+.secondary:focus:not(:disabled),
+.secondary.focused:not(:disabled) {
     box-shadow: 0 0 20px 0 var(--foc-secondary);
 }
 
@@ -49,7 +53,9 @@
     border-color: var(--clr-text-tertiary-button);
 }
 
-.tertiary:hover:not(:disabled) {
+.tertiary:hover:not(:disabled),
+.tertiary:focus:not(:disabled),
+.tertiary.focused:not(:disabled) {
     background-color: var(--clr-text-tertiary-button);
     color: var(--clr-primary);
     box-shadow: 0 0 10px 1px var(--foc-tertiary);

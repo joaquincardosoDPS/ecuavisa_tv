@@ -75,3 +75,30 @@ export function formatDate(
 
   return result;
 }
+
+/**
+ * Format string for CardHorizontal (e.g. "Sábado | 19:00")
+ */
+export function formatEventDayTime(dateString: string): string {
+  if (!dateString) return "";
+  const normalized = dateString.replace(" ", "T");
+  const date = new Date(`${normalized}Z`);
+  if (isNaN(date.getTime())) return dateString;
+
+  const time = date.toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${DAYS[date.getDay()]} | ${time}`;
+}
+
+/**
+ * Format string for CardVertical (e.g. "sáb, 30 de abril, 19:00 hrs")
+ */
+export function formatEventFullDate(dateString: string): string {
+  if (!dateString) return "";
+  const normalized = dateString.replace(" ", "T");
+  const date = new Date(`${normalized}Z`);
+  if (isNaN(date.getTime())) return dateString;
+
+  const dateStr = date.toLocaleDateString("es-CL", { weekday: "short", day: "numeric", month: "long" });
+  const timeStr = date.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${dateStr}, ${timeStr} hrs`;
+}

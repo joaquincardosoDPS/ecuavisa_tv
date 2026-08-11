@@ -1,77 +1,132 @@
 .pageContainer {
-  padding: 6.25rem 6.25rem 4rem 6.25rem;
+	padding: 7rem 4vw;
+	min-height: calc(100vh - 5rem);
+	/* Header space */
+	display: flex;
+	flex-direction: column;
+	background-color: var(--clr-primary);
+}
+
+.searchLayout {
+	display: flex;
+	width: 100%;
+	gap: 2rem;
+	flex: 1;
+}
+
+.keyboardPanel {
+	flex: 0 0 35%;
+	max-width: 30rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.displayWrapper {
+	background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+	border: 1px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+	border-radius: 0.75rem;
+	padding: 1rem 1.25rem;
+	margin-bottom: 2rem;
+	margin-right: 2rem;
+	min-height: 4rem;
+	display: flex;
+	align-items: center;
+}
+
+.displayText {
+	font-size: 1.5rem;
+	color: var(--clr-primary-title);
+	font-weight: bold;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.displayTextEmpty {
+	color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+	font-weight: normal;
+}
+
+.resultsPanel {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
 }
 
 .activeQueryHeader {
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 }
 
 .resultsTitle {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: var(--clr-primary-title);
+	font-size: 2rem;
+	font-weight: bold;
+	color: var(--clr-primary-title);
+	margin-bottom: 0.5rem;
 }
 
 .highlightedQuery {
-  color: var(--clr-secondary-button);
+	color: var(--clr-secondary);
 }
 
 .resultsCount {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
-  font-size: 1rem;
-  margin-top: 0.25rem;
-  font-weight: 500;
+	font-size: 1.1rem;
+	color: var(--clr-primary-text);
+	opacity: 0.8;
 }
 
 .emptyQueryHeader {
-  margin-bottom: 2rem;
+	margin-bottom: 2.5rem;
+	text-align: center;
+	/* margin-top: 4rem; */
 }
 
 .searchTitle {
-  font-size: 1.875rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: var(--clr-primary-title);
+	font-size: 2.5rem;
+	font-weight: 900;
+	color: var(--clr-primary-title);
+	margin-bottom: 1rem;
 }
 
 .searchSubtitle {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
-  font-size: 1rem;
+	font-size: 1.2rem;
+	color: var(--clr-primary-text);
+	opacity: 0.8;
+	max-width: 600px;
+	margin: 0 auto;
 }
 
 .noResultsContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 0;
-  gap: 0.75rem;
+	margin: 3rem 0;
+	text-align: center;
+	background-color: color-mix(in srgb, var(--clr-primary-title) 5%, transparent);
+	padding: 3rem 2rem;
+	border-radius: 1rem;
 }
 
 .noResultsText {
-  color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent);
-  font-size: 1.125rem;
-  text-align: center;
+	font-size: 1.4rem;
+	color: var(--clr-primary-title);
+	margin-bottom: 1rem;
 }
 
 .noResultsQuery {
-  font-weight: 600;
-  color: var(--clr-primary-title);
+	color: var(--clr-secondary);
+	font-weight: bold;
 }
 
 .noResultsSuggestion {
-  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
-  font-size: 0.875rem;
-  text-align: center;
+	font-size: 1.1rem;
+	color: var(--clr-primary-text);
+	opacity: 0.7;
 }
 
 .loadMoreContainer {
-  display: flex;
-  justify-content: center;
-  margin: 2.5rem 0;
+	display: flex;
+	justify-content: center;
+	margin-top: 3rem;
+	padding-bottom: 2rem;
 }
 
 .loadMoreButton {
-  border-radius: 9999px;
+	min-width: 200px;
 }
-

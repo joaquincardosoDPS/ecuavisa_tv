@@ -45,7 +45,8 @@
     background-color: var(--clr-secondary);
 }
 
-.avatarBtn:hover {
+.avatarBtn:hover,
+.avatarBtn.focused {
     border-color: var(--foc-primary);
 }
 
@@ -97,8 +98,9 @@
     font-weight: bold;
 }
 
-.searchTrigger:hover {
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+.searchTrigger:hover,
+.searchTrigger.focused {
+    background-color: var(--foc-primary);
 }
 
 .searchLayer {

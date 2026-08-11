@@ -1,6 +1,8 @@
 import { useMemo, useRef, useCallback, useState, useEffect } from "react";
 import type { EPGChannel, EPGEvent, LiveSignal } from "@/interfaces/catalog.interface";
+import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./EPGGrid.module.css";
+import { EPGChannelRow } from "./EPGChannelRow";
 
 interface EPGGridProps {
   epg: EPGChannel[];
@@ -54,7 +56,7 @@ function getTimeMarks(windowStart: Date, windowEnd: Date) {
   return marks;
 }
 
-const CURRENT_HOUR_BG = "linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10)";
+// const CURRENT_HOUR_BG = "linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10)";
 
 function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps) {
   const [now, setNow] = useState(() => new Date());
@@ -117,6 +119,14 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps
     document.body.style.userSelect = '';
   }, []);
 
+  useEffect(() => {
+    if (signals.length > 0) {
+      setTimeout(() => {
+        setFocus(`epg-row-${signals[0].key_live}`);
+      }, 300);
+    }
+  }, [signals]);
+
   const handleRowClick = useCallback((keyLive: string) => {
     if (wasDragged.current) return;
     onSelectSignal?.(keyLive);
@@ -133,8 +143,8 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps
           <div ref={headerRef} onScroll={() => handleScroll(-1)} className={styles.epgTimelineScroll}>
             <div style={{ position: "relative", height: "2rem", width: innerWidthPct }}>
               {timeMarks.map((mark, idx) => (
-                <div key={`${mark.label}-${idx}`} style={{ position: "absolute", top: 0, bottom: 0, padding: "0 0.125rem", left: `${mark.startPct}%`, width: `${mark.widthPct}%` }}>
-                  <div style={{ height: "100%", borderRadius: "0.75rem", display: "flex", alignItems: "center", padding: "0 1rem", fontSize: "0.75rem", fontWeight: 500, letterSpacing: "0.025em", transition: "all 0.3s", color: "var(--clr-primary-title)", background: mark.isCurrent ? CURRENT_HOUR_BG : 'rgba(255, 255, 255, 0.10)' }} title={mark.label}>
+                <div key={`${mark.label}-${idx}`} className={styles.epgTimeMarkContainer} style={{ left: `${mark.startPct}%`, width: `${mark.widthPct}%` }}>
+                  <div className={`${styles.epgTimeMark} ${mark.isCurrent ? styles.epgTimeMarkCurrent : styles.epgTimeMarkNormal}`} title={mark.label}>
                     <span>{mark.label}</span>
                   </div>
                 </div>
@@ -148,51 +158,26 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps
         {signals.map((signal, rowIdx) => {
           const channel = epgMap.get(signal.key_live) || epgMap.get(signal.key);
           const events = channel ? getEventsInWindow(channel.events, windowStart, windowEnd) : [];
-          const hasEpg = events.length > 0;
+          // const hasEpg = events.length > 0;
           const isSelected = selectedKeyLive === signal.key_live;
 
           return (
-            <div key={signal.key_live} onClick={() => handleRowClick(signal.key_live)} className={styles.epgChannelRow}>
-              <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "flex-start", borderRadius: "0.5rem", width: `calc(${LOGO_COL_WIDTH} - 12px)`, background: isSelected ? 'var(--epg-grad-live)' : 'var(--epg-grad-inactive)', border: isSelected ? "2px solid var(--clr-primary-title)" : "none" }}>
-                <div className={styles.epgChannelInfo}>
-                  <h2 className={styles.epgChannelLabel}>Canal</h2>
-                  <h1 className={styles.epgChannelTitle}>{signal.name_live}</h1>
-                </div>
-              </div>
-
-              {hasEpg ? (
-                <div ref={(el) => { scrollRefs.current[rowIdx] = el; }} onScroll={() => handleScroll(rowIdx)} className={styles.epgEventsScroll}>
-                  <div style={{ position: "relative", height: "100%", width: innerWidthPct }}>
-                    {events.map(({ event, startPct, widthPct }) => {
-                      const begin = new Date(event.beginTime);
-                      const end = new Date(event.endTime);
-                      const isNow = begin <= now && end > now;
-                      const useHighlight = isSelected && isNow;
-                      const visiblePct = widthPct * scrollRatio;
-                      const isSmall = visiblePct < 2.5;
-
-                      return (
-                        <div key={event.id} style={{ position: "absolute", top: 0, bottom: 0, padding: "0.125rem", left: `${startPct}%`, width: `${widthPct}%` }}>
-                          <div
-                            style={{ height: "100%", borderRadius: "0.5rem", padding: isSmall ? "0" : "0.5rem 0.75rem", textAlign: isSmall ? "center" : "left", display: "flex", flexDirection: "column", justifyContent: "center", overflow: "hidden", transition: "all 0.3s", border: "1px solid color-mix(in srgb, var(--epg-accent) 40%, transparent)", background: useHighlight ? CURRENT_HOUR_BG : (isSelected && !isNow ? 'color-mix(in srgb, var(--epg-selected) 40%, transparent)' : (!useHighlight && !isSelected ? "color-mix(in srgb, var(--clr-primary-title) 20%, transparent)" : "")) }}
-                            title={`${event.title} — ${formatTime(begin)} – ${formatTime(end)}`}
-                          >
-                            <p className={styles.epgEventTitle}>{!isSmall ? event.title : ""}</p>
-                            {!isSmall && <p className={styles.epgEventTime}>{formatTime(begin)} – {formatTime(end)}</p>}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.epgNoEvents}>
-                  <div style={{ position: "absolute", top: 0, height: "100%", borderRadius: "0.5rem", padding: "0.5rem 0.75rem", display: "flex", alignItems: "center", border: "1px solid color-mix(in srgb, var(--epg-accent) 40%, transparent)", left: "2px", width: "calc(100% - 4px)", background: isSelected ? CURRENT_HOUR_BG : '#FFFFFF33' }}>
-                    <p className={styles.epgNoEventsText}>{signal.name_live}</p>
-                  </div>
-                </div>
-              )}
-            </div>
+            <EPGChannelRow
+              key={signal.key_live}
+              signal={signal}
+              events={events}
+              isSelected={isSelected}
+              onSelectSignal={handleRowClick}
+              rowIdx={rowIdx}
+              scrollRatio={scrollRatio}
+              innerWidthPct={innerWidthPct}
+              logoColWidth={LOGO_COL_WIDTH}
+              now={now}
+              onScroll={handleScroll}
+              setScrollRef={(el) => { scrollRefs.current[rowIdx] = el; }}
+              formatTime={formatTime}
+              isFirstRow={rowIdx === 0}
+            />
           );
         })}
       </div>
