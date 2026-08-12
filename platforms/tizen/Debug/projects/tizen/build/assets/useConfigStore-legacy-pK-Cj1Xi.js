@@ -1,0 +1,1 @@
+System.register(["./api-legacy-DxyPTc2-.js"],function(e,n){var t;return{setters:[function(e){t=e.N}],execute:function(){e("t",t(e=>({config:null,setConfig:n=>e({config:n})})))}}});

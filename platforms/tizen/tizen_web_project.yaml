@@ -1,0 +1,195 @@
+# Project type [web_app, test_runner]
+project_type: web_app
+
+# Default profile, Tizen API version
+profile: tv-samsung
+api_version: "2.3"
+
+# Build type [Debug/ Release/ Test]
+build_type: Debug
+
+# Output name for application
+output_name: Ecuavisa
+
+# Output path for build
+output_path: ""
+
+# Enable size optimization of wgt for web workspace
+opt: false
+
+# Signing profile to be used for Tizen package signing
+# If value is empty: "", active signing profile will be used
+# Else If value is ".", default signing profile will be used
+signing_profile: ""
+
+# list of certs in web project (.trust-anchor)
+trust_anchor: []
+
+# list of files in web project (.html,.css etc) and resources
+files:
+  - build/.htaccess
+  - build/assets/Auth-DQ4x2SHu.css
+  - build/assets/Auth.module-D4YQ2LWX.js
+  - build/assets/Auth.module-legacy-DKgxjL1V.js
+  - build/assets/BackButton-DcAupI2p.css
+  - build/assets/BackButton-DtxsntrB.js
+  - build/assets/BackButton-legacy-BcXMmI8q.js
+  - build/assets/Button-BWdmvuz_.js
+  - build/assets/Button-DtRSAeWM.css
+  - build/assets/Button-legacy-B3_4gXm0.js
+  - build/assets/CardCarrousel-BpjCS1wO.js
+  - build/assets/CardCarrousel-legacy-0cr3W7Rl.js
+  - build/assets/CategoryView-BRJ_MuFO.js
+  - build/assets/CategoryView-BdKfQ0ya.css
+  - build/assets/CategoryView-legacy-BuVkb3qo.js
+  - build/assets/EditProfileView-legacy-DA8BP3nT.js
+  - build/assets/EditProfileView-mHohpUcF.js
+  - build/assets/EditProfileView-pVoAzo95.css
+  - build/assets/EventView-BN_a4vG1.js
+  - build/assets/EventView-Br6O99r0.css
+  - build/assets/EventView-legacy-D365AWPJ.js
+  - build/assets/Gotham Black-Bfc6H7eV.otf
+  - build/assets/Gotham Bold-CrH6UO9q.otf
+  - build/assets/Gotham Book-B8_o52EL.otf
+  - build/assets/HistoryView-BHpKzg4M.js
+  - build/assets/HistoryView-BKZ2wIdf.css
+  - build/assets/HistoryView-legacy-Bot_eUu4.js
+  - build/assets/HomeView-HK5sbGg_.css
+  - build/assets/HomeView-legacy-Bh7pujNI.js
+  - build/assets/HomeView-uWFDmXzx.js
+  - build/assets/LiveView-Ckv0PXri.js
+  - build/assets/LiveView-Cv-iUHWc.css
+  - build/assets/LiveView-legacy-DGUBDGPC.js
+  - build/assets/LoginView-B6ZjD3NQ.js
+  - build/assets/LoginView-legacy-DoRZ2Gpq.js
+  - build/assets/MyAccountView-Cwq01VE2.js
+  - build/assets/MyAccountView-DwRZPoN_.css
+  - build/assets/MyAccountView-legacy-SsCvMico.js
+  - build/assets/MyListView-9LvoenXm.js
+  - build/assets/MyListView-CyD_3lWE.css
+  - build/assets/MyListView-legacy-Cs6pc7HG.js
+  - build/assets/NotFoundView-ChHsJIto.js
+  - build/assets/NotFoundView-ksKbkte2.css
+  - build/assets/NotFoundView-legacy-2ueVG1KF.js
+  - build/assets/PlayerView-4Lb1LMZx.js
+  - build/assets/PlayerView-inQ-gZTG.css
+  - build/assets/PlayerView-legacy-nSkeSA4L.js
+  - build/assets/ProfilesView-CC3mqiO1.css
+  - build/assets/ProfilesView-DMnyOv7n.js
+  - build/assets/ProfilesView-legacy-D5fvHvZM.js
+  - build/assets/Program-074b6sUN.js
+  - build/assets/Program-2nxSqnXN.css
+  - build/assets/Program-legacy-BBZM6kKb.js
+  - build/assets/ProgramCard-CZWP3gkJ.css
+  - build/assets/ProgramCard.module-legacy-RaWjZ1VT.js
+  - build/assets/ProgramCard.module-zWNGw0Ph.js
+  - build/assets/ProgramGrid-CVluuThO.js
+  - build/assets/ProgramGrid-legacy-BT2e6-fE.js
+  - build/assets/ProgramsView-C7hz7xR-.css
+  - build/assets/ProgramsView-DGmmit3R.js
+  - build/assets/ProgramsView-legacy-0Z1j2F2g.js
+  - build/assets/QueryClientProvider-CURksax2.js
+  - build/assets/QueryClientProvider-legacy-DaYzh3mk.js
+  - build/assets/RegisterView-B_4yijn_.js
+  - build/assets/RegisterView-Cft2u35k.css
+  - build/assets/RegisterView-legacy-BTDu3uNg.js
+  - build/assets/SearchView-5QHPqTwS.js
+  - build/assets/SearchView-BUB0pGmo.css
+  - build/assets/SearchView-legacy-DJVBI-eq.js
+  - build/assets/SelectAvatarView-BYcm07fC.js
+  - build/assets/SelectAvatarView-CFnKwBij.css
+  - build/assets/SelectAvatarView-legacy-Dif8EX8W.js
+  - build/assets/SelectProfileView-BCr0kS4l.js
+  - build/assets/SelectProfileView-DtOuss7E.css
+  - build/assets/SelectProfileView-legacy-CErEDfHS.js
+  - build/assets/Spinner-CCAmMmsq.js
+  - build/assets/Spinner-he_0R0Uf.css
+  - build/assets/Spinner-legacy-5SbO8fLr.js
+  - build/assets/TVPairView-CV66eTjy.css
+  - build/assets/TVPairView-Cw7iFdKi.js
+  - build/assets/TVPairView-legacy-DKiWy0Jc.js
+  - build/assets/Tabs-DVqV3nK6.css
+  - build/assets/Tabs.module-JmF4Pqeb.js
+  - build/assets/Tabs.module-legacy-CPujUUD0.js
+  - build/assets/api-Dn_VfGXo.js
+  - build/assets/api-legacy-BcDg8ECK.js
+  - build/assets/authStore-BYQR-mF3.js
+  - build/assets/authStore-legacy-FOQNpwxX.js
+  - build/assets/bg_login-C0Y-m3zI.png
+  - build/assets/bg_login-legacy-BjIBJuE-.js
+  - build/assets/bg_login-rEDyBWlc.js
+  - build/assets/catalogService-Bfwj-T-J.js
+  - build/assets/catalogService-legacy-DFmCWL_b.js
+  - build/assets/eventStatus-C0lgksCE.js
+  - build/assets/eventStatus-legacy-DcNuIW8Q.js
+  - build/assets/favoritesService-CwjcDhGc.js
+  - build/assets/favoritesService-legacy-RFlg7mB0.js
+  - build/assets/historyService-DU3HD_4e.js
+  - build/assets/historyService-legacy-CUevTYVG.js
+  - build/assets/iconos-edit-BRCp7_vv.js
+  - build/assets/iconos-edit-legacy-CKtzShi5.js
+  - build/assets/index-DeqoAn7C.js
+  - build/assets/index-Sy-48tfo.css
+  - build/assets/index-legacy-CvKEedbG.js
+  - build/assets/play-button-CWeUZN4r.js
+  - build/assets/play-button-legacy-PcbhJt0y.js
+  - build/assets/polyfills-legacy-BpQzBZT_.js
+  - build/assets/profileDraftStore-B6ITGnQ6.js
+  - build/assets/profileDraftStore-legacy-KOO6pSgP.js
+  - build/assets/useBaseQuery-B1ObGdlU.js
+  - build/assets/useBaseQuery-legacy-BaDQjxB5.js
+  - build/assets/useConfigStore-C_6iaDFs.js
+  - build/assets/useConfigStore-legacy-CuswPwzp.js
+  - build/assets/useDocumentTitle-CynVtLQU.js
+  - build/assets/useDocumentTitle-legacy-D9gn5nLl.js
+  - build/assets/useEditProfile-BCqa7n10.js
+  - build/assets/useEditProfile-legacy-Dw6Rb-US.js
+  - build/assets/useGoogleAnalytics-DuSzyMVn.js
+  - build/assets/useGoogleAnalytics-legacy-Du52jXOK.js
+  - build/assets/useHistoryData-KBAxDka9.js
+  - build/assets/useHistoryData-legacy-FXQBamTn.js
+  - build/assets/useHomeData-CXXkQApE.js
+  - build/assets/useHomeData-legacy-BzYNDnmg.js
+  - build/assets/useInfiniteQuery-caZ0PPl9.js
+  - build/assets/useInfiniteQuery-legacy-COLrlqiZ.js
+  - build/assets/useQuery-legacy-B4somacX.js
+  - build/assets/useQuery-sfMlVBDd.js
+  - build/assets/useSpatialFocus-DGGbYREr.js
+  - build/assets/useSpatialFocus-legacy-BJE6pdEu.js
+  - build/assets/volumeStorage-Bet-KjDh.js
+  - build/assets/volumeStorage-legacy-DLwNT_Bo.js
+  - build/config.xml
+  - build/favicon.svg
+  - build/icon.png
+  - build/icons.svg
+  - build/index.html
+  - build/og-image.png
+  - build/robots.txt
+  - build/sitemap.xml
+  - icon.png
+
+# list of files to exclude based on the matched patterns
+excludes:
+  - Build/*
+  - Debug/*
+  - Directory.Build.targets
+  - \.Build/.*
+  - \.buildResult/.*
+  - \.csproj
+  - \.externalToolBuilders/.*
+  - \.gn
+  - \.obj/.*
+  - \.package/.*
+  - \.project
+  - \.rds_delta
+  - \.sdk_delta.info
+  - \.settings/.*
+  - \.sign/.*
+  - \.tizen-ui-builder-tool.xml
+  - \.tproject
+  - \.wgt
+  - webUnitTest/*
+
+# project dependencies
+deps: []
+

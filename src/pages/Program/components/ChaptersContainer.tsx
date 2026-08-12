@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import ChapterCard from "@/pages/Event/components/ChapterCard";
 import Button from "@/components/ui/Button";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
+import { getCurrentFocusKey, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "../Program.module.css";
 
 interface Props {
@@ -57,6 +58,22 @@ function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setA
     if (!isLoadingChapters && chaptersWithHistory.length > 0 && onFirstChapter) onFirstChapter(chaptersWithHistory[0]);
   }, [isLoadingChapters]);
 
+  // Último capítulo cargado y su clave de foco
+  const lastChapter = chaptersWithHistory[chaptersWithHistory.length - 1];
+  const lastChapterFocusKey = lastChapter
+    ? `chapter-${programKey}-${lastChapter.key_segment}-${lastChapter.season}-${lastChapter.chapter}`
+    : null;
+  const loadMoreFocusKey = `load-more-${programKey}`;
+
+  // Si el botón "Ver mas" estaba enfocado y desaparece (última página cargada),
+  // la librería restauraría el foco a ROOT y se perdería la navegación.
+  // Movemos el foco al último capítulo para continuar bajando por la grilla.
+  useEffect(() => {
+    if (hasNextPage || isFetchingNextPage || !lastChapterFocusKey) return;
+    if (getCurrentFocusKey() !== loadMoreFocusKey) return;
+    setFocus(lastChapterFocusKey);
+  }, [hasNextPage, isFetchingNextPage, lastChapterFocusKey, loadMoreFocusKey]);
+
   return (
     <div className={styles.chaptersWrap}>
       <div className={styles.seasonsGrid}>
@@ -88,6 +105,7 @@ function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setA
                 showChapter={showChapter}
                 playbackTime={chapter.playbackTime}
                 isFinished={chapter.isFinished}
+                isFirstRow={index < 5}
               />
             ))}
           </div>

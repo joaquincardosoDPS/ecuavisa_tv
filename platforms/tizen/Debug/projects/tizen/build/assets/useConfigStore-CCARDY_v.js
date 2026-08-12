@@ -1,0 +1,1 @@
+import{N as o}from"./api-C2bFtxJH.js";var i=o(o=>({config:null,setConfig:i=>o({config:i})}));export{i as t};

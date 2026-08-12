@@ -1,0 +1,1 @@
+var t="rudo_player_volume";function r(){try{const r=localStorage.getItem(t);if(null!==r){const t=parseFloat(r);if(!isNaN(t)&&t>=0&&t<=1)return t}}catch{}return.5}function a(r){try{localStorage.setItem(t,String(r))}catch{}}export{a as n,r as t};

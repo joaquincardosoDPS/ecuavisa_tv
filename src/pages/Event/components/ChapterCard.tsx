@@ -10,6 +10,8 @@ interface ChapterCardProps {
   showChapter?: boolean;
   playbackTime?: number;
   isFinished?: boolean;
+  /** Si es la primera fila de la grilla: al enfocarla, la vista se alinea con la posición del tab. */
+  isFirstRow?: boolean;
 }
 
 function getProgress(playbackTime: number, durationSeg: number): number {
@@ -17,7 +19,7 @@ function getProgress(playbackTime: number, durationSeg: number): number {
   return Math.min(100, (playbackTime / durationSeg) * 100);
 }
 
-function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false }: ChapterCardProps) {
+function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false, isFirstRow = false }: ChapterCardProps) {
   const navigate = useNavigate();
   const imageSrc = chapter.image_land.small;
 
@@ -31,6 +33,10 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
   const { ref, focused } = useSpatialFocus({
     focusKey: `chapter-${programKey}-${chapter.key_segment}-${chapter.season}-${chapter.chapter}`,
     onEnterPress: handleClick,
+    // Primera fila: al enfocarla (subiendo o bajando) la vista se posiciona
+    // como si el foco estuviera en el tab. El ancla es el BOTÓN del tab
+    // (misma referencia que usa el tab con position:'top'), no el contenedor.
+    scrollAnchorSelector: isFirstRow ? "[data-tabs-anchor] button" : undefined,
   });
 
   return (

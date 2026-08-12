@@ -13,6 +13,8 @@ function TabButton({ focusKey, isActive, onSelect, children }: { focusKey: strin
   const { ref, focused } = useSpatialFocus({
     focusKey,
     onEnterPress: onSelect,
+    // Al enfocar el tab, baja la vista y revela el contenido inferior
+    position: "top",
   });
 
   return (

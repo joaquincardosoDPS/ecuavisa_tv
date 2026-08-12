@@ -7,7 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:webos": "tsc -b && node scripts/build-platform.mjs webos",
+    "build:tizen": "tsc -b && node scripts/build-platform.mjs tizen",
+    "build:hisense": "tsc -b && node scripts/build-platform.mjs hisense",
+    "build:package": "ares-package --no-minify ./platforms/webos/build",
+    "install:webos5": "ares-install --device grande com.digitalproserver.michv_1.0.0_all.ipk",
+    "inspect:webos5": "ares-inspect --device grande --app com.digitalproserver.michv --open",
+    "deploy:tizen": "cd platforms/tizen && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz pack && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz install -p Debug/tizen.wgt"
   },
   "dependencies": {
     "@glomex/vast-ima-player": "^1.21.2",
@@ -29,6 +36,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@babel/plugin-transform-arrow-functions": "^7.29.7",
+    "@babel/plugin-transform-block-scoping": "^7.29.7",
     "@eslint/js": "^9.39.4",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",

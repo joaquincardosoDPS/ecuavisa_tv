@@ -29,6 +29,8 @@ function TabButton({ focusKey, isActive, onSelect, children }: { focusKey: strin
   const { ref, focused } = useSpatialFocus({
     focusKey,
     onEnterPress: onSelect,
+    // Al enfocar el tab, baja la vista y revela el contenido (como en la segunda fila de capítulos)
+    position: "top",
   });
 
   return (
@@ -61,7 +63,7 @@ function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDe
   };
 
   return (
-    <div ref={tabsRef} className={styles.tabsContainer}>
+    <div ref={tabsRef} className={styles.tabsContainer} data-tabs-anchor="true">
       <div className={styles.tabsWrapper}>
         {program.segments.map((segment, idx) => {
           const isActive = !showDetails && !relatedTab?.active && activeSegment?.id === segment.id;
