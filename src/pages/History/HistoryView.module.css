@@ -19,7 +19,7 @@
 }
 
 .authPromptText {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.6);
   font-size: 1.125rem;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .emptyStateText {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.6);
   font-size: 1.125rem;
   text-align: center;
 }
@@ -73,7 +73,7 @@
 }
 
 .placeholderText {
-  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.4);
   font-size: 0.875rem;
 }
 
@@ -115,7 +115,7 @@
 }
 
 .remainingTimeText {
-  color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.5);
   font-size: 0.875rem;
   margin-top: 0.125rem;
 }

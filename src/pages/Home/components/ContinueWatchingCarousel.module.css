@@ -46,7 +46,7 @@
 }
 
 .fallbackTitle {
-  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.4);
   font-size: 0.875rem;
 }
 

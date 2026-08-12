@@ -1,0 +1,82 @@
+.page {
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.content {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    padding-left: 15rem;
+
+}
+
+.logo {
+    height: 4rem;
+    margin-bottom: 1.75rem;
+}
+
+.subtitle {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--clr-secondary-subtitle);
+    text-align: start;
+    margin: 0;
+    /* max-width: 24rem; */
+    line-height: 46px;
+    margin-bottom: 2.1rem;
+}
+
+.button {
+    margin-bottom: 2.5rem;
+    font-size: 1rem;
+    padding: 0.5rem 2rem;
+}
+
+.text {
+    font-family: var(--font-family-text);
+    font-weight: 400;
+    font-size: 1.3rem;
+    color: var(--clr-secondary-text);
+    margin: 0;
+    text-align: center;
+}
+
+.link {
+    color: var(--clr-primary-title);
+    font-weight: 600;
+}
+
+.qr {
+    margin-top: 1.25rem;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+.panelImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.panelOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right,
+            var(--clr-primary) 0%,
+            transparent 60%);
+}

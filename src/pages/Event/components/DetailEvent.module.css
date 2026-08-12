@@ -23,7 +23,7 @@
 }
 
 .descriptionText {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.6);
   font-size: 1.25rem;
   line-height: 1.625px;
   font-weight: 500;

@@ -60,7 +60,7 @@
 }
 
 .profileBtn:hover {
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.1);
 }
 
 .profileName { color: var(--clr-primary-title); font-size: 0.875rem; font-weight: 500; }
@@ -78,21 +78,21 @@
 }
 
 .addBtn:hover {
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.1);
 }
 
 .addIcon {
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 9999px;
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.addPlus { font-size: 1.25rem; color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent); }
+.addPlus { font-size: 1.25rem; color: rgba(var(--clr-primary-title-rgb), 0.5); }
 
 .linkList { display: flex; flex-direction: column; }
 
@@ -100,7 +100,7 @@
     padding: 0.5rem 1.25rem;
     text-align: left;
     font-size: 0.875rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.7);
     transition: all 0.15s;
     cursor: pointer;
     background: none;
@@ -110,5 +110,5 @@
 
 .link:hover {
     color: var(--clr-primary-title);
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.1);
 }

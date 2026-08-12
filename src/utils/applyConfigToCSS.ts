@@ -1,28 +1,35 @@
 // src/utils/applyConfigToCSS.ts
+
+function hexToRgb(hex: string): string | null {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+}
+
 // Aplica la configuración dinámica del cliente a las variables CSS de :root
 export function applyConfigToCSS(config: Record<string, string>) {
     if (!config) return;
     const root = document.documentElement;
 
     // Colores
-    if (config["clr-primary"]) root.style.setProperty('--clr-primary', config["clr-primary"]);
-    if (config["clr-secondary"]) root.style.setProperty('--clr-secondary', config["clr-secondary"]);
-    if (config["clr-primary-title"]) root.style.setProperty('--clr-primary-title', config["clr-primary-title"]);
-    if (config["clr-secondary-title"]) root.style.setProperty('--clr-secondary-title', config["clr-secondary-title"]);
-    if (config["clr-primary-button"]) root.style.setProperty('--clr-primary-button', config["clr-primary-button"]);
-    if (config["clr-secondary-button"]) root.style.setProperty('--clr-secondary-button', config["clr-secondary-button"]);
-    if (config["clr-primary-subtitle"]) root.style.setProperty('--clr-primary-subtitle', config["clr-primary-subtitle"]);
-    if (config["clr-secondary-subtitle"]) root.style.setProperty('--clr-secondary-subtitle', config["clr-secondary-subtitle"]);
-    if (config["clr-primary-text"]) root.style.setProperty('--clr-primary-text', config["clr-primary-text"]);
-    if (config["clr-secondary-text"]) root.style.setProperty('--clr-secondary-text', config["clr-secondary-text"]);
-    if (config["clr-text-primary-button"]) root.style.setProperty('--clr-text-primary-button', config["clr-text-primary-button"]);
-    if (config["clr-text-secondary-button"]) root.style.setProperty('--clr-text-secondary-button', config["clr-text-secondary-button"]);
-    if (config["clr-text-tertiary-button"]) root.style.setProperty('--clr-text-tertiary-button', config["clr-text-tertiary-button"]);
-    if (config["clr-icon"]) root.style.setProperty('--clr-icon', config["clr-icon"]);
-    if (config["clr-edit"]) root.style.setProperty('--clr-edit', config["clr-edit"]);
-    if (config["foc-primary"]) root.style.setProperty('--foc-primary', config["foc-primary"]);
-    if (config["foc-secondary"]) root.style.setProperty('--foc-secondary', config["foc-secondary"]);
-    if (config["foc-tertiary"]) root.style.setProperty('--foc-tertiary', config["foc-tertiary"]);
+    const colorKeys = [
+        "clr-primary", "clr-secondary", "clr-primary-title", "clr-secondary-title",
+        "clr-primary-button", "clr-secondary-button", "clr-primary-subtitle", "clr-secondary-subtitle",
+        "clr-primary-text", "clr-secondary-text", "clr-text-primary-button", "clr-text-secondary-button",
+        "clr-text-tertiary-button", "clr-icon", "clr-edit", "foc-primary", "foc-secondary", "foc-tertiary",
+        "epg-selected", "epg-accent" // adding common ones just in case
+    ];
+
+    colorKeys.forEach(key => {
+        if (config[key]) {
+            root.style.setProperty(`--${key}`, config[key]);
+            const rgb = hexToRgb(config[key]);
+            if (rgb) {
+                root.style.setProperty(`--${key}-rgb`, rgb);
+            }
+        }
+    });
 
     // Fuentes
     if (config["font-family-title"]) root.style.setProperty('--font-family-title', config["font-family-title"]);

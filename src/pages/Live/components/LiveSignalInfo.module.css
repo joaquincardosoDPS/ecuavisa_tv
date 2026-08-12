@@ -7,7 +7,7 @@
 }
 
 .noInfoText {
-  color: color-mix(in srgb, var(--clr-primary-title) 30%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.3);
 }
 
 .infoContainer {

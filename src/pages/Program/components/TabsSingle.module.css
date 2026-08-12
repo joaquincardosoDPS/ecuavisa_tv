@@ -1,6 +1,6 @@
 .tabsContainer {
   margin: 2.5rem 6.25rem 0 6.25rem;
-  border-bottom: 2px solid color-mix(in srgb, var(--clr-primary-title) 25%, transparent);
+  border-bottom: 2px solid rgba(var(--clr-primary-title-rgb), 0.25);
   scroll-margin-top: 94px;
 }
 

@@ -22,8 +22,8 @@
 }
 
 .primary {
-    background-color: color-mix(in srgb, var(--clr-primary-title) 15%, transparent);
-    border-color: color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.15);
+    border-color: rgba(var(--clr-primary-title-rgb), 0.2);
     color: var(--clr-primary-title);
 }
 

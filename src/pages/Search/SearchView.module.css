@@ -22,8 +22,8 @@
 }
 
 .displayWrapper {
-	background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
-	border: 1px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent);
+	background-color: rgba(var(--clr-primary-title-rgb), 0.1);
+	border: 1px solid rgba(var(--clr-primary-title-rgb), 0.2);
 	border-radius: 0.75rem;
 	padding: 1rem 1.25rem;
 	margin-bottom: 2rem;
@@ -43,7 +43,7 @@
 }
 
 .displayTextEmpty {
-	color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+	color: rgba(var(--clr-primary-title-rgb), 0.4);
 	font-weight: normal;
 }
 
@@ -98,7 +98,7 @@
 .noResultsContainer {
 	margin: 3rem 0;
 	text-align: center;
-	background-color: color-mix(in srgb, var(--clr-primary-title) 5%, transparent);
+	background-color: rgba(var(--clr-primary-title-rgb), 0.05);
 	padding: 3rem 2rem;
 	border-radius: 1rem;
 }

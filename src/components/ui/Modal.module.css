@@ -23,6 +23,6 @@
 }
 
 .overlayBackground {
-  background-color: color-mix(in srgb, var(--clr-secondary) 70%, transparent);
+  background-color: rgba(var(--clr-secondary-rgb), 0.7);
 }
 
