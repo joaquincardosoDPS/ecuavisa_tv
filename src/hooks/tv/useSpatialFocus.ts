@@ -3,6 +3,7 @@ import { useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 interface UseSpatialFocusOptions {
   focusKey?: string;
   onEnterPress?: () => void;
+  onArrowPress?: (direction: string) => boolean;
   /** Al recibir foco, hace scroll del nodo en pantalla si está fuera del viewport. */
   scrollOnFocus?: boolean;
   /** Margen (px) desde el borde del viewport para decidir si hace falta scroll. */
@@ -33,6 +34,7 @@ export function useSpatialFocus({
   edgeMargin = 96,
   position = "center",
   scrollAnchorSelector,
+  onArrowPress,
 }: UseSpatialFocusOptions = {}) {
   const { ref, focused, focusKey: generatedFocusKey } = useFocusable({
     focusKey,
@@ -71,6 +73,10 @@ export function useSpatialFocus({
     onEnterPress: () => {
       if (onEnterPress) onEnterPress();
     },
+    onArrowPress: (direction) => {
+      if (onArrowPress) return onArrowPress(direction);
+      return true;
+    }
   });
 
   return { ref, focused, focusKey: generatedFocusKey };

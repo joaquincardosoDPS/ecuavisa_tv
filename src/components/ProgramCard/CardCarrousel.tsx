@@ -4,6 +4,7 @@ import type { EmblaOptionsType } from "embla-carousel";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import CardHorizontal from "./CardHorizontal";
 import CardVertical from "./CardVertical";
 import styles from "./ProgramCard.module.css";
@@ -81,14 +82,26 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
                 ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />
                 : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />;
             })}
-            {programs.length === 10 && categorySlug && format !== "ranking" && (
-              <div
-                onClick={() => navigate(`/categoria/${categorySlug}`)}
-                className={`${styles.cardImg} ${styles.viewMoreCard} ${isVertical ? styles.viewMoreCardVertical : styles.viewMoreCardHorizontal}`}
-              >
-                <span className={styles.viewMoreText}>Ver Más</span>
-              </div>
-            )}
+            {programs.length === 10 && categorySlug && format !== "ranking" && (() => {
+              const viewMoreIndex = programs.length;
+              const { ref: viewMoreRef, focused: viewMoreFocused } = useCarouselFocus({
+                focusKey: `${focusKey}-view-more`,
+                index: viewMoreIndex,
+                emblaApi: emblaApi ?? undefined,
+                onEnterPress: () => navigate(`/categoria/${categorySlug}`),
+              });
+
+              return (
+                <div
+                  ref={viewMoreRef}
+                  tabIndex={0}
+                  onClick={() => navigate(`/categoria/${categorySlug}`)}
+                  className={`${styles.cardImg} ${styles.viewMoreCard} ${isVertical ? styles.viewMoreCardVertical : styles.viewMoreCardHorizontal} ${viewMoreFocused ? styles.focused : ''}`}
+                >
+                  <span className={styles.viewMoreText}>Ver Más</span>
+                </div>
+              );
+            })()}
             <div className={styles.carouselSpacer} style={{ width: hasIconImage ? "31.25rem" : "4rem" }} />
           </div>
         </div>

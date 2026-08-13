@@ -1,0 +1,1 @@
+import{F as o}from"./api-zZX5DrMF.js";var i=o(o=>({config:null,setConfig:i=>o({config:i})}));export{i as t};

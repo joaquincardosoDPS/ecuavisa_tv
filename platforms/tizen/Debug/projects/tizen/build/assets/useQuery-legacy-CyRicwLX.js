@@ -1,1 +1,0 @@
-System.register(["./useBaseQuery-legacy-CzZJV-Hp.js"],function(e,t){var n,r;return e("t",function(e,t){return r(e,n,t)}),{setters:[function(e){n=e.n,r=e.t}],execute:function(){}}});

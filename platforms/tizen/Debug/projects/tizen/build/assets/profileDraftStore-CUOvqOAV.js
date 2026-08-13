@@ -1,0 +1,1 @@
+import{F as e}from"./api-zZX5DrMF.js";var a=e(e=>({name:"",selectedAvatar:null,setName:a=>e({name:a}),setSelectedAvatar:a=>e({selectedAvatar:a}),clear:()=>e({name:"",selectedAvatar:null})}));export{a as t};

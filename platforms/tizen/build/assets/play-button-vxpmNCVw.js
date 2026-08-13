@@ -1,1 +1,0 @@
-import{G as t}from"./api-C2bFtxJH.js";var r=t();function o(t){return(0,r.jsx)("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,...t,children:(0,r.jsx)("path",{d:"M6.906 4.537A1 1 0 0 0 5.5 5.403v13.194a1 1 0 0 0 1.406.866l12.588-6.597a1 1 0 0 0 0-1.732L6.906 4.537Z"})})}export{o as t};

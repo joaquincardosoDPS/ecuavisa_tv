@@ -23,6 +23,13 @@
   cursor: pointer;
 }
 
+.historyCard:hover .imageWrapper,
+.historyCard.focused .imageWrapper {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
+  border-color: var(--foc-primary);
+}
+
 .imageWrapper {
   position: relative;
   width: 100%;
@@ -31,6 +38,8 @@
   overflow: hidden;
   background-color: var(--clr-secondary);
   transition: all 0.3s;
+  box-sizing: border-box;
+  border: 2px solid transparent;
 }
 
 .placeholderWrapper {

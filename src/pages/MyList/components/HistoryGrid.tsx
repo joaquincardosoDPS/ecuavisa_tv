@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { HistoryItem as ContinueWatchingItem } from "@/interfaces/history.interface";
 import Button from "@/components/ui/Button";
+import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import styles from "./HistoryGrid.module.css";
 
 interface HistoryGridProps {
@@ -26,6 +28,46 @@ function getImage(item: ContinueWatchingItem): string | null {
   return item.image_land?.medium || item.image_land?.default || item.image || null;
 }
 
+interface HistoryCardProps {
+  item: ContinueWatchingItem;
+  index: number;
+  onPress: () => void;
+}
+
+function HistoryCard({ item, index, onPress }: HistoryCardProps) {
+  const imgSrc = getImage(item);
+  const progress = getProgress(item);
+  const remaining = item.duration_seg - item.time;
+  const remainingText = remaining > 0 ? `${formatDuration(remaining)} restantes` : "";
+
+  const { ref, focused } = useCarouselFocus({
+    focusKey: `mylist-history-item-${index}`,
+    onEnterPress: onPress,
+  });
+
+  return (
+    <div ref={ref} tabIndex={0} onClick={onPress} className={`${styles.historyCard}${focused ? ` ${styles.focused}` : ''}`}>
+      <div className={styles.imageWrapper}>
+        {imgSrc ? (
+          <img src={imgSrc} alt={item.title} draggable={false} decoding="async" className={styles.historyImage} />
+        ) : (
+          <div className={styles.placeholderWrapper}>
+            <span className={styles.placeholderText}>{item.title}</span>
+          </div>
+        )}
+        <div className={styles.progressBarContainer}>
+          <div style={{ height: "100%", backgroundColor: "var(--foc-primary)", transition: "all 0.3s", width: `${progress}%` }} />
+        </div>
+      </div>
+      <div className={styles.infoWrapper}>
+        <p className={styles.programName}>{item.name_program}</p>
+        <p className={styles.episodeTitle}>{item.title}</p>
+        {remainingText && <p className={styles.remainingTimeText}>{remainingText}</p>}
+      </div>
+    </div>
+  );
+}
+
 export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextPage }: HistoryGridProps) {
   const navigate = useNavigate();
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -38,6 +80,11 @@ export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextP
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const { ref, focusKey } = useFocusable({
+    focusKey: "zone-history-grid",
+    saveLastFocusedChild: true,
+  });
+
   if (items.length === 0) {
     return (
       <div className={styles.emptyStateContainer}>
@@ -48,41 +95,21 @@ export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextP
   }
 
   return (
-    <>
-      <div className={styles.gridContainer}>
-        {items.map((item) => {
-          const imgSrc = getImage(item);
-          const progress = getProgress(item);
-          const remaining = item.duration_seg - item.time;
-          const remainingText = remaining > 0 ? `${formatDuration(remaining)} restantes` : "";
-
-          return (
-            <div key={item.slug} tabIndex={0} onClick={() => navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, { state: { resumeTime: item.time } })} className={styles.historyCard}>
-              <div className={styles.imageWrapper}>
-                {imgSrc ? (
-                  <img src={imgSrc} alt={item.title} draggable={false} decoding="async" className={styles.historyImage} />
-                ) : (
-                  <div className={styles.placeholderWrapper}>
-                    <span className={styles.placeholderText}>{item.title}</span>
-                  </div>
-                )}
-                <div className={styles.progressBarContainer}>
-                  <div style={{ height: "100%", backgroundColor: "var(--foc-primary)", transition: "all 0.3s", width: `${progress}%` }} />
-                </div>
-              </div>
-              <div className={styles.infoWrapper}>
-                <p className={styles.programName}>{item.name_program}</p>
-                <p className={styles.episodeTitle}>{item.title}</p>
-                {remainingText && <p className={styles.remainingTimeText}>{remainingText}</p>}
-              </div>
-            </div>
-          );
-        })}
+    <FocusContext.Provider value={focusKey}>
+      <div ref={ref} className={styles.gridContainer}>
+        {items.map((item, index) => (
+          <HistoryCard
+            key={item.slug}
+            item={item}
+            index={index}
+            onPress={() => navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, { state: { resumeTime: item.time } })}
+          />
+        ))}
       </div>
       <div ref={sentinelRef} className={styles.loadingSentinel}>
         {isFetchingNextPage && <div className={styles.loadingSpinner} />}
       </div>
-    </>
+    </FocusContext.Provider>
   );
 }
 

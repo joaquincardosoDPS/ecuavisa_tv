@@ -1,0 +1,1 @@
+System.register(["./api-legacy-CNyLtZsY.js"],function(e,n){var t;return{setters:[function(e){t=e.F}],execute:function(){e("t",t(e=>({config:null,setConfig:n=>e({config:n})})))}}});
