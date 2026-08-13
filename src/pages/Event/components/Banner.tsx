@@ -41,16 +41,16 @@ function Banner({ event }: { event: Event | null }) {
 
   return (
     <>
-      <div style={{ position: "fixed", inset: 0, zIndex: -10, backgroundColor: "var(--clr-primary)" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${bgImg})`, backgroundSize: "100% auto", backgroundPosition: "top center", backgroundRepeat: "no-repeat" }} />
+      <div className={styles.bannerFixed}>
+        <div className={styles.bannerBg} style={{ backgroundImage: `url(${bgImg})` }} />
         <div className={styles.gradientLeft} />
         <div className={styles.gradientBottom} />
-        <div style={{ position: "absolute", inset: 0, backgroundColor: "var(--clr-primary)", transition: "opacity 0.075s", opacity: scrollOpacity * 0.9 }} />
+        <div className={styles.bannerScrollFade} style={{ opacity: scrollOpacity * 0.9 }} />
       </div>
       <div className={styles.bannerContainer}>
         <div className={styles.bannerContent}>
           {eventStatus && (
-            <span style={{ padding: "0.25rem 0.75rem", borderRadius: "0.375rem", fontSize: "0.875rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "bold", backgroundColor: now < eventDate ? '#FFA500' : '#e11d48', color: now < eventDate ? '#000' : '#fff' }}>
+            <span className={styles.eventStatusBadge} style={{ backgroundColor: now < eventDate ? '#FFA500' : '#e11d48', color: now < eventDate ? '#000' : '#fff' }}>
               {eventStatus}
             </span>
           )}

@@ -34,9 +34,10 @@ function SelectAvatarView() {
               key={avatar.id}
               onClick={() => handleSelect(avatar.id)}
               disabled={isSubmitting}
-              style={{ position: "relative", outline: "none", width: "100%", aspectRatio: "1/1", cursor: isSubmitting ? "wait" : "pointer", opacity: isSubmitting ? 0.8 : 1, background: "none", border: "none", padding: 0 }}
+              className={styles.avatarButton}
+              style={{ cursor: isSubmitting ? "wait" : "pointer", opacity: isSubmitting ? 0.8 : 1 }}
             >
-              <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "1rem", overflow: "hidden", backgroundColor: "color-mix(in srgb, var(--clr-primary-title) 5%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", border: "4px solid transparent", transition: "all 0.3s", borderColor: isSelected ? "var(--epg-accent)" : "transparent", transform: isSelected ? "scale(1.05)" : "scale(1)", boxShadow: isSelected ? "0 0 20px rgba(16,212,255,0.4)" : "none" }}>
+              <div className={styles.avatarFrame} style={{ borderColor: isSelected ? "var(--epg-accent)" : "transparent", transform: isSelected ? "scale(1.05)" : "scale(1)", boxShadow: isSelected ? "0 0 20px rgba(16,212,255,0.4)" : "none" }}>
                 <img src={avatarUrl} alt={`Avatar ${avatar.id}`} className={styles.avatarImage} />
                 {isSelected && isSubmitting && (
                   <div className={styles.loadingOverlay}>

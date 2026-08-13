@@ -24,7 +24,8 @@ function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDe
               {idx > 0 && <span className={styles.separator} />}
               <button
                 onClick={() => { setActiveSegment(segment); setShowDetails(false); }}
-                style={{ cursor: "pointer", transition: "color 0.2s", fontSize: "1.875rem", fontWeight: isActive ? "bold" : "normal", color: "var(--clr-primary-title)", background: "none", border: "none" }}
+                className={styles.tabButton}
+                style={{ fontWeight: isActive ? "bold" : "normal" }}
               >
                 {segment.name}
               </button>
@@ -34,7 +35,8 @@ function Tabs({ program, activeSegment, setActiveSegment, showDetails, setShowDe
         <span className={styles.finalSeparator} />
         <button
           onClick={() => setShowDetails(true)}
-          style={{ cursor: "pointer", transition: "color 0.2s", fontSize: "1.875rem", fontWeight: showDetails ? "bold" : "normal", color: "var(--clr-primary-title)", background: "none", border: "none" }}
+          className={styles.tabButton}
+          style={{ fontWeight: showDetails ? "bold" : "normal" }}
         >
           Detalles
         </button>

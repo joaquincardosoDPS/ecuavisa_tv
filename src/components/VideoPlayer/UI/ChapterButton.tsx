@@ -2,6 +2,7 @@ import React from "react";
 import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import iconoRewindRaw from "@/assets/img/icons/iconos-rewind.svg?raw";
 import iconoNextRaw from "@/assets/img/icons/iconos-next.svg?raw";
+import styles from "./ChapterButton.module.css";
 
 type ChapterAction = "restart" | "next";
 
@@ -62,29 +63,21 @@ const ChapterButtonComponent = ({
       ref={ref}
       onClick={() => { if (!disabled) onClick?.(); }}
       disabled={disabled}
+      className={styles.button}
       style={{
-        background: "none",
-        border: "none",
         cursor: disabled ? "default" : "pointer",
-        padding: "8px",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         color: disabled
           ? "rgba(255, 255, 255, 0.3)"
           : focused
             ? "var(--foc-primary)"
             : "var(--clr-text-primary-button)",
-        outline: "none",
-        transition: "color 0.15s ease, opacity 0.15s ease",
         opacity: disabled ? 0.35 : 1,
         pointerEvents: disabled ? "none" : "auto",
       }}
       title={label}
     >
       <span
-        style={{ display: "inline-flex", width: 28, height: 28 }}
+        className={styles.iconSpan}
         dangerouslySetInnerHTML={{
           __html: prepareSvg(isNext ? iconoNextRaw : iconoRewindRaw, 28),
         }}

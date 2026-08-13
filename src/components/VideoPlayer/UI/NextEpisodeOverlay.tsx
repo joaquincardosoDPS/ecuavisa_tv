@@ -20,40 +20,11 @@ const NextEpisodeOverlayComponent = ({ episode, onSelect, countdown, controlsVis
     }, [onSelect, episode]);
 
     return (
-        <div style={{
-            position: 'absolute',
+        <div className={styles.overlay} style={{
             bottom: bottomPosition,
-            right: '4vw',
-            zIndex: 100,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-            animation: 'fadeIn 0.4s ease-out forwards',
-            transition: 'bottom 0.3s ease',
         }}>
-            <style>{`
-                .next-episode-card {
-                    display: flex;
-                    flex-direction: column;
-                    padding: 1.2vw;
-                    border-radius: 0.6vw;
-                    background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(10,10,10,0.95) 100%);
-                    border: 0.2vw solid transparent;
-                    box-shadow: 0 1vw 2vw rgba(0,0,0,0.5);
-                    cursor: pointer;
-                    transition: border 0.2s ease, transform 0.2s ease;
-                    transform: scale(1);
-                    width: 32vw;
-                    box-sizing: border-box;
-                }
-                .next-episode-card.focused, .next-episode-card:focus, .next-episode-card:focus-visible {
-                    border: 0.2vw solid #FA6428;
-                    transform: scale(1.05);
-                    outline: none;
-                }
-            `}</style>
             <div
-                className="next-episode-card"
+                className={styles.card}
                 onClick={handleSelect}
             >
                 <div className={styles.overlayTitle}>

@@ -28,6 +28,9 @@
 }
 
 .cardImg img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -43,15 +46,20 @@
 }
 
 .cardImgVertical {
-    aspect-ratio: 9 / 16;
+    height: 0;
+    padding-top: 177.78%;
     border-radius: 0.75rem;
 }
 
 .cardImgHorizontal {
-    aspect-ratio: 16 / 9;
+    height: 0;
+    padding-top: 56.25%;
 }
 
 .cardImgFallback {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     display: flex;
@@ -171,9 +179,12 @@
 
 .carouselTrack {
     display: flex;
-    gap: 1.25rem;
     align-items: stretch;
     will-change: transform;
+}
+
+.carouselTrack > * {
+    margin-right: 1.25rem;
 }
 
 .carouselArrow {
@@ -229,9 +240,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
     margin: 1.25rem 0;
     padding-left: 6.25rem;
+}
+
+.containerSection > * + * {
+    margin-top: 1.25rem;
 }
 
 .containerWithBg {
@@ -252,7 +266,10 @@
     z-index: 10;
     display: flex;
     align-items: center;
-    gap: 2rem;
+}
+
+.containerIconRow > * + * {
+    margin-left: 2rem;
 }
 
 .containerIconBox {
@@ -261,8 +278,11 @@
     align-items: center;
     justify-content: center;
     margin: 0 5rem;
-    gap: 1.25rem;
     width: 20rem;
+}
+
+.containerIconBox > * + * {
+    margin-left: 1.25rem;
 }
 
 .containerIconImg {
@@ -290,28 +310,53 @@
 /* ── ProgramGrid ── */
 .grid {
     color: var(--clr-primary-title);
-    display: grid;
-    gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.grid4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+.grid > * {
+    margin-right: 1rem;
+    margin-bottom: 1rem;
 }
 
-.grid5 {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+.grid2 > * {
+    width: calc((100% - 1rem) / 2);
 }
 
-.grid6 {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+.grid2 > *:nth-child(2n) {
+    margin-right: 0;
 }
 
-.grid3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+.grid3 > * {
+    width: calc((100% - 2rem) / 3);
 }
 
-.grid2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.grid3 > *:nth-child(3n) {
+    margin-right: 0;
+}
+
+.grid4 > * {
+    width: calc((100% - 3rem) / 4);
+}
+
+.grid4 > *:nth-child(4n) {
+    margin-right: 0;
+}
+
+.grid5 > * {
+    width: calc((100% - 4rem) / 5);
+}
+
+.grid5 > *:nth-child(5n) {
+    margin-right: 0;
+}
+
+.grid6 > * {
+    width: calc((100% - 5rem) / 6);
+}
+
+.grid6 > *:nth-child(6n) {
+    margin-right: 0;
 }
 
 .loadMore {
@@ -356,13 +401,13 @@
 
 .viewMoreCardVertical {
     width: var(--card-w-vertical);
-    aspect-ratio: 2 / 3;
+    height: calc(var(--card-w-vertical) * 3 / 2);
     border-radius: 0.75rem;
 }
 
 .viewMoreCardHorizontal {
     width: var(--card-w-horizontal);
-    aspect-ratio: 16 / 9;
+    height: calc(var(--card-w-horizontal) * 9 / 16);
     border-radius: 0.5rem;
 }
 
@@ -382,7 +427,10 @@
 
 .rankingIconImage {
     position: absolute;
-    inset: 0px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
@@ -397,7 +445,10 @@
     z-index: 10;
     display: flex;
     align-items: center;
-    gap: 2rem;
+}
+
+.carouselFlexContainer > * + * {
+    margin-left: 2rem;
 }
 
 .carouselItemContainer {

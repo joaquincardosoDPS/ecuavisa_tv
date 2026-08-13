@@ -8,7 +8,10 @@
   background: #000;
   color: var(--clr-icon);
   font-size: 1.5rem;
-  gap: 1rem;
+}
+
+.errorContainer > * + * {
+  margin-top: 1rem;
 }
 
 .backButton {

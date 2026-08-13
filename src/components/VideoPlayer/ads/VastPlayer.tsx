@@ -264,59 +264,20 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
         <div
             id="adVideoContainer"
             ref={containerRef}
-            className={isInline ? undefined : 'vast-container'}
-            style={isInline ? {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 9999,
-                background: '#000',
-            } : undefined}
+            className={isInline ? 'vast-inline-container' : 'vast-container'}
         >
             <video
                 id="adVideoElement"
                 ref={videoRef}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    background: 'black',
-                }}
+                className="vast-video"
                 playsInline
             />
             {isLoading && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: '#000',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 10000,
-                    }}
-                >
-                    <div
-                        style={{
-                            width: '48px',
-                            height: '48px',
-                            border: '4px solid rgba(255,255,255,0.3)',
-                            borderTop: '4px solid #fff',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite',
-                            marginBottom: '16px',
-                        }}
-                    />
-                    <span style={{ color: '#fff', fontSize: '1.1rem' }}>
+                <div className="vast-loading-overlay">
+                    <div className="vast-loading-spinner" />
+                    <span className="vast-loading-text">
                         Cargando publicidad...
                     </span>
-                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                 </div>
             )}
         </div>,

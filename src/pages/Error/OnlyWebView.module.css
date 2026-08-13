@@ -35,7 +35,10 @@
 .buttonsContainer {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+}
+
+.buttonsContainer > * + * {
+  margin-top: 0.75rem;
 }
 
 .playStoreLink {

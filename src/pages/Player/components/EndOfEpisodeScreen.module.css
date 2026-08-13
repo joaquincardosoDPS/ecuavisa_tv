@@ -1,12 +1,18 @@
 .container {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 5;
 }
 
 .background {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background-color: #000;
     z-index: 0;
     animation: pipBgFadeIn 0.6s ease-out forwards;
@@ -14,7 +20,10 @@
 
 .backgroundImage {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -22,7 +31,10 @@
 
 .backgroundOverlay {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 100%);
 }
 
@@ -78,10 +90,14 @@
 }
 
 .countdownNumber {
-    display: inline-block;
-    min-width: 2ch;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
+  display: inline-block;
+  min-width: 2ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.buttonIcon {
+  margin-right: 0.5vw;
 }
 
 .pipVideoWrapper {

@@ -15,7 +15,7 @@ function EventCard({ event }: CardProps) {
     <div onClick={() => navigate(`/eventos/${event.key}`)} className={styles.cardContainer}>
       <div className={styles.imageWrapper}>
         {eventStatus && (
-          <span style={{ position: "absolute", top: 0, left: 0, zIndex: 10, padding: "0.25rem 0.75rem", borderRadius: "0.25rem", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", backgroundColor: eventStatus.bgColor, color: eventStatus.textColor }}>
+          <span className={styles.statusBadge} style={{ backgroundColor: eventStatus.bgColor, color: eventStatus.textColor }}>
             {eventStatus.label}
           </span>
         )}

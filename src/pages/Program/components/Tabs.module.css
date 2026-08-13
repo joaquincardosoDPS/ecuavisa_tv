@@ -11,13 +11,19 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1.5rem;
+}
+
+.tabsWrapper > * + * {
+  margin-left: 1.5rem;
 }
 
 .tabItem {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+}
+
+.tabItem > * + * {
+  margin-left: 1.5rem;
 }
 
 .separator {
@@ -32,5 +38,14 @@
   height: 2.5rem;
   background-color: var(--clr-primary-title);
   display: block;
+}
+
+.tabButton {
+  cursor: pointer;
+  transition: color 0.2s;
+  font-size: 1.875rem;
+  color: var(--clr-primary-title);
+  background: none;
+  border: none;
 }
 

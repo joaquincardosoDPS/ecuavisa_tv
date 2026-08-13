@@ -165,35 +165,23 @@ const PlayerControlsComponent = ({
 
   return (
     <div
+      className={styles.controlsRoot}
       style={{
-        position: "fixed",
-        width: "100vw",
-        height: "100vh",
-        top: 0,
-        left: 0,
-        backgroundColor: "transparent",
         visibility: visible ? "visible" : "hidden",
-        zIndex: 998,
         pointerEvents: visible ? "auto" : "none",
       }}
     >
       <div
+        className={styles.controlsBottom}
         style={{
-          position: "absolute",
           bottom: isLive ? "40px" : "50px",
-          left: 0,
-          right: 0,
-          padding: "0 55px",
           pointerEvents: visible ? "auto" : "none",
         }}
       >
         <div
+          className={styles.controlsInner}
           style={{
-            display: "flex",
-            width: "100%",
-            backgroundColor: "transparent",
             minHeight: isLive ? "auto" : "94px",
-            transition: "opacity 0.3s ease",
           }}
         >
           <Seekbar

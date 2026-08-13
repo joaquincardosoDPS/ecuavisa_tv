@@ -3,11 +3,25 @@
   margin-bottom: 2rem;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
 }
 
 .tabSeparator {
   color: rgba(var(--clr-primary-title-rgb), 0.3);
   margin: 0 0.5rem;
+}
+
+.tab {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tabActive {
+  font-weight: bold;
+  color: var(--clr-primary-title);
+}
+
+.tabInactive {
+  font-weight: normal;
+  color: rgba(var(--clr-primary-title-rgb), 0.5);
 }
 

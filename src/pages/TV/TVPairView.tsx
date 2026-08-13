@@ -25,17 +25,19 @@ function TVPairView() {
           onChange={(e) => setCode(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={status === "loading" || status === "success"}
-          style={{ width: "100%", textAlign: "center", fontSize: "1.5rem", fontFamily: "monospace", letterSpacing: "0.5em", outline: "none", backgroundColor: "var(--clr-secondary)", borderRadius: "0.375rem", padding: "1rem 1.25rem", color: "var(--clr-primary-title)", border: "2px solid color-mix(in srgb, var(--clr-primary-title) 10%, transparent)", opacity: (status === "loading" || status === "success") ? 0.5 : 1 }}
+          className={styles.codeInput}
+          style={{ opacity: (status === "loading" || status === "success") ? 0.5 : 1 }}
         />
         {message && (
-          <div style={{ marginTop: "1rem", fontSize: "0.875rem", textAlign: "center", color: status === "success" ? "#4ade80" : status === "error" ? "#f87171" : "color-mix(in srgb, var(--clr-primary-title) 50%, transparent)" }}>
+          <div className={styles.message} style={{ color: status === "success" ? "#4ade80" : status === "error" ? "#f87171" : "rgba(var(--clr-primary-title-rgb), 0.5)" }}>
             {message}
           </div>
         )}
         <button
           onClick={handleSubmit}
           disabled={status === "loading" || status === "success"}
-          style={{ width: "100%", marginTop: "1.5rem", padding: "0.875rem", fontSize: "1rem", fontWeight: "bold", borderRadius: "0.375rem", backgroundColor: "var(--clr-secondary-button)", color: "var(--clr-text-primary-button)", border: "none", cursor: (status === "loading" || status === "success") ? "not-allowed" : "pointer", opacity: (status === "loading" || status === "success") ? 0.5 : 1 }}
+          className={styles.submitBtn}
+          style={{ cursor: (status === "loading" || status === "success") ? "not-allowed" : "pointer", opacity: (status === "loading" || status === "success") ? 0.5 : 1 }}
         >
           {status === "loading" ? "Vinculando..." : status === "success" ? "¡Vinculado!" : "Vincular dispositivo"}
         </button>

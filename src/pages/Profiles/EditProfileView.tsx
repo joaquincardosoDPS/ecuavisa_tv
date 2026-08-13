@@ -57,11 +57,11 @@ function EditProfileView() {
         <div className={styles.avatarSection}>
           {avatarUrl ? (
             <div className={styles.avatarPreviewWrapper}>
-              <img src={avatarUrl} alt={name || "Perfil"} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "opacity 0.3s", opacity: isSubmitting ? 0.4 : 1 }} />
+              <img src={avatarUrl} alt={name || "Perfil"} className={styles.avatarPreviewImg} style={{ opacity: isSubmitting ? 0.4 : 1 }} />
             </div>
           ) : (
             <div className={styles.avatarPlaceholderWrapper}>
-              <div style={{ fontSize: "200px", fontWeight: "bold", fontFamily: "Gotham", lineHeight: "220px", color: "var(--clr-primary-title)", transition: "opacity 0.3s", opacity: isSubmitting ? 0.4 : 1 }}>
+              <div className={styles.avatarPlaceholderText} style={{ opacity: isSubmitting ? 0.4 : 1 }}>
                 {(name || existingProfile?.name_perfil || 'U').charAt(0).toUpperCase()}
               </div>
             </div>

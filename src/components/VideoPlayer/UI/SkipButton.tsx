@@ -47,18 +47,9 @@ const SkipButtonComponent = ({ seconds, onClick }: SkipButtonProps) => {
     <button
       ref={ref}
       onClick={onClick}
+      className={styles.button}
       style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "8px",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
-        transition: "color 0.15s ease",
-        outline: "none",
       }}
       title={label}
     >

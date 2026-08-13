@@ -126,7 +126,7 @@ const EndOfEpisodeScreenComponent = ({
               height="20"
               viewBox="0 0 24 24"
               fill="currentColor"
-              style={{ marginRight: "0.5vw" }}
+              className={styles.buttonIcon}
             >
               <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
             </svg>

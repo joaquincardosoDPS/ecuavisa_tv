@@ -130,6 +130,23 @@
     font-size: 0.875rem;
     color: #f87171;
     margin-top: 0.5rem;
+    transition: all 0.2s;
+}
+
+.inputWithEye {
+    padding-right: 3.5rem;
+}
+
+.slideActive {
+    position: relative;
+    width: 100%;
+}
+
+.slideInactive {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 .submitBtn {
@@ -168,8 +185,11 @@
 .stepWrap {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
     margin-bottom: 0.5rem;
+}
+
+.stepWrap > * + * {
+    margin-left: 0.375rem;
 }
 
 .backBtn {
@@ -199,9 +219,12 @@
 .checkboxWrap {
     display: flex;
     align-items: flex-start;
-    gap: 0.625rem;
     cursor: pointer;
     margin-top: 0.75rem;
+}
+
+.checkboxWrap > * + * {
+    margin-left: 0.625rem;
 }
 
 .checkbox {

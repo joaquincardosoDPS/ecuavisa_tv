@@ -17,17 +17,9 @@ const FullscreenButtonComponent = ({ onClick }: FullscreenButtonProps) => {
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className={styles.button}
       style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "8px",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         color: hovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
-        transition: "color 0.15s ease",
       }}
       title="Pantalla completa"
     >

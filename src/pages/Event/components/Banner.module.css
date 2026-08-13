@@ -5,17 +5,59 @@
   min-height: calc(100vh - 650px);
 }
 
+.bannerFixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -10;
+  background-color: var(--clr-primary);
+}
+
+.bannerBg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.bannerScrollFade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: var(--clr-primary);
+  transition: opacity 0.075s;
+}
+
+.eventStatusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: bold;
+}
+
 .bannerContent {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   align-items: flex-start;
+}
+
+.bannerContent > * + * {
+  margin-top: 1.25rem;
 }
 
 .classificationContainer {
   display: flex;
   flex-direction: row;
-  gap: 1.25rem;
 }
 
 .classificationBadge {
@@ -33,7 +75,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1.25rem;
+}
+
+.categoryContainer > * + * {
+  margin-left: 1.25rem;
 }
 
 .categoryName {
@@ -55,14 +100,20 @@
 
 .gradientLeft {
   position: absolute;
-  inset: 0 auto 0 0;
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: 0;
   width: 33.33%;
   background: linear-gradient(to right, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent);
 }
 
 .gradientBottom {
   position: absolute;
-  inset: auto 0 0 0;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
   height: 66.66%;
   background: linear-gradient(to top, var(--clr-primary) 0%, rgba(var(--clr-primary-rgb), 0.8) 40%, transparent 100%);
 }

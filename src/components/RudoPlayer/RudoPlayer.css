@@ -41,7 +41,6 @@
 .rudo-player-unmute-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
   padding: 12px 24px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.75);
@@ -60,6 +59,17 @@
   border-color: var(--foc-primary);
 }
 
+/* ---- Mouse catcher (detecta mouse con UI oculta) ---- */
+.rudo-player-mouse-catcher {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  cursor: default;
+}
+
 /* ---- Top Bar Overlay ---- */
 .rudo-player-topbar {
   position: absolute;
@@ -70,7 +80,6 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
   color: var(--clr-primary-text);
   opacity: 0;
   visibility: hidden;
@@ -88,8 +97,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
   margin-top: 20px;
+}
+
+.rudo-player-topbar__left > * + * {
+  margin-left: 10px;
 }
 
 /* ---- Back Button ---- */

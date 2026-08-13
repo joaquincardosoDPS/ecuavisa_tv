@@ -58,3 +58,53 @@
     opacity: 0 !important;
     visibility: hidden !important;
 }
+
+.vast-inline-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: #000;
+}
+
+.vast-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: black;
+}
+
+.vast-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.vast-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    animation: vastSpin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+.vast-loading-text {
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+@keyframes vastSpin {
+    to { transform: rotate(360deg); }
+}

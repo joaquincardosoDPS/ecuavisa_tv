@@ -1,4 +1,6 @@
-﻿.wrapper { display: flex; align-items: center; gap: 0.75rem; max-width: 24rem; }
+﻿.wrapper { display: flex; align-items: center; max-width: 24rem; }
+
+.wrapper > * + * { margin-left: 0.75rem; }
 
 .track {
     flex: 1;

@@ -20,7 +20,9 @@
     outline-color: var(--clr-primary-title);
 }
 
-.left { display: flex; justify-content: flex-start; align-items: center; gap: 1rem; }
+.left { display: flex; justify-content: flex-start; align-items: center; }
+
+.left > * + * { margin-left: 1rem; }
 
 .iconWrap {
     width: 2rem;

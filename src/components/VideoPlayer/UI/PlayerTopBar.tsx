@@ -32,19 +32,10 @@ const PlayerTopBarComponent = ({
 
   return (
     <div
+      className={styles.topBar}
       style={{
-        position: "fixed",
-        top: 44,
-        left: 40,
-        right: 40,
-        zIndex: 2001,
         visibility: isVisible ? "visible" : "hidden",
         pointerEvents: isVisible ? "auto" : "none",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: "10px",
-        color: "var(--clr-primary-text)",
       }}
     >
       <div className={styles.leftSection}
@@ -53,20 +44,9 @@ const PlayerTopBarComponent = ({
         <button
           ref={ref}
           onClick={onBackClick}
+          className={styles.backButton}
           style={{
-            width: "56px",
-            height: "56px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            cursor: "pointer",
-            outline: "none",
-            padding: 0,
-            flexShrink: 0,
-            background: "none",
-            border: "none",
             color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
-            transition: "color 0.15s ease",
           }}
         >
           <span

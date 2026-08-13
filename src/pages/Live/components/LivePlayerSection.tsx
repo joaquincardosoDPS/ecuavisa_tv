@@ -29,18 +29,23 @@ function LivePlayerSection({ signal, currentEvent, isExpanded, onToggleExpand }:
 
   return (
     <div style={isExpanded
-      ? { position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 9999, backgroundColor: "#000" }
-      : { height: "100%", width: "auto", aspectRatio: "16/9", borderRadius: "0.75rem", overflow: "hidden", position: "relative" }
+      ? { position: "fixed", top: 0, right: 0, bottom: 0, left: 0, width: "100vw", height: "100vh", zIndex: 9999, backgroundColor: "#000" }
+      : { height: "100%", width: "auto", borderRadius: "0.75rem", overflow: "hidden", position: "relative" }
     }>
-      <LivePlayer
-        streamSrc={signal.m3u8 ?? ""}
-        assetKey={signal.DPSDAIAssetKey || signal.assetKey || null}
-        vastUrl={signal.vast || null}
-        signalName={signal.name_live}
-        currentEvent={currentEvent}
-        isFullscreen={isExpanded}
-        onBack={onToggleExpand}
-      />
+      {!isExpanded && (
+        <svg viewBox="0 0 16 9" aria-hidden="true" style={{ display: "block", height: "100%", width: "auto" }} />
+      )}
+      <div style={isExpanded ? { width: "100%", height: "100%" } : { position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+        <LivePlayer
+          streamSrc={signal.m3u8 ?? ""}
+          assetKey={signal.DPSDAIAssetKey || signal.assetKey || null}
+          vastUrl={signal.vast || null}
+          signalName={signal.name_live}
+          currentEvent={currentEvent}
+          isFullscreen={isExpanded}
+          onBack={onToggleExpand}
+        />
+      </div>
       <ExpandButton isExpanded={isExpanded} onClick={onToggleExpand} />
     </div>
   );

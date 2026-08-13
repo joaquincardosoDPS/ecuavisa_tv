@@ -10,11 +10,11 @@ interface TabSelectorProps {
 export function TabSelector({ activeTab, onTabChange }: TabSelectorProps) {
   return (
     <div className={styles.tabContainer}>
-      <span onClick={() => onTabChange("favorites")} style={{ cursor: "pointer", transition: "all 0.2s", fontWeight: activeTab === "favorites" ? "bold" : "normal", color: activeTab === "favorites" ? "var(--clr-primary-title)" : "color-mix(in srgb, var(--clr-primary-title) 50%, transparent)" }}>
+      <span onClick={() => onTabChange("favorites")} className={`${styles.tab} ${activeTab === "favorites" ? styles.tabActive : styles.tabInactive}`}>
         Mi Lista
       </span>
       <span className={styles.tabSeparator}>|</span>
-      <span onClick={() => onTabChange("history")} style={{ cursor: "pointer", transition: "all 0.2s", fontWeight: activeTab === "history" ? "bold" : "normal", color: activeTab === "history" ? "var(--clr-primary-title)" : "color-mix(in srgb, var(--clr-primary-title) 50%, transparent)" }}>
+      <span onClick={() => onTabChange("history")} className={`${styles.tab} ${activeTab === "history" ? styles.tabActive : styles.tabInactive}`}>
         Seguir viendo
       </span>
     </div>

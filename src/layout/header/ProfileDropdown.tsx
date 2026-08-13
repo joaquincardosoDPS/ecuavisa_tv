@@ -85,7 +85,7 @@ function ProfileDropdown() {
                 <div className={styles.addIcon}>
                   <span className={styles.addPlus}>+</span>
                 </div>
-                <span style={{ fontSize: "0.875rem" }}>Agregar perfil</span>
+                <span className={styles.addLabel}>Agregar perfil</span>
               </button>
             )}
           </div>

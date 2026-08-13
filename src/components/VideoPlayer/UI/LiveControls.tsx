@@ -26,12 +26,10 @@ const InlineSvgIcon = ({
   size?: number;
 }) => (
   <span
+    className={styles.iconSpan}
     style={{
-      display: "inline-flex",
       width: size,
       height: size,
-      alignItems: "center",
-      justifyContent: "center",
     }}
     dangerouslySetInnerHTML={{
       __html: rawSvg.replace(
@@ -64,16 +62,9 @@ const LiveButton = ({
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className={styles.iconButton}
       style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "8px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         color: hovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
-        transition: "color 0.15s ease",
       }}
       title={title}
     >
@@ -89,12 +80,6 @@ const LiveBadge = () => (
     <span className={styles.livePulseDot}
     />
     EN VIVO
-    <style>{`
-      @keyframes livePulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-      }
-    `}</style>
   </div>
 );
 
@@ -160,14 +145,8 @@ const VolumePopover = ({
     >
       <button
         onClick={onMuteToggle}
+        className={styles.iconButton}
         style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: "8px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           color: isHovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
           opacity: muted ? 0.5 : 1,
           transition: "color 0.15s ease, opacity 0.15s ease",
@@ -179,15 +158,10 @@ const VolumePopover = ({
 
       {/* Slider vertical */}
       <div
+        className={styles.sliderFloat}
         style={{
-          position: "absolute",
-          bottom: "100%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          paddingBottom: "12px",
           opacity: isHovered ? 1 : 0,
           pointerEvents: isHovered ? "auto" : "none",
-          transition: "opacity 0.2s ease",
         }}
       >
         <div className={styles.volumeSliderWrapper}

@@ -344,51 +344,33 @@ const SeekbarComponent = ({
             onClick={handleTrackClick}
           >
             <div
-              className="seekbar-loaded"
+              className={`seekbar-loaded ${styles.seekbarLoaded}`}
               style={{
-                position: "absolute",
-                left: 0,
-                top: 0,
-                height: "100%",
                 width: `${loadedPercentage}%`,
-                backgroundColor: "rgba(255, 255, 255, 0.3)",
-                borderRadius: "999px",
-                transition: "width 0.2s linear",
               }}
             />
             <div
-              className="seekbar-fill"
+              className={`seekbar-fill ${styles.seekbarFill}`}
               style={{
-                position: "absolute",
-                left: 0,
-                top: 0,
-                height: "100%",
                 width: `${percentage}%`,
                 backgroundColor: barColor,
-                borderRadius: "999px",
                 transition: isSeeking || isDragging ? "none" : "width 0.2s linear",
               }}
             />
             <div
               ref={thumbFocusRef}
-              className="seekbar-thumb"
+              className={`seekbar-thumb ${styles.seekbarThumb}`}
               onMouseDown={handleThumbMouseDown}
               onTouchStart={handleThumbTouchStart}
               style={{
-                position: "absolute",
                 left: `${percentage}%`,
-                top: "50%",
-                transform: "translate(-50%, -50%)",
                 width: thumbFocused ? "20px" : "15px",
                 height: thumbFocused ? "20px" : "15px",
                 backgroundColor: thumbFocused ? "var(--foc-primary, #FF1376)" : "var(--clr-primary-title)",
                 border: thumbFocused ? "3px solid var(--foc-primary, #FF1376)" : "3px solid #FFFFFF",
-                borderRadius: "50%",
                 cursor: isDragging ? "grabbing" : "grab",
                 transition: isDragging ? "none" : "all 0.15s ease",
-                touchAction: "none",
                 boxShadow: thumbFocused ? "0 0 16px rgba(255,19,118,0.6)" : "none",
-                outline: "none",
               }}
             />
             {adCuepoints?.map((cp) => {
@@ -397,15 +379,10 @@ const SeekbarComponent = ({
               return (
                 <div
                   key={cp.timeSeconds}
+                  className={styles.cuepoint}
                   style={{
-                    position: 'absolute',
                     left: `${pos}%`,
-                    top: 0,
-                    width: '4px',
-                    height: '100%',
                     backgroundColor: isPlayed ? '#666' : '#FFD700',
-                    zIndex: 2,
-                    pointerEvents: 'none',
                   }}
                 />
               );

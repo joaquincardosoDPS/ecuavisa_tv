@@ -295,7 +295,7 @@ export function LivePlayer({
                 <span className={styles.liveDot} />
                 EN VIVO
                 {currentEvent && (
-                  <span style={{ marginLeft: "12px", opacity: 0.7 }}>
+                  <span className={styles.fullscreenEventTitle}>
                     {currentEvent.title}
                   </span>
                 )}

@@ -1,9 +1,9 @@
 /* ── Program Banner ── */
-.bannerFixed { position: fixed; inset: 0; z-index: -10; background-color: var(--clr-primary); }
-.bannerBg { position: absolute; inset: 0; }
-.bannerGradLeft { position: absolute; inset-block: 0; left: 0; width: 66.666%; background: linear-gradient(to right, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent); }
-.bannerGradBottom { position: absolute; inset-inline: 0; bottom: 0; height: 66.666%; background: linear-gradient(to top, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent); }
-.bannerScrollFade { position: absolute; inset: 0; background-color: var(--clr-primary); transition: opacity 0.075s; }
+.bannerFixed { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: -10; background-color: var(--clr-primary); }
+.bannerBg { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+.bannerGradLeft { position: absolute; top: 0; bottom: 0; left: 0; width: 66.666%; background: linear-gradient(to right, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent); }
+.bannerGradBottom { position: absolute; left: 0; right: 0; bottom: 0; height: 66.666%; background: linear-gradient(to top, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent); }
+.bannerScrollFade { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-color: var(--clr-primary); transition: opacity 0.075s; }
 
 /* ── InfoBanner ── */
 .infoWrap { animation: slideInFromLeft 1s ease-out; padding-top: 6.25rem; height: 85vh; display: flex; flex-direction: column; justify-content: space-between; }
@@ -12,18 +12,23 @@
 .logoImg { width: auto; height: 100%; object-fit: contain; }
 .programTitle { font-size: 3.75rem; margin-bottom: 1.5rem; font-weight: 900; color: var(--clr-primary-title); filter: drop-shadow(0 25px 25px rgba(0,0,0,0.5)); }
 .programDesc { font-size: 1.125rem; margin-bottom: 1.5rem; font-weight: 500; line-height: 2rem; height: 6.25rem; max-width: 56rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-.actionsRow { display: flex; flex-direction: row; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.actionsRow { display: flex; flex-direction: row; align-items: center; margin-bottom: 1.5rem; }
+.actionsRow > * + * { margin-left: 1rem; }
 .favBtn { width: 3.5rem; height: 3.5rem; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 9999px; font-size: 1.875rem; font-weight: 300; }
 
 /* ── Chapters ── */
-.chaptersWrap { display: flex; flex-direction: column; margin-right: 10rem; gap: 1.25rem; animation: fadeIn 0.5s ease-out; min-height: calc(100vh - 281px); }
+.chaptersWrap { display: flex; flex-direction: column; margin-right: 10rem; animation: fadeIn 0.5s ease-out; min-height: calc(100vh - 281px); }
+.chaptersWrap > * + * { margin-top: 1.25rem; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.seasonsGrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.25rem; }
-.seasonItem { flex-shrink: 0; font-weight: bold; font-size: 1rem; transition: color 0.2s; cursor: pointer; }
+.seasonsGrid { display: flex; flex-wrap: wrap; }
+.seasonItem { width: calc((100% - 5rem) / 5); margin-right: 1.25rem; margin-bottom: 1.25rem; flex-shrink: 0; font-weight: bold; font-size: 1rem; transition: color 0.2s; cursor: pointer; }
+.seasonItem:nth-child(5n) { margin-right: 0; }
 .seasonActive { color: var(--clr-primary-title); }
 .seasonInactive { color: var(--clr-secondary-text); }
 .seasonInactive:hover { color: var(--clr-primary-title); }
-.chaptersGrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem 1.5rem; }
+.chaptersGrid { display: flex; flex-wrap: wrap; }
+.chaptersGrid > * { width: calc((100% - 6rem) / 5); margin-right: 1.5rem; margin-bottom: 1.5rem; }
+.chaptersGrid > *:nth-child(5n) { margin-right: 0; }
 .loadMoreWrap { display: flex; justify-content: center; }
 
 /* ── Tabs ── */
@@ -34,15 +39,18 @@
 
 /* ── ProgramView ── */
 .programPage { position: relative; min-height: 100vh; padding: 0 0 5rem 12.5rem; }
-.programContent { position: relative; z-index: 10; display: flex; flex-direction: column; gap: 1.5rem; }
+.programContent { position: relative; z-index: 10; display: flex; flex-direction: column; }
+.programContent > * + * { margin-top: 1.5rem; }
 
 /* ── Related ── */
 .relatedSection { padding-left: 0; }
 
 /* ── DetailsProgram ── */
-.detailsWrap { display: flex; flex-direction: column; gap: 0.75rem; }
+.detailsWrap { display: flex; flex-direction: column; }
+.detailsWrap > * + * { margin-top: 0.75rem; }
 .detailBadge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
-.detailMeta { display: flex; gap: 1rem; flex-wrap: wrap; }
+.detailMeta { display: flex; flex-wrap: wrap; }
+.detailMeta > * { margin-right: 1rem; margin-bottom: 1rem; }
 .detailMetaItem { font-size: 0.875rem; color: rgba(var(--clr-primary-title-rgb), 0.7); }
 
 .loadingText {

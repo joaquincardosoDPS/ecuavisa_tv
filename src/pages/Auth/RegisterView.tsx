@@ -57,8 +57,7 @@ function RegisterView() {
           {STEPS.map((s, i) => (
             <div
               key={s.id}
-              className={`register-slide ${getSlideClass(i)}`}
-              style={i === step && !isAnimating ? { position: "relative", width: "100%" } : { position: "absolute", top: 0, left: 0, width: "100%" }}
+              className={`register-slide ${getSlideClass(i)} ${i === step && !isAnimating ? styles.slideActive : styles.slideInactive}`}
             >
               <h2 className={styles.stepTitle}>{s.label}</h2>
               <div className={styles.inputWrapper}>
@@ -69,8 +68,7 @@ function RegisterView() {
                   value={formData[s.id]}
                   onChange={(e) => setFieldValue(s.id, e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className={[styles.input, errors[s.id] ? styles.inputError : ""].join(" ")}
-                  style={s.id === "password" ? { paddingRight: "3.5rem" } : {}}
+                  className={[styles.input, errors[s.id] ? styles.inputError : "", s.id === "password" ? styles.inputWithEye : ""].join(" ")}
                   autoComplete={s.type === "password" ? "new-password" : s.id}
                 />
                 {s.id === "password" && (
@@ -79,7 +77,7 @@ function RegisterView() {
                   </button>
                 )}
               </div>
-              <div className={styles.errorMsg} style={{ opacity: errors[s.id] ? 1 : 0, height: errors[s.id] ? "1.25rem" : 0, transition: "all 0.2s" }}>
+              <div className={styles.errorMsg} style={{ opacity: errors[s.id] ? 1 : 0, height: errors[s.id] ? "1.25rem" : 0 }}>
                 {errors[s.id]}
               </div>
             </div>

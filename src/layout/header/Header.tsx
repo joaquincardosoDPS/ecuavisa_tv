@@ -83,13 +83,10 @@ function HeaderContent() {
 
 			<div
 				className={styles.centerPill}
-				style={{
-					backgroundColor: "color-mix(in srgb, var(--clr-primary-title) 20%, transparent)",
-				}}
 			>
 				<ul className={styles.navList}>
 					<li ref={searchRef} className={[styles.searchTrigger, searchFocused ? styles.focused : ""].join(" ")} onClick={openSearch}>
-						<span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "1.375rem", height: "1.375rem" }}>
+						<span className={styles.searchIconWrap}>
 							<SidebarIcon name="search" size={22} />
 						</span>
 					</li>

@@ -1,4 +1,5 @@
 import { Spinner } from "@/components/ui/Spinner";
+import styles from "./PlayerLoading.module.css";
 
 interface PlayerLoadingProps {
   chapterImage: string;
@@ -7,12 +8,8 @@ interface PlayerLoadingProps {
 export function PlayerLoading({ chapterImage }: PlayerLoadingProps) {
   return (
     <div
+      className={styles.container}
       style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
         background: chapterImage
           ? `url(${chapterImage}) center/cover no-repeat #000`
           : "#000",
