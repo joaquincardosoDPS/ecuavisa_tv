@@ -70,7 +70,7 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 1rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.5);
 }
 
 .labelFocus {
@@ -84,7 +84,7 @@
     top: 0;
     transform: translateY(-50%);
     font-size: 0.75rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.5);
 }
 
 .input {
@@ -93,7 +93,7 @@
     font-size: 1rem;
     color: var(--clr-primary-title);
     background-color: var(--clr-secondary);
-    border: 2px solid color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    border: 2px solid rgba(var(--clr-primary-title-rgb), 0.1);
     border-radius: 0.375rem;
     outline: none;
     transition: all 0.3s;
@@ -152,7 +152,7 @@
 .linkWrap {
     text-align: center;
     font-size: 0.875rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.5);
     margin-top: 1.5rem;
 }
 
@@ -175,7 +175,7 @@
 .backBtn {
     padding: 0.25rem;
     margin-left: -0.25rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.6);
     background: none;
     border: none;
     cursor: pointer;
@@ -187,7 +187,7 @@
 
 .stepText {
     font-size: 0.875rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.4);
 }
 
 .slidesWrap {
@@ -215,11 +215,11 @@
 
 .checkboxText {
     font-size: 0.875rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.6);
     transition: color 0.2s;
 }
 
-.checkboxWrap:hover .checkboxText { color: color-mix(in srgb, var(--clr-primary-title) 80%, transparent); }
+.checkboxWrap:hover .checkboxText { color: rgba(var(--clr-primary-title-rgb), 0.8); }
 
 .submitErrorText {
   margin-bottom: 1rem;

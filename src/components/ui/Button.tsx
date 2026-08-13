@@ -1,16 +1,14 @@
-﻿import { cn } from "@/utils/cn";
+import { forwardRef } from "react";
+import { cn } from "@/utils/cn";
 import styles from "./Button.module.css";
 
 type ButtonVariant = "primary" | "secondary" | "tertiary";
 
-interface ButtonProps {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
     variant?: ButtonVariant;
     showArrow?: boolean;
-    onClick?: (...args: any[]) => any;
-    disabled?: boolean;
-    className?: string;
-    style?: React.CSSProperties;
+    focused?: boolean;
 }
 
 const variantStyleMap: Record<ButtonVariant, string> = {
@@ -19,22 +17,26 @@ const variantStyleMap: Record<ButtonVariant, string> = {
     tertiary: styles.tertiary,
 };
 
-function Button({
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     children,
     variant = "primary",
     showArrow = false,
     onClick,
     disabled = false,
     className,
-    style
-}: ButtonProps) {
+    style,
+    focused = false,
+    ...props
+}, ref) => {
     return (
         <button
+            ref={ref}
             type="button"
-            className={cn(styles.btn, variantStyleMap[variant], className)}
+            className={cn(styles.btn, variantStyleMap[variant], focused && styles.focused, className)}
             onClick={onClick}
             disabled={disabled}
             style={style}
+            {...props}
         >
             {showArrow && (
                 <svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className={styles.arrow}>
@@ -44,6 +46,6 @@ function Button({
             {children}
         </button>
     );
-}
+});
 
 export default Button;

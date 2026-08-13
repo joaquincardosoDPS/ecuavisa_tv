@@ -43,7 +43,7 @@
     height: 9rem;
     border-radius: 9999px;
     overflow: hidden;
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -75,7 +75,7 @@
 
 .profileName {
     font-size: 1.25rem;
-    color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.7);
     transition: color 0.2s;
 }
 

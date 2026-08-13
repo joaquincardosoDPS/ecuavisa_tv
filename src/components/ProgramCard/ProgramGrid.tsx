@@ -2,6 +2,7 @@ import type { Program } from "@/interfaces/catalog.interface";
 import type { FavoriteItem } from "@/interfaces/favorites.interface";
 import AlternativeCard from "./AlternativeCard";
 import { useInfiniteScroll } from "@/hooks/shared/useInfiniteScroll";
+import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./ProgramCard.module.css";
 
 type GridItem = Program | FavoriteItem;
@@ -48,20 +49,40 @@ function ProgramGrid({
 }: ProgramGridProps) {
   const sentinelRef = useInfiniteScroll(() => fetchNextPage?.(), hasNextPage && !isFetchingNextPage);
 
+  const { ref, focusKey } = useFocusable({
+    focusKey: "zone-results",
+    saveLastFocusedChild: true
+  });
+
   return (
     <>
+    <FocusContext.Provider value={focusKey}>
       {isLoading && <p className={styles.loadingText}>{loadingText}</p>}
-      <div className={[styles.grid, gridColsMap[cols] || styles.grid4].join(" ")}>
-        {programs.map((item) => (
-          <AlternativeCard key={item.id} program={toProgram(item)} />
-        ))}
+      <div ref={ref} className={[styles.grid, gridColsMap[cols] || styles.grid4].join(" ")}>
+        {programs.map((item, index) => {
+          // If we are in the last 'cols' elements, trigger fetchNextPage on focus
+          const isNearEnd = index >= programs.length - cols * 2;
+          return (
+            <AlternativeCard 
+              key={item.id} 
+              index={index}
+              program={toProgram(item)} 
+              onFocus={() => {
+                if (isNearEnd && hasNextPage && !isFetchingNextPage && fetchNextPage) {
+                  fetchNextPage();
+                }
+              }}
+            />
+          );
+        })}
         {isError && <p className={styles.errorText}>{errorText}</p>}
       </div>
-      {fetchNextPage && (
-        <div ref={sentinelRef} className={styles.loadMore}>
-          {isFetchingNextPage && <div className={styles.spinner} />}
-        </div>
-      )}
+    </FocusContext.Provider>
+    {fetchNextPage && (
+      <div ref={sentinelRef} className={styles.loadMore}>
+        {isFetchingNextPage && <div className={styles.spinner} />}
+      </div>
+    )}
     </>
   );
 }

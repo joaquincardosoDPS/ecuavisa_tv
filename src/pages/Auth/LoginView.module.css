@@ -1,0 +1,151 @@
+.container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--clr-primary);
+}
+
+.leftPanel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 50vw;
+    height: 100%;
+    padding: 3rem 4rem 3rem 5rem;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
+}
+
+.heading {
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    color: var(--clr-primary-title);
+    line-height: 1.3;
+    margin: 0 0 2.5rem 0;
+    font-family: var(--font-family-title);
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+.stepHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.stepNumber {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--clr-primary-button);
+    color: var(--clr-text-primary-button);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-text);
+    font-weight: 700;
+    margin-right: 1rem;
+}
+
+.stepBody {
+    padding-left: 3.75rem;
+}
+
+.stepText {
+    font-size: var(--font-size-text);
+    color: var(--clr-primary-subtitle);
+    line-height: 1.5;
+    font-family: var(--font-family-text);
+    margin: 0;
+}
+
+.qrWrapper {
+    background: rgb(255, 255, 255);
+    border-radius: 12px;
+    padding: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.qrLoading {
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.codeBox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    padding: 0.85rem 3rem;
+    border-radius: 8px;
+    background: var(--clr-primary-button);
+    font-size: var(--font-size-title);
+    font-weight: 700;
+    letter-spacing: 0.3rem;
+    color: var(--clr-text-primary-button);
+    font-family: var(--font-family-title);
+}
+
+.emailLink {
+    margin-top: 2.5rem;
+    font-size: var(--font-size-subtitle);
+    color: var(--clr-primary-button);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-family-text);
+    margin-bottom: 0;
+}
+
+.loadingText {
+    font-size: var(--font-size-text);
+    color: var(--clr-primary-subtitle);
+    margin: 0;
+    font-family: var(--font-family-text);
+}
+
+.errorText {
+    font-size: var(--font-size-text);
+    color: #f87171;
+    margin: 0.5rem 0 0 0;
+    font-family: var(--font-family-text);
+}
+
+.rightPanel {
+    position: relative;
+    height: 100%;
+    width: 50%;
+    overflow: hidden;
+}
+
+.mosaicImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left center;
+    /* opacity: 0.55; */
+}
+
+.mosaicOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right,
+            var(--clr-primary) 0%,
+            transparent 60%);
+    pointer-events: none;
+}

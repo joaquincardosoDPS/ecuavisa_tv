@@ -15,6 +15,7 @@ export interface AppConfig {
     facebook_active: boolean;
     background: string | null;
     color: string | null;
+    "url-tv-vincular"?: string;
     logo: string | null;
     base_ads: string;
     "android-version": string;

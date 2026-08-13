@@ -3,8 +3,9 @@ import { Navigate, type RouteObject } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import MainLayout from "@/layout/MainLayout";
 import { AnalyticsWrapper } from "@/layout/AnalyticsWrapper";
-// import ProtectedRoute from "@/router/ProtectedRoute";
+import ProtectedRoute from "@/router/ProtectedRoute";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
+import WelcomeView from "@/pages/Welcome/WelcomeView";
 
 const HomeView = lazy(() => import("@/pages/Home/HomeView"));
 const SearchView = lazy(() => import("@/pages/Search/SearchView"));
@@ -38,12 +39,13 @@ export const APP_ROUTES: RouteObject[] = [
       {
         path: "auth",
         children: [
+          { path: "welcome", element: <Lazy><WelcomeView /></Lazy> },
           { path: "login", element: <Lazy><LoginView /></Lazy> },
           { path: "registro", element: <Lazy><RegisterView /></Lazy> },
         ],
       },
       {
-        // element: <ProtectedRoute />,
+        element: <ProtectedRoute />,
         children: [
           { path: "seleccionar-perfil", element: <Lazy><SelectProfileView /></Lazy> },
           {

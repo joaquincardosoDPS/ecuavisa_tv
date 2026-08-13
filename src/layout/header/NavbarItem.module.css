@@ -14,7 +14,7 @@
 
 .itemActive {
     background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+    border: 1px solid rgba(var(--clr-primary-title-rgb), 0.4);
     opacity: 1;
 }
 
@@ -22,9 +22,15 @@
     opacity: 0.7;
 }
 
-.itemInactive:hover {
+.itemInactive:hover,
+.itemInactive.focused {
     opacity: 1;
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: var(--foc-primary);
+}
+
+.itemActive.focused {
+    background-color: var(--foc-primary);
+    border-color: var(--foc-primary);
 }
 
 .icon {

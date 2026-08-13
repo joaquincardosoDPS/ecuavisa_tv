@@ -45,7 +45,8 @@
     background-color: var(--clr-secondary);
 }
 
-.avatarBtn:hover {
+.avatarBtn:hover,
+.avatarBtn.focused {
     border-color: var(--foc-primary);
 }
 
@@ -66,7 +67,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid color-mix(in srgb, var(--clr-primary-title) 15%, transparent);
+    border: 1px solid rgba(var(--clr-primary-title-rgb), 0.15);
     border-radius: 9999px;
     height: 3rem;
     overflow: hidden;
@@ -97,8 +98,9 @@
     font-weight: bold;
 }
 
-.searchTrigger:hover {
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+.searchTrigger:hover,
+.searchTrigger.focused {
+    background-color: var(--foc-primary);
 }
 
 .searchLayer {
@@ -139,7 +141,7 @@
 }
 
 .searchInput::placeholder {
-    color: color-mix(in srgb, var(--clr-primary-title) 35%, transparent);
+    color: rgba(var(--clr-primary-title-rgb), 0.35);
 }
 
 .searchClose {
@@ -162,7 +164,7 @@
 
 .searchClose:hover {
     opacity: 1;
-    background-color: color-mix(in srgb, var(--clr-primary-title) 10%, transparent);
+    background-color: rgba(var(--clr-primary-title-rgb), 0.1);
 }
 
 .rightSlot {

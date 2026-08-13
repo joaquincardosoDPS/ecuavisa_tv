@@ -8,6 +8,7 @@ import { useImagePreloader } from "@/hooks/shared/useImagePreloader";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import { TVScrollProvider, useTVScroll } from "@/hooks/tv/useTVScroll";
+import { useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./ProgramsView.module.css";
 
 function ProgramsScrollWrapper({ children }: { children: React.ReactNode }) {
@@ -25,63 +26,73 @@ function ProgramsView() {
   const activeProgram = useProgramsStore((state) => state.activeProgram);
   const setActiveProgram = useProgramsStore((state) => state.setActiveProgram);
 
+  const defaultCategories = useMemo(
+    () => categories?.filter((c) => c.format === "default") || [],
+    [categories]
+  );
+
+  const firstDefaultCategory = defaultCategories.length > 0 ? defaultCategories[0] : null;
+
   useEffect(() => {
-    if (!activeProgram && categories && categories.length > 0) {
-      const firstCategory = categories.find((c) => c.format === "default" && c.programs && c.programs.length > 0);
-      if (firstCategory) setActiveProgram(firstCategory.programs[0] as Program);
+    if (!activeProgram && firstDefaultCategory && firstDefaultCategory.programs.length > 0) {
+      setActiveProgram(firstDefaultCategory.programs[0] as Program);
     }
-  }, [categories, activeProgram, setActiveProgram]);
+  }, [firstDefaultCategory, activeProgram, setActiveProgram]);
 
   const criticalImages = useMemo(() => {
-    if (!categories || categories.length === 0) return [];
+    if (!firstDefaultCategory || firstDefaultCategory.programs.length === 0) return [];
     const urls: string[] = [];
-    const firstCategory = categories.find((c) => c.format === "default" && c.programs && c.programs.length > 0);
-    if (firstCategory) {
-      const firstProg = firstCategory.programs[0] as Program;
-      const bg = firstProg.image_slider?.big || firstProg.image_land?.big;
-      if (bg) urls.push(bg);
-      const progLogo = firstProg.image_logo?.default;
-      if (progLogo) urls.push(progLogo);
-    }
+    const firstProg = firstDefaultCategory.programs[0] as Program;
+    const bg = firstProg.image_slider?.big || firstProg.image_land?.big;
+    if (bg) urls.push(bg);
+    const progLogo = firstProg.image_logo?.default;
+    if (progLogo) urls.push(progLogo);
     return urls;
-  }, [categories]);
+  }, [firstDefaultCategory]);
 
   const imagesReady = useImagePreloader(criticalImages, !isLoading && categories.length > 0);
 
+  const { focusKey: rootFocusKey, ref: rootRef } = useFocusable({
+    focusKey: 'page-programs',
+    saveLastFocusedChild: true,
+    autoRestoreFocus: true
+  });
+
   useEffect(() => {
-    const handleScroll = () => {
-      if (isLoading || !hasNextPage || isFetchingNextPage) return;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      const clientHeight = document.documentElement.clientHeight;
-      if (scrollTop + clientHeight >= scrollHeight - 600) fetchNextPage();
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
+    if (!activeProgram || !hasNextPage || isFetchingNextPage) return;
+    const categoryIndex = defaultCategories.findIndex((c) =>
+      c.programs.some((p) => p.id === activeProgram.id)
+    );
+    if (categoryIndex >= 0 && categoryIndex >= defaultCategories.length - 2) {
+      fetchNextPage();
+    }
+  }, [activeProgram, defaultCategories, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading || !imagesReady) return <FullScreenSpinner />;
 
   return (
-    <TVScrollProvider>
-      <div style={{ position: 'relative', minHeight: '100vh', overflowX: 'hidden' }}>
-        <ProgramsScrollWrapper>
+    <FocusContext.Provider value={rootFocusKey}>
+      <TVScrollProvider>
+        <div ref={rootRef} style={{ position: 'relative', minHeight: '100vh', overflowX: 'hidden' }}>
           <ProgramsBanner activeProgram={activeProgram} />
-          <div className={styles.carouselsContainer}>
-            {categories?.filter((category) => category.format === "default").map((category) => (
-              <div key={category.key}>
-                <CarrouselContainer category={category} />
-              </div>
-            ))}
-            <div className={styles.loadingSentinel}>
+          <ProgramsScrollWrapper>
+            <div className={styles.carouselsContainer}>
+              {defaultCategories.map((category, index) => (
+                <div key={category.key}>
+                  <CarrouselContainer category={category} autoFocusFirst={index === 0} />
+                </div>
+              ))}
               {isFetchingNextPage && (
-                <div className={styles.loadingSpinner} />
+                <div className={styles.loadingSentinel}>
+                  <div className={styles.loadingSpinner} />
+                </div>
               )}
             </div>
-          </div>
-        </ProgramsScrollWrapper>
-      </div>
-    </TVScrollProvider>
+          </ProgramsScrollWrapper>
+        </div>
+      </TVScrollProvider>
+    </FocusContext.Provider>
   );
 }
 export default ProgramsView;
+

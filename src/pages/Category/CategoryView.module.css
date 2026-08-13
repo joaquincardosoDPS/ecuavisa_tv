@@ -14,7 +14,7 @@
 }
 
 .programCount {
-  color: color-mix(in srgb, var(--clr-primary-title) 50%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.5);
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
@@ -27,7 +27,7 @@
 }
 
 .emptyMessage {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.6);
   text-align: center;
   padding: 5rem 0;
   font-size: 1.125rem;

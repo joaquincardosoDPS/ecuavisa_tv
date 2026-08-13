@@ -14,9 +14,10 @@ interface CardCarrouselProps {
   hasIconImage?: boolean;
   categorySlug?: string;
   format?: string;
+  autoFocusFirst?: boolean;
 }
 
-function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, format }: CardCarrouselProps) {
+function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, format, autoFocusFirst }: CardCarrouselProps) {
   const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -77,23 +78,13 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
             {programs.map((program, index) => {
               const itemFormat = "type" in program ? "event" : format;
               return isVertical
-                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} />
-                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} />;
+                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />
+                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />;
             })}
             {programs.length === 10 && categorySlug && format !== "ranking" && (
               <div
                 onClick={() => navigate(`/categoria/${categorySlug}`)}
-                className={styles.cardImg}
-                style={{
-                  width: isVertical ? "var(--card-w-vertical)" : "var(--card-w-horizontal)",
-                  aspectRatio: isVertical ? "2/3" : "16/9",
-                  borderRadius: isVertical ? "0.75rem" : "0.5rem",
-                  backgroundColor: "var(--clr-secondary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
+                className={`${styles.cardImg} ${styles.viewMoreCard} ${isVertical ? styles.viewMoreCardVertical : styles.viewMoreCardHorizontal}`}
               >
                 <span className={styles.viewMoreText}>Ver Más</span>
               </div>

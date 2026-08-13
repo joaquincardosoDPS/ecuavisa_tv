@@ -5,7 +5,7 @@ import type { EmblaOptionsType, EmblaCarouselType } from "embla-carousel";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { EPGChannel, EPGEvent } from "@/interfaces/catalog.interface";
-import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import logoSvg from "@/assets/img/logo.svg";
 import styles from "./HomeLiveGrid.module.css";
@@ -41,6 +41,13 @@ function EPGCard({ channel, event, index, emblaApi, onPress }: { channel: EPGCha
     index,
     emblaApi,
     onEnterPress: onPress,
+    onArrowPress: (direction) => {
+      if (direction === 'up') {
+        setFocus('zone-banner');
+        return false;
+      }
+      return true;
+    }
   });
 
   return (

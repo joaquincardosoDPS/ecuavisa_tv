@@ -11,6 +11,6 @@
 }
 
 .emptyText {
-  color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.6);
 }
 

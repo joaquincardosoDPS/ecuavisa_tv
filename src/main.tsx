@@ -7,7 +7,7 @@ import App from './App.tsx'
 import { init } from '@noriginmedia/norigin-spatial-navigation';
 
 init({
-  debug: false,
+  debug: true,
   visualDebug: false
 });
 

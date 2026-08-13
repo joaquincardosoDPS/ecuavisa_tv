@@ -17,14 +17,12 @@
 }
 
 .cardWrapper:hover .cardImageContainer,
-.cardImageContainer.focused {
+.cardWrapper.focused .cardImageContainer {
   border-color: var(--foc-primary);
   box-shadow: 0 0 20px rgba(255, 19, 118, 0.3);
 }
 
-.cardImageContainer.focused {
-  transform: scale(1.05);
-}
+
 
 .cardImage {
   width: 100%;
@@ -35,7 +33,7 @@
 }
 
 .cardWrapper:hover .cardImage,
-.cardImageContainer.focused .cardImage {
+.cardWrapper.focused .cardImage {
   transform: scale(1.0);
 }
 
@@ -48,7 +46,7 @@
 }
 
 .fallbackTitle {
-  color: color-mix(in srgb, var(--clr-primary-title) 40%, transparent);
+  color: rgba(var(--clr-primary-title-rgb), 0.4);
   font-size: 0.875rem;
 }
 

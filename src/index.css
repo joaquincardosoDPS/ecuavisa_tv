@@ -2,7 +2,7 @@
 
 @font-face {
 	font-family: "Gotham";
-	src: url("./assets/fonts/Gotham Book.otf") format("opentype");
+	src: url("@/assets/fonts/Gotham Book.otf") format("opentype");
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
@@ -10,7 +10,7 @@
 
 @font-face {
 	font-family: "Gotham";
-	src: url("./assets/fonts/Gotham Bold.otf") format("opentype");
+	src: url("@/assets/fonts/Gotham Bold.otf") format("opentype");
 	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
@@ -18,7 +18,7 @@
 
 @font-face {
 	font-family: "Gotham";
-	src: url("./assets/fonts/Gotham Black.otf") format("opentype");
+	src: url("@/assets/fonts/Gotham Black.otf") format("opentype");
 	font-weight: 900;
 	font-style: normal;
 	font-display: swap;
@@ -212,18 +212,14 @@ body {
 
 .bg-header-gradient {
 	background-image: linear-gradient(to bottom, var(--clr-primary), transparent);
-	background-image: linear-gradient(to bottom,
-			color-mix(in srgb, var(--clr-primary) 80%, transparent),
-			transparent);
 }
 
 .banner-overlay {
-	background: linear-gradient(to bottom, var(--clr-primary) 0%, transparent 20%, transparent 50%, var(--clr-primary) 100%);
 	background: linear-gradient(to bottom,
-			color-mix(in srgb, var(--clr-primary) 80%, transparent) 0%,
+			var(--clr-primary) 0%,
 			transparent 20%,
 			transparent 40%,
-			color-mix(in srgb, var(--clr-primary) 40%, transparent) 60%,
-			color-mix(in srgb, var(--clr-primary) 80%, transparent) 80%,
+			transparent 60%,
+			var(--clr-primary) 80%,
 			var(--clr-primary) 100%);
 }

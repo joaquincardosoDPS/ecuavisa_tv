@@ -11,9 +11,13 @@ export function useImagePreloader(urls: string[], enabled = true): boolean {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        if (!enabled || urls.length === 0) {
-             
+        if (!enabled) {
             setReady(false);
+            return;
+        }
+        
+        if (urls.length === 0) {
+            setReady(true);
             return;
         }
 

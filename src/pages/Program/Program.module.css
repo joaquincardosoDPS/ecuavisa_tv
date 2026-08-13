@@ -1,8 +1,8 @@
 /* ── Program Banner ── */
 .bannerFixed { position: fixed; inset: 0; z-index: -10; background-color: var(--clr-primary); }
 .bannerBg { position: absolute; inset: 0; }
-.bannerGradLeft { position: absolute; inset-block: 0; left: 0; width: 66.666%; background: linear-gradient(to right, var(--clr-primary), color-mix(in srgb, var(--clr-primary) 40%, transparent), transparent); }
-.bannerGradBottom { position: absolute; inset-inline: 0; bottom: 0; height: 66.666%; background: linear-gradient(to top, var(--clr-primary), color-mix(in srgb, var(--clr-primary) 40%, transparent), transparent); }
+.bannerGradLeft { position: absolute; inset-block: 0; left: 0; width: 66.666%; background: linear-gradient(to right, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent); }
+.bannerGradBottom { position: absolute; inset-inline: 0; bottom: 0; height: 66.666%; background: linear-gradient(to top, var(--clr-primary), rgba(var(--clr-primary-rgb), 0.4), transparent); }
 .bannerScrollFade { position: absolute; inset: 0; background-color: var(--clr-primary); transition: opacity 0.075s; }
 
 /* ── InfoBanner (contenido a la izquierda, hero a la derecha) ── */
@@ -104,8 +104,8 @@
 }
 
 /* ── Tabs ── */
-.tabs { display: flex; flex-direction: row; border-bottom: 1px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent); margin-bottom: 1.5rem; }
-.tab { padding: 0.75rem 0; margin-right: 2rem; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; color: color-mix(in srgb, var(--clr-primary-title) 60%, transparent); background: none; border-top: none; border-left: none; border-right: none; }
+.tabs { display: flex; flex-direction: row; border-bottom: 1px solid rgba(var(--clr-primary-title-rgb), 0.2); margin-bottom: 1.5rem; }
+.tab { padding: 0.75rem 0; margin-right: 2rem; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; color: rgba(var(--clr-primary-title-rgb), 0.6); background: none; border-top: none; border-left: none; border-right: none; }
 .tab:hover { color: var(--clr-primary-title); }
 .tabActive { color: var(--clr-primary-title); border-bottom-color: var(--foc-primary); }
 
@@ -120,7 +120,7 @@
 .detailsWrap { display: flex; flex-direction: column; gap: 0.75rem; }
 .detailBadge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; }
 .detailMeta { display: flex; gap: 1rem; flex-wrap: wrap; }
-.detailMetaItem { font-size: 0.875rem; color: color-mix(in srgb, var(--clr-primary-title) 70%, transparent); }
+.detailMetaItem { font-size: 0.875rem; color: rgba(var(--clr-primary-title-rgb), 0.7); }
 
 .loadingText {
   color: var(--clr-primary-title);

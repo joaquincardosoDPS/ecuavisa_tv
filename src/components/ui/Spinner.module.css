@@ -12,7 +12,7 @@
     border: 4px solid;
 }
 
-.ringOuter { border-color: color-mix(in srgb, var(--clr-primary-title) 20%, transparent); }
+.ringOuter { border-color: rgba(var(--clr-primary-title-rgb), 0.2); }
 .ringInner { border-color: var(--foc-primary); border-top-color: transparent; animation: spin 1s linear infinite; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
