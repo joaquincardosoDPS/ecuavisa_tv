@@ -1,33 +1,25 @@
-import { useRef, useCallback, useEffect } from "react";
-import type { LiveSignal } from "@/interfaces/catalog.interface";
+import { useEffect } from "react";
+import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import type { EPGEvent, LiveSignal } from "@/interfaces/catalog.interface";
 import ExpandButton from "@/components/ui/ExpandButton";
-import { getStoredVolume } from "@/utils/volumeStorage";
+import { LivePlayer } from "@/components/LivePlayer/LivePlayer";
 import styles from "./LivePlayerSection.module.css";
 
 interface LivePlayerSectionProps {
   signal: LiveSignal | null;
+  currentEvent: EPGEvent | null;
   isExpanded: boolean;
   onToggleExpand: () => void;
 }
 
-function LivePlayerSection({ signal, isExpanded, onToggleExpand }: LivePlayerSectionProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const rudoKey = signal?.key_live || signal?.key || null;
-
-  const handleIframeLoad = useCallback(() => {
-    const iframe = iframeRef.current;
-    if (!iframe?.contentWindow) return;
-    const post = (payload: Record<string, unknown>) =>
-      iframe.contentWindow!.postMessage({ message: payload }, "*");
-    post({ event: "play" });
-    post({ event: "volumeon", value: getStoredVolume() });
-  }, []);
-
+function LivePlayerSection({ signal, currentEvent, isExpanded, onToggleExpand }: LivePlayerSectionProps) {
   useEffect(() => {
-    if (iframeRef.current) handleIframeLoad();
-  }, [rudoKey, handleIframeLoad]);
+    if (isExpanded) {
+      setTimeout(() => setFocus("LIVE-BTN-BACK"), 200);
+    }
+  }, [isExpanded]);
 
-  if (!signal || !rudoKey) {
+  if (!signal) {
     return (
       <div className={styles.noSignalContainer}>
         <span className={styles.noSignalText}>Sin senal disponible</span>
@@ -40,16 +32,14 @@ function LivePlayerSection({ signal, isExpanded, onToggleExpand }: LivePlayerSec
       ? { position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 9999, backgroundColor: "#000" }
       : { height: "100%", width: "auto", aspectRatio: "16/9", borderRadius: "0.75rem", overflow: "hidden", position: "relative" }
     }>
-      <iframe
-        key={rudoKey}
-        ref={iframeRef}
-        id="vrudo"
-        src={`https://rudo.video/live/${rudoKey}?platform=ecuavisaweb`}
-        width="100%"
-        height="100%"
-        title={signal.name_live || "Canal en vivo"}
-        allow="autoplay; fullscreen"
-        onLoad={handleIframeLoad} className={styles.playerIframe}
+      <LivePlayer
+        streamSrc={signal.m3u8 ?? ""}
+        assetKey={signal.DPSDAIAssetKey || signal.assetKey || null}
+        vastUrl={signal.vast || null}
+        signalName={signal.name_live}
+        currentEvent={currentEvent}
+        isFullscreen={isExpanded}
+        onBack={onToggleExpand}
       />
       <ExpandButton isExpanded={isExpanded} onClick={onToggleExpand} />
     </div>

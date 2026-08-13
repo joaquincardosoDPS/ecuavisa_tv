@@ -46,8 +46,7 @@ function LoginView() {
           <div className={styles.stepHeader}>
             <span className={styles.stepNumber}>1</span>
             <p className={styles.stepText}>
-              Visita {tvUrl.replace(/^https?:\/\//, '')} o escanee el
-              siguiente código QR usando su móvil:
+              Escanee el siguiente código QR usando su móvil:
             </p>
           </div>
           <div className={styles.stepBody}>
@@ -74,7 +73,7 @@ function LoginView() {
           <div className={styles.stepHeader}>
             <span className={styles.stepNumber}>2</span>
             <p className={styles.stepText}>
-              Ingresa el siguiente código
+              Visite {tvUrl.replace(/^https?:\/\//, '')} e ingrese el siguiente código
             </p>
           </div>
           <div className={styles.stepBody}>

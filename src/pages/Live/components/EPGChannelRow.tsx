@@ -13,7 +13,8 @@ interface EPGChannelRowProps {
   signal: LiveSignal;
   events: { event: EPGEvent; startPct: number; widthPct: number }[];
   isSelected: boolean;
-  onSelectSignal: (keyLive: string) => void;
+  onSelectSignal?: (keyLive: string) => void;
+  onActivateSignal?: (keyLive: string) => void;
   rowIdx: number;
   scrollRatio: number;
   innerWidthPct: string;
@@ -30,6 +31,7 @@ export function EPGChannelRow({
   events,
   isSelected,
   onSelectSignal,
+  onActivateSignal,
   rowIdx,
   scrollRatio,
   innerWidthPct,
@@ -76,7 +78,7 @@ export function EPGChannelRow({
   const { ref, focused } = useFocusable({
     focusKey: rowId,
     onEnterPress: () => {
-      onSelectSignal(signal.key_live);
+      onActivateSignal?.(signal.key_live);
     },
     onArrowPress: (direction) => {
       if (direction === "up" && isFirstRow) {
@@ -108,18 +110,19 @@ export function EPGChannelRow({
 
   useEffect(() => {
     if (focused) {
+      onSelectSignal?.(signal.key_live);
       const el = document.getElementById(rowId);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
       }
     }
-  }, [focused, rowId]);
+  }, [focused, onSelectSignal, signal.key_live, rowId]);
 
   return (
     <div
       id={rowId}
       ref={ref}
-      onClick={() => onSelectSignal(signal.key_live)}
+      onClick={() => onActivateSignal?.(signal.key_live)}
       className={`${styles.epgChannelRow} ${focused ? styles.focusedRow : ""}`}
     >
       <div
@@ -153,9 +156,7 @@ export function EPGChannelRow({
               const visiblePct = widthPct * scrollRatio;
               const isSmall = visiblePct < 2.5;
 
-              const cardBgClass = useHighlight
-                ? styles.epgEventHighlight
-                : (isSelected && !isNow ? styles.epgEventSelectedNotNow : (!useHighlight && !isSelected ? styles.epgEventNormal : ""));
+              const cardBgClass = useHighlight ? styles.epgEventHighlight : styles.epgTimeMarkNormal;
 
               return (
                 <div key={event.id} className={styles.epgEventPos} style={{ left: `${startPct}%`, width: `${widthPct}%` }}>

@@ -11,9 +11,3 @@
 .noSignalText {
   color: rgba(var(--clr-primary-title-rgb), 0.5);
 }
-
-.playerIframe {
-  border: none;
-  overflow: hidden;
-}
-

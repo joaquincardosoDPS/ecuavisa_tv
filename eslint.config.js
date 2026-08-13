@@ -24,6 +24,8 @@ export default defineConfig([
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/refs': 'off',
       'react-hooks/immutability': 'off',
+      // Ref objects are stable; reading .current inside callbacks is a valid pattern
+      'react-hooks/preserve-manual-memoization': 'off',
       // Barrel exports and lazy route configs are valid patterns
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },

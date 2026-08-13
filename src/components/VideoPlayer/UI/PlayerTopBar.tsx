@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import iconoVolverRaw from "@/assets/img/icons/iconos-volver.svg?raw";
 import styles from "./PlayerTopBar.module.css";
 
@@ -16,7 +17,18 @@ const PlayerTopBarComponent = ({
   isVisible,
   onBackClick,
 }: PlayerTopBarProps) => {
-  const [backHovered, setBackHovered] = useState(false);
+  const { ref, focused } = useFocusable({
+    focusKey: "PLAYER-BTN-BACK",
+    onEnterPress: () => onBackClick?.(),
+    onArrowPress: (direction) => {
+      if (direction === "up" || direction === "left" || direction === "right") return false;
+      if (direction === "down") {
+        setFocus("PLAYER-BTN-PLAYPAUSE");
+        return false;
+      }
+      return true;
+    },
+  });
 
   return (
     <div
@@ -39,9 +51,8 @@ const PlayerTopBarComponent = ({
       >
         {/* Botón Volver */}
         <button
+          ref={ref}
           onClick={onBackClick}
-          onMouseEnter={() => setBackHovered(true)}
-          onMouseLeave={() => setBackHovered(false)}
           style={{
             width: "56px",
             height: "56px",
@@ -54,7 +65,7 @@ const PlayerTopBarComponent = ({
             flexShrink: 0,
             background: "none",
             border: "none",
-            color: backHovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+            color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
             transition: "color 0.15s ease",
           }}
         >
@@ -84,8 +95,6 @@ const PlayerTopBarComponent = ({
       </div>
       <div className={styles.rightSection}
       >
-        {/* <CastButton />
-        <SubtitlesButton /> */}
       </div>
     </div>
   );

@@ -107,7 +107,7 @@ export function useLoginData(onLoginSuccess: () => void) {
         };
         initFetch();
 
-        codeIntervalRef.current = setInterval(() => fetchDeviceCode(), 30_000);
+        codeIntervalRef.current = setInterval(() => fetchDeviceCode(), 60_000);
         verifyIntervalRef.current = setInterval(() => checkAuthentication(), 5_000);
 
         return () => {

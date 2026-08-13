@@ -29,12 +29,22 @@ El componente se encuentra en `src/components/VideoPlayer` y tiene la siguiente 
 | `description` | `string` | Descripción o subtítulo (ej: "Temporada 1: Episodio 5"). |
 | `isLive` | `boolean` | Define si el contenido es una señal en vivo (desactiva seekbar). |
 | `vastUrl` | `string` | URL de la publicidad VAST/VMAP. |
+| `vastUrls` | `string[]` | URLs VAST pre-resueltas (waterfall de prerolls). Tiene prioridad sobre `vastUrl`. |
 | `autoplay` | `boolean` | Inicia la reproducción automáticamente (por defecto `true`). |
 | `onBack` | `function` | Callback para la acción del botón "Volver". |
 | `initialSeconds` | `number` | Punto de inicio de la reproducción en segundos. |
-| `episodes` | `Chapter[]` | Lista de capítulos para habilitar el menú lateral y la transición de fin de video. |
+| `episodes` | `Chapter[]` | Lista de capítulos para habilitar el menú lateral. |
 | `currentEpisodeKey` | `string` | Identificador del capítulo actual. |
 | `onEpisodeSelect` | `function` | Callback cuando el usuario selecciona otro capítulo. |
+| `onTimeUpdate` | `function` | Callback en cada `timeupdate` con `(currentTime, duration)`. |
+| `onEnded` | `function` | Callback cuando el video termina naturalmente (después del postroll si existe). |
+| `pipMode` | `boolean` | Encoje el video a la esquina inferior derecha (transición de fin de episodio). |
+| `forceControlsVisible` | `boolean` | Mantiene visibles los controles (TopBar + Controls). |
+| `onRestartChapter` | `function` | Callback para reiniciar el capítulo actual. |
+| `onNextChapter` | `function` | Callback para pasar al siguiente capítulo. |
+| `hasNextChapter` | `boolean` | Si hay un capítulo siguiente disponible. |
+| `midrollCuepoints` | `AdBreakCuepoint[]` | Cuepoints de midroll con timestamps y URLs VAST. |
+| `postrollVastUrls` | `string[]` | URLs VAST de postroll. |
 | `programBackgroundImage` | `string` | Imagen de fondo para la transición de "Siguiente capítulo". |
 
 ## 📖 Ejemplo de Uso

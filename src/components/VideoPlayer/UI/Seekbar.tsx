@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { SkipButton } from "./SkipButton";
 import { PlayPauseButton } from "./PlayPauseButton";
+import { ChapterButton } from "./ChapterButton";
 import { VolumeControl } from "./VolumeControl";
 import { FullscreenButton } from "./FullscreenButton";
 import { LiveControls } from "./LiveControls";
@@ -22,6 +24,11 @@ interface SeekbarProps {
   onVolumeChange?: (volume: number) => void;
   onMuteToggle?: () => void;
   onFullscreen?: () => void;
+  onRestartChapter?: () => void;
+  onNextChapter?: () => void;
+  hasNextChapter?: boolean;
+  adCuepoints?: { timeSeconds: number }[];
+  playedCuepoints?: number[];
 }
 
 const formatTime = (seconds: number) => {
@@ -34,6 +41,8 @@ const formatTime = (seconds: number) => {
   }
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 };
+
+const SEEK_STEP = 10;
 
 const SeekbarComponent = ({
   seekTime = 0,
@@ -50,6 +59,11 @@ const SeekbarComponent = ({
   onVolumeChange,
   onMuteToggle,
   onFullscreen,
+  onRestartChapter,
+  onNextChapter,
+  hasNextChapter = false,
+  adCuepoints,
+  playedCuepoints,
 }: SeekbarProps) => {
   const [position, setPosition] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
@@ -59,6 +73,9 @@ const SeekbarComponent = ({
   const consecutiveSeeksRef = useRef(0);
   const lastTargetPositionRef = useRef<number | null>(null);
   const dragPositionRef = useRef(0);
+
+  const seekIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const seekDirectionRef = useRef<number>(0);
 
   const applySeek = useCallback(
     (newPos: number) => {
@@ -74,7 +91,6 @@ const SeekbarComponent = ({
     [onSeek],
   );
 
-  // --- Utilidad: calcular posición a partir de un clientX ---
   const calcPositionFromClientX = useCallback(
     (clientX: number): number => {
       if (!trackRef.current || duration <= 0) return 0;
@@ -88,11 +104,9 @@ const SeekbarComponent = ({
     [duration],
   );
 
-  // --- Click directo sobre la barra (sin drag) ---
   const handleTrackClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (isLive || duration <= 0) return;
-      // Ignorar el click si acabamos de soltar un drag
       if (isDragging) return;
 
       const newPos = calcPositionFromClientX(e.clientX);
@@ -102,7 +116,6 @@ const SeekbarComponent = ({
     [isLive, duration, isDragging, calcPositionFromClientX, applySeek],
   );
 
-  // --- Drag handlers ---
   const handleDragMove = useCallback(
     (clientX: number) => {
       const newPos = calcPositionFromClientX(clientX);
@@ -118,14 +131,12 @@ const SeekbarComponent = ({
     applySeek(dragPositionRef.current);
   }, [applySeek]);
 
-  // Mouse events
   const onMouseMove = useCallback(
     (e: MouseEvent) => handleDragMove(e.clientX),
     [handleDragMove],
   );
   const onMouseUp = useCallback(() => handleDragEnd(), [handleDragEnd]);
 
-  // Touch events
   const onTouchMove = useCallback(
     (e: TouchEvent) => {
       if (e.touches.length > 0) handleDragMove(e.touches[0].clientX);
@@ -134,7 +145,6 @@ const SeekbarComponent = ({
   );
   const onTouchEnd = useCallback(() => handleDragEnd(), [handleDragEnd]);
 
-  // Registrar/desregistrar listeners globales al hacer drag
   useEffect(() => {
     if (!isDragging) return;
 
@@ -151,7 +161,6 @@ const SeekbarComponent = ({
     };
   }, [isDragging, onMouseMove, onMouseUp, onTouchMove, onTouchEnd]);
 
-  // Iniciar drag con mouse
   const handleThumbMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (isLive || duration <= 0) return;
@@ -164,7 +173,6 @@ const SeekbarComponent = ({
     [isLive, duration, position],
   );
 
-  // Iniciar drag con touch
   const handleThumbTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (isLive || duration <= 0) return;
@@ -176,9 +184,7 @@ const SeekbarComponent = ({
     [isLive, duration, position],
   );
 
-  // Sincronización natural de playback vs seeking/dragging
   useEffect(() => {
-    // Si hay preview de teclado, usarlo como posición absoluta
     if (previewSeekTime !== null && previewSeekTime !== undefined) {
       setPosition(previewSeekTime);
       return;
@@ -197,7 +203,84 @@ const SeekbarComponent = ({
     }
   }, [seekTime, previewSeekTime, isSeeking, isDragging]);
 
-  // Cálculo visual
+  const startDpadSeeking = useCallback((direction: number) => {
+    seekDirectionRef.current = direction;
+    setPosition((prev) => {
+      const newPos = Math.max(0, Math.min(duration, prev + direction * SEEK_STEP));
+      return newPos;
+    });
+    setIsSeeking(true);
+
+    if (seekIntervalRef.current) return;
+    seekIntervalRef.current = setInterval(() => {
+      setPosition((prev) => {
+        const newPos = Math.max(0, Math.min(duration, prev + seekDirectionRef.current * SEEK_STEP));
+        return newPos;
+      });
+    }, 150);
+  }, [duration]);
+
+  const stopDpadSeeking = useCallback(() => {
+    const wasSeeking = seekIntervalRef.current !== null;
+    if (seekIntervalRef.current) {
+      clearInterval(seekIntervalRef.current);
+      seekIntervalRef.current = null;
+    }
+    if (wasSeeking) {
+      setPosition((prev) => {
+        applySeek(prev);
+        return prev;
+      });
+    }
+  }, [applySeek]);
+
+  useEffect(() => {
+    return () => {
+      if (seekIntervalRef.current) {
+        clearInterval(seekIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const { ref: thumbFocusRef, focused: thumbFocused } = useFocusable({
+    focusKey: "PLAYER-SEEKBAR-THUMB",
+    onArrowPress: (direction) => {
+      if (direction === "left" || direction === "right") {
+        const dir = direction === "left" ? -1 : 1;
+        startDpadSeeking(dir);
+        return false;
+      }
+      if (direction === "up") {
+        stopDpadSeeking();
+        setFocus("PLAYER-BTN-PLAYPAUSE");
+        return false;
+      }
+      if (direction === "down") {
+        return false;
+      }
+      return true;
+    },
+    onEnterPress: () => {
+      onPlayPause?.();
+    },
+  });
+
+  useEffect(() => {
+    if (!thumbFocused && seekIntervalRef.current) {
+      stopDpadSeeking();
+    }
+  }, [thumbFocused, stopDpadSeeking]);
+
+  useEffect(() => {
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if ((e.keyCode === 37 || e.keyCode === 39) && seekIntervalRef.current) {
+        stopDpadSeeking();
+      }
+    };
+    window.addEventListener("keyup", handleKeyUp);
+    return () => window.removeEventListener("keyup", handleKeyUp);
+  }, [stopDpadSeeking]);
+
   const percentage = isLive
     ? 0
     : duration > 0
@@ -214,7 +297,6 @@ const SeekbarComponent = ({
     <div
       className={`seekbar-wrapper ${styles.seekbarWrapper}`}
     >
-      {/* ═══════ LIVE: Controles simplificados ═══════ */}
       {isLive && (
         <LiveControls
           playing={playing}
@@ -227,27 +309,24 @@ const SeekbarComponent = ({
         />
       )}
 
-      {/* ═══════ VOD: Controles completos + Seekbar ═══════ */}
       {!isLive && (
         <>
-          {/* Fila de controles */}
           <div className={styles.controlRow}
           >
-            {/* Tiempo */}
             <div className={styles.timeDisplay}>
               <div className={styles.durationText}>{formatTime(duration)}</div>
               <span>{" / "}</span>
               <div className={styles.positionText}>{formatTime(position)}</div>
             </div>
 
-            {/* Skip / Play / Skip */}
             <div className={styles.centerControls}>
+              <ChapterButton action="restart" onClick={onRestartChapter} />
               <SkipButton seconds={-10} onClick={() => onSkip && onSkip(-10)} />
               <PlayPauseButton playing={playing} onClick={onPlayPause} />
               <SkipButton seconds={10} onClick={() => onSkip && onSkip(10)} />
+              <ChapterButton action="next" onClick={onNextChapter} disabled={!hasNextChapter} />
             </div>
 
-            {/* Volumen / Fullscreen */}
             <div className={styles.rightControls}>
               <VolumeControl
                 volume={volume}
@@ -259,7 +338,6 @@ const SeekbarComponent = ({
             </div>
           </div>
 
-          {/* Barra de progreso */}
           <div
             ref={trackRef}
             className={`seekbar-track ${styles.seekbarTrack}`}
@@ -292,6 +370,7 @@ const SeekbarComponent = ({
               }}
             />
             <div
+              ref={thumbFocusRef}
               className="seekbar-thumb"
               onMouseDown={handleThumbMouseDown}
               onTouchStart={handleThumbTouchStart}
@@ -300,16 +379,37 @@ const SeekbarComponent = ({
                 left: `${percentage}%`,
                 top: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "15px",
-                height: "15px",
-                backgroundColor: 'var(--clr-primary-title)',
-                border: "3px solid #FFFFFF",
+                width: thumbFocused ? "20px" : "15px",
+                height: thumbFocused ? "20px" : "15px",
+                backgroundColor: thumbFocused ? "var(--foc-primary, #FF1376)" : "var(--clr-primary-title)",
+                border: thumbFocused ? "3px solid var(--foc-primary, #FF1376)" : "3px solid #FFFFFF",
                 borderRadius: "50%",
                 cursor: isDragging ? "grabbing" : "grab",
                 transition: isDragging ? "none" : "all 0.15s ease",
                 touchAction: "none",
+                boxShadow: thumbFocused ? "0 0 16px rgba(255,19,118,0.6)" : "none",
+                outline: "none",
               }}
             />
+            {adCuepoints?.map((cp) => {
+              const pos = duration > 0 ? (cp.timeSeconds / duration) * 100 : 0;
+              const isPlayed = playedCuepoints?.includes(cp.timeSeconds) ?? false;
+              return (
+                <div
+                  key={cp.timeSeconds}
+                  style={{
+                    position: 'absolute',
+                    left: `${pos}%`,
+                    top: 0,
+                    width: '4px',
+                    height: '100%',
+                    backgroundColor: isPlayed ? '#666' : '#FFD700',
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                  }}
+                />
+              );
+            })}
           </div>
         </>
       )}

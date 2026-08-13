@@ -114,6 +114,12 @@ interface PlayerControlsProps {
   onEpisodeSelect?: (episode: ProgramChapter) => void;
   onHideControls?: () => void;
   onSidebarVisibilityChange?: (isOpen: boolean) => void;
+
+  onRestartChapter?: () => void;
+  onNextChapter?: () => void;
+  hasNextChapter?: boolean;
+  adCuepoints?: { timeSeconds: number; vastUrls: string[] }[];
+  playedCuepoints?: number[];
 }
 
 const PlayerControlsComponent = ({
@@ -137,6 +143,11 @@ const PlayerControlsComponent = ({
   onEpisodeSelect,
   onHideControls,
   onSidebarVisibilityChange,
+  onRestartChapter,
+  onNextChapter,
+  hasNextChapter = false,
+  adCuepoints,
+  playedCuepoints,
 }: PlayerControlsProps) => {
   const [isChaptersSidebarOpen, setIsChaptersSidebarOpen] = useState(false);
 
@@ -200,6 +211,11 @@ const PlayerControlsComponent = ({
             onVolumeChange={onVolumeChange}
             onMuteToggle={onMuteToggle}
             onFullscreen={onFullscreen}
+            onRestartChapter={onRestartChapter}
+            onNextChapter={onNextChapter}
+            hasNextChapter={hasNextChapter}
+            adCuepoints={adCuepoints}
+            playedCuepoints={playedCuepoints}
           />
         </div>
 

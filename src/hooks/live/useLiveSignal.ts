@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { useLiveData } from "@/hooks/live/useLiveData";
 import type { LiveSignal, EPGChannel } from "@/interfaces/catalog.interface";
@@ -11,6 +11,7 @@ export interface UseLiveSignalReturn {
   expanded: boolean;
   handleSelectSignal: (keyLive: string) => void;
   toggleExpand: () => void;
+  expandPlayer: () => void;
   resolvedKeyLive: string | null;
 }
 
@@ -74,12 +75,16 @@ export function useLiveSignal(): UseLiveSignalReturn {
       (s) => s.key_live === resolvedKeyLive || s.key === resolvedKeyLive,
     ) ?? playlistPremium[0] ?? null;
 
-  const handleSelectSignal = (keyLive: string) => {
+  const handleSelectSignal = useCallback((keyLive: string) => {
     setSelectedKeyLive(keyLive);
-  };
+  }, []);
 
   const toggleExpand = () => {
     setExpanded((prev) => !prev);
+  };
+
+  const expandPlayer = () => {
+    setExpanded(true);
   };
 
   return {
@@ -90,6 +95,7 @@ export function useLiveSignal(): UseLiveSignalReturn {
     expanded,
     handleSelectSignal,
     toggleExpand,
+    expandPlayer,
     resolvedKeyLive,
   };
 }

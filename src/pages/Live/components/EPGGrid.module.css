@@ -165,14 +165,6 @@
   background: linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10);
 }
 
-.epgEventSelectedNotNow {
-  background: rgba(var(--epg-selected-rgb), 0.4);
-}
-
-.epgEventNormal {
-  background: rgba(var(--clr-primary-title-rgb), 0.2);
-}
-
 .epgEventTitle {
   margin: 0;
   font-size: 1.25rem;

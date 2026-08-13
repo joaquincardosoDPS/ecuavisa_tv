@@ -9,19 +9,51 @@
 }
 
 .vast-container video {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
     object-fit: contain;
 }
 
-/* Ocultar botones de play/pause superpuestos del IMA SDK */
+.vast-container > div {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+#adVideoContainer > div {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+#adVideoContainer video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+}
+
+#adVideoContainer iframe,
+.vast-container iframe {
+    width: 100% !important;
+    height: 100% !important;
+}
+
 .vast-container .ima-play-pause-div,
 .vast-container [class*="ima-play"],
 .vast-container [class*="ima-pause"],
 .vast-container [class*="play-button"],
 .vast-container [class*="pause-button"],
 .vast-container [class*="ytp-large-play-button"],
-.vast-container [class*="ytp-play-button"] {
+.vast-container [class*="ytp-play-button"],
+#adVideoContainer .ima-play-pause-div,
+#adVideoContainer [class*="ima-play"],
+#adVideoContainer [class*="ima-pause"],
+#adVideoContainer [class*="play-button"],
+#adVideoContainer [class*="pause-button"] {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
