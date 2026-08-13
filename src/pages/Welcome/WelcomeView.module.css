@@ -1,6 +1,6 @@
 .page {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
     overflow: hidden;
 }
 
@@ -10,7 +10,7 @@
     flex-direction: column;
     align-items: start;
     justify-content: center;
-    padding-left: 15rem;
+    padding-left: 5rem;
 
 }
 
@@ -43,18 +43,19 @@
     color: var(--clr-secondary-text);
     margin: 0;
     text-align: center;
+    line-height: 37px;
 }
 
 .link {
-    color: var(--clr-primary-title);
-    font-weight: 600;
+    color: #6BE8E1;
+    font-weight: 400;
 }
 
 .qr {
     margin-top: 1.25rem;
     border-radius: 0.5rem;
     padding: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgb(255, 255, 255);
     display: flex;
     align-items: center;
     justify-content: center;
