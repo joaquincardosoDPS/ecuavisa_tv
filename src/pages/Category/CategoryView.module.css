@@ -39,3 +39,15 @@
   padding: 2.5rem 0;
 }
 
+.loadMoreBtn {
+  border-radius: 9999px;
+}
+
+.loadMoreFocused button {
+  background-color: transparent !important;
+  color: var(--clr-primary-title) !important;
+  border-color: var(--foc-primary) !important;
+  box-shadow: 0 0 20px rgba(255, 19, 118, 0.4);
+  transform: scale(1.02);
+}
+

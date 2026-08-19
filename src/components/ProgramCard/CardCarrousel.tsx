@@ -3,7 +3,7 @@ import type { Program, Event } from "@/interfaces/catalog.interface";
 import type { EmblaOptionsType } from "embla-carousel";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import CardHorizontal from "./CardHorizontal";
 import CardVertical from "./CardVertical";
@@ -89,6 +89,16 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
                 index: viewMoreIndex,
                 emblaApi: emblaApi ?? undefined,
                 onEnterPress: () => navigate(`/categoria/${categorySlug}`),
+                onArrowPress: (direction) => {
+                  const lastProgram = programs[programs.length - 1];
+                  if (!lastProgram) return true;
+                  const towardAdjacent = isVertical ? direction === "up" : direction === "left";
+                  if (towardAdjacent) {
+                    setFocus(`${generatedFocusKey}-item-${lastProgram.id}`);
+                    return false;
+                  }
+                  return true;
+                },
               });
 
               return (

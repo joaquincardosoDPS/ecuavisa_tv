@@ -5,7 +5,8 @@ import ProgramGrid from "@/components/ProgramCard/ProgramGrid";
 import Button from "@/components/ui/Button";
 import { TVScrollProvider, useTVScroll } from "@/hooks/tv/useTVScroll";
 import { useEffect } from "react";
-import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { getCurrentFocusKey, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import styles from "./CategoryView.module.css";
 
 function SetInitialFocus() {
@@ -23,9 +24,34 @@ function SetInitialFocus() {
   return null;
 }
 
+function LoadMoreButton({ onClick, isFetching }: { onClick: () => void; isFetching: boolean }) {
+  const { ref, focused } = useCarouselFocus({
+    focusKey: "category-load-more",
+    onEnterPress: onClick,
+  });
+
+  return (
+    <div ref={ref} className={[styles.loadMoreWrapper, focused ? styles.loadMoreFocused : ""].join(" ")}>
+      <Button variant="tertiary" onClick={onClick} disabled={isFetching} className={styles.loadMoreBtn}>
+        {isFetching ? "Cargando..." : "Cargar más"}
+      </Button>
+    </div>
+  );
+}
+
 function CategoryView() {
   const { slug, categoryTitle, programs, totalRecords, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useCategoryPrograms();
   useDocumentTitle(categoryTitle || slug);
+
+  // Si el botón "Cargar más" estaba enfocado y desaparece (última página cargada),
+  // movemos el foco a la última tarjeta para continuar la navegación.
+  useEffect(() => {
+    if (hasNextPage || isFetchingNextPage) return;
+    if (getCurrentFocusKey() !== "category-load-more") return;
+    const lastIndex = programs.length - 1;
+    if (lastIndex < 0) return;
+    setFocus(`program-grid-item-${lastIndex}`);
+  }, [hasNextPage, isFetchingNextPage, programs.length]);
 
   function CategoryScrollWrapper({ children }: { children: React.ReactNode }) {
     const { scrollY } = useTVScroll();
@@ -63,11 +89,7 @@ function CategoryView() {
                 <SetInitialFocus />
               )}
               {hasNextPage && (
-                <div className={styles.loadMoreWrapper}>
-                  <Button variant="secondary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-                    {isFetchingNextPage ? "Cargando..." : "Cargar más"}
-                  </Button>
-                </div>
+                <LoadMoreButton onClick={() => fetchNextPage()} isFetching={isFetchingNextPage} />
               )}
             </>
           )}

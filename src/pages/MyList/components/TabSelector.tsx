@@ -7,13 +7,19 @@ export type Tab = "favorites" | "history";
 interface TabSelectorProps {
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
+  favoritesEmpty?: boolean;
+  historyEmpty?: boolean;
 }
 
-export function TabSelector({ activeTab, onTabChange }: TabSelectorProps) {
+export function TabSelector({ activeTab, onTabChange, favoritesEmpty = false, historyEmpty = false }: TabSelectorProps) {
   // Al presionar "abajo" desde un tab, mover el foco al primer elemento de la
   // pestaña activa (la que se está mostrando actualmente).
   const handleDown = () => {
-    setFocus(activeTab === 'favorites' ? 'program-grid-item-0' : 'mylist-history-item-0');
+    if (activeTab === 'favorites') {
+      setFocus(favoritesEmpty ? 'mylist-empty-add' : 'program-grid-item-0');
+    } else {
+      setFocus(historyEmpty ? 'mylist-history-empty-explore' : 'mylist-history-item-0');
+    }
     return false;
   };
 

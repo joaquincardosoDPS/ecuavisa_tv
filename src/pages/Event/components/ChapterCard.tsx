@@ -59,7 +59,9 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
           <div className={styles.infoContainer}>
             {/*<p className={styles.durationText}>{formatDuration(chapter.duration_seg)}</p>*/}
             <h4 className={styles.titleText}>{chapter.title}</h4>
+            
             {/*<p className={styles.descriptionText}>{chapter.description}</p>*/}
+            
           </div>
         )}
       </div>

@@ -85,11 +85,16 @@ export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextP
     saveLastFocusedChild: true,
   });
 
+  const { ref: exploreRef, focused: exploreFocused } = useCarouselFocus({
+    focusKey: "mylist-history-empty-explore",
+    onEnterPress: () => navigate("/"),
+  });
+
   if (items.length === 0) {
     return (
       <div className={styles.emptyStateContainer}>
         <p className={styles.emptyStateText}>No tienes episodios pendientes por ver.</p>
-        <Button variant="secondary" onClick={() => navigate("/")}>Explorar contenido</Button>
+        <Button ref={exploreRef} variant="secondary" onClick={() => navigate("/")} focused={exploreFocused}>Explorar contenido</Button>
       </div>
     );
   }

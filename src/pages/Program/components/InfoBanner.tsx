@@ -102,7 +102,8 @@ function InfoBanner({ program, firstChapter, badge, schedule }: InfoBannerProps)
               variant="primary"
               onClick={handleFavorite}
               className={styles.favBtn}
-              style={{ backgroundColor: isFavorited ? "var(--foc-secondary)" : "black", borderColor: isFavorited ? "transparent" : "white" }}
+              style={{ backgroundColor: "black", borderColor: isFavorited ? "transparent" : "white" }}
+              
             >
               {isFavorited ? <HeartIcon filled size={24} /> : "+"}
             </Button>
