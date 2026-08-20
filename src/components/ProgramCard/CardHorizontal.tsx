@@ -6,6 +6,8 @@ import { getEventStatus } from "@/utils/eventStatus";
 import { formatEventDayTime } from "@/utils/formatDate";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import type { EmblaCarouselType } from "embla-carousel";
+import RestrictionOverlay from "@/components/ui/RestrictionOverlay";
+import { isContentRestricted } from "@/utils/restriction";
 import styles from "./ProgramCard.module.css";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 
@@ -96,6 +98,9 @@ function CardHorizontal({ program, format, index, emblaApi, parentFocusKey, auto
           <div className={styles.cardImgFallback}>
             <span className={styles.cardImgFallbackText}>{program.title}</span>
           </div>
+        )}
+        {!isEvent && (
+          <RestrictionOverlay show={isContentRestricted(programData?.restriction)} />
         )}
       </div>
 

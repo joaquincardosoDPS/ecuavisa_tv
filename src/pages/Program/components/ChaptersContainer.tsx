@@ -16,6 +16,7 @@ interface Props {
   onLoaded?: () => void;
   onFirstChapter?: (chapter: Chapter) => void;
   showChapter?: boolean;
+  badge?: string;
 }
 
 function SeasonItem({ focusKey, temp, isActive, onSelect }: { focusKey: string; temp: number; isActive: boolean; onSelect: () => void }) {
@@ -50,7 +51,7 @@ function LoadMore({ programKey, onClick, isFetching }: { programKey: string; onC
   );
 }
 
-function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setActiveSeason, onLoaded, onFirstChapter, showChapter = true }: Props) {
+function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setActiveSeason, onLoaded, onFirstChapter, showChapter = true, badge }: Props) {
   const { chaptersWithHistory, isLoading: isLoadingChapters, fetchNextPage, hasNextPage, isFetchingNextPage } = useChapters(slug, activeSeason, activeSegment?.key || null);
 
   useEffect(() => {
@@ -106,6 +107,7 @@ function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setA
                 playbackTime={chapter.playbackTime}
                 isFinished={chapter.isFinished}
                 isFirstRow={index < 5}
+                badge={badge}
               />
             ))}
           </div>

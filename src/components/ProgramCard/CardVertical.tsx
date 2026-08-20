@@ -7,6 +7,8 @@ import { formatEventFullDate } from "@/utils/formatDate";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import type { EmblaCarouselType } from "embla-carousel";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import RestrictionOverlay from "@/components/ui/RestrictionOverlay";
+import { isContentRestricted } from "@/utils/restriction";
 import styles from "./ProgramCard.module.css";
 
 interface CardVerticalProps {
@@ -91,6 +93,9 @@ function CardVertical({ program, format, index, emblaApi, parentFocusKey, autoFo
           <div className={styles.cardImgFallback}>
             <span className={styles.cardImgFallbackText}>{program.title}</span>
           </div>
+        )}
+        {!isEvent && (
+          <RestrictionOverlay show={isContentRestricted(programData?.restriction)} />
         )}
       </div>
     </div>

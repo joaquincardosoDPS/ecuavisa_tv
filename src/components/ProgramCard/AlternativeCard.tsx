@@ -1,6 +1,8 @@
 import type { Program } from "@/interfaces/catalog.interface";
 import { useNavigate } from "react-router-dom";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import RestrictionOverlay from "@/components/ui/RestrictionOverlay";
+import { isContentRestricted } from "@/utils/restriction";
 import styles from "./ProgramCard.module.css";
 
 function AlternativeCard({ program, index, onFocus }: { program: Program; index?: number; onFocus?: () => void }) {
@@ -27,6 +29,7 @@ function AlternativeCard({ program, index, onFocus }: { program: Program; index?
                         <span className={styles.cardImgFallbackText}>{program.title}</span>
                     </div>
                 )}
+                <RestrictionOverlay show={isContentRestricted(program.restriction)} />
             </div>
             <div className={styles.cardMeta}>
                 <p className={styles.cardTitle}>{program.title}</p>
