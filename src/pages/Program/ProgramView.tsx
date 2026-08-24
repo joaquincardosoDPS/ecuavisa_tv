@@ -45,6 +45,7 @@ function ProgramView({ program: programDetail, slug, setIsLoading }: ProgramView
               onFirstChapter={setFirstChapter}
               showChapter={programDetail.active_number}
               badge={programBadge}
+              programRestriction={programDetail.restriction}
             />
           )}
         </div>

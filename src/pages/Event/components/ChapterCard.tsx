@@ -19,6 +19,8 @@ interface ChapterCardProps {
   badge?: string;
   /** Si es la primera fila de la grilla: al enfocarla, la vista se alinea con la posición del tab. */
   isFirstRow?: boolean;
+  /** Restricción del programa: si el programa está restringido, todos sus capítulos se bloquean. */
+  programRestriction?: string | number | null;
 }
 
 function getProgress(playbackTime: number, durationSeg: number): number {
@@ -26,13 +28,13 @@ function getProgress(playbackTime: number, durationSeg: number): number {
   return Math.min(100, (playbackTime / durationSeg) * 100);
 }
 
-function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false, isFirstRow = false, badge }: ChapterCardProps) {
+function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false, isFirstRow = false, badge, programRestriction }: ChapterCardProps) {
   const navigate = useNavigate();
   const imageSrc = chapter.image_land.small;
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
 
   const chapterFocusKey = `chapter-${programKey}-${chapter.key_segment}-${chapter.season}-${chapter.chapter}`;
-  const isRestricted = isContentRestricted(chapter.restriction);
+  const isRestricted = isContentRestricted(chapter.restriction) || isContentRestricted(programRestriction);
 
   const handleClick = () => {
     if (isRestricted) {

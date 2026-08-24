@@ -1,0 +1,20 @@
+.badge {
+    position: absolute;
+    bottom: 0.625rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.9rem;
+    border-radius: 9999px;
+    background-color: var(--foc-tertiary, #6be8e1);
+    color: #00373f;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}

@@ -49,6 +49,7 @@ function ProgramSingleView({ program: programDetail, setIsLoading }: ProgramSing
               activeSeason={activeSeason}
               setActiveSeason={setActiveSeason}
               onLoaded={handleChaptersLoaded}
+              programRestriction={programDetail.restriction}
             />
           )}
         </div>

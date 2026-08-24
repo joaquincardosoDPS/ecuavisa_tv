@@ -6,6 +6,8 @@ import { PlayButton } from "@/components/icons/play-button";
 import { InfoCircle } from "@/components/icons/info-circle";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import RestrictionBadge from "@/components/ui/RestrictionBadge";
+import { isContentRestricted } from "@/utils/restriction";
 import styles from "../Home.module.css";
 
 interface BannerInfoProps { 
@@ -81,6 +83,12 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
 
   return (
     <div className={styles.infoRoot}>
+      {!isEvent && (
+        <RestrictionBadge
+          show={isContentRestricted((program as Program).restriction)}
+          className={styles.bannerRestrictionBadge}
+        />
+      )}
       {eventStatus && (
         <span className={styles.eventBadge} style={{ backgroundColor: eventStatus.bgColor, color: eventStatus.textColor }}>
           {eventStatus.label}

@@ -93,6 +93,17 @@
     height: 100vh;
 }
 
+/* Etiqueta "CAPÍTULOS PAGADOS" arriba del título del programa en el banner.
+   La doble especificidad garantiza que pisa el posicionamiento base del pill en cards. */
+.infoRoot .bannerRestrictionBadge {
+    position: static;
+    transform: none;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    padding: 0.4rem 1.1rem;
+    align-self: flex-start;
+}
+
 .bannerControls {
     position: absolute;
     inset: 0;
