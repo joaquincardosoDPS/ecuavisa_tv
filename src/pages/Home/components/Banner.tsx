@@ -115,6 +115,17 @@ function Banner({ slider }: BannerProps) {
 
 					<BannerArrow direction="right" onClick={() => setCurrentIndex((i) => (i + 1) % total)} currentProgramId={slider[currentIndex].id} />
 				</div>
+
+				{total > 1 && (
+					<div className={styles.bannerDots} aria-hidden="true">
+						{slider.map((program, i) => (
+							<span
+								key={program.id}
+								className={[styles.bannerDot, i === currentIndex ? styles.bannerDotActive : ""].join(" ")}
+							/>
+						))}
+					</div>
+				)}
 			</div>
 		</FocusContext.Provider>
 	);

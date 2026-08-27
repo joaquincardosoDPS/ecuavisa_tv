@@ -95,7 +95,10 @@ function CardVertical({ program, format, index, emblaApi, parentFocusKey, autoFo
           </div>
         )}
         {!isEvent && (
-          <RestrictionBadge show={isContentRestricted(programData?.restriction)} />
+          <RestrictionBadge
+            show={isContentRestricted(programData?.restriction)}
+            position={isRanking ? "top-right" : "top"}
+          />
         )}
       </div>
     </div>

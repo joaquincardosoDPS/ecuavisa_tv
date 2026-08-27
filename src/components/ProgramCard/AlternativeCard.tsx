@@ -11,6 +11,7 @@ function AlternativeCard({ program, index, onFocus }: { program: Program; index?
 
     const { ref, focused } = useCarouselFocus({
         focusKey: `program-grid-item-${index ?? program.id}`,
+        index,
         onEnterPress: () => navigate(`/programas/${program.key}`),
         onFocus,
     });

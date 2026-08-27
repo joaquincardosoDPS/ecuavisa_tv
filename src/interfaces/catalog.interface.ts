@@ -260,6 +260,7 @@ export interface Event {
     live_associated: ChannelAssociation | null;
     classification: string;
     skip_view?: boolean;
+    restriction?: string | number;
 }
 
 export interface EventsResponse {

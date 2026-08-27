@@ -16,6 +16,8 @@ interface UseSpatialFocusOptions {
    * (misma posición que cuando el foco está en el tab), en vez del propio nodo.
    */
   scrollAnchorSelector?: string;
+  /** Callback extra al recibir foco (se ejecuta después del scroll interno). */
+  onFocus?: () => void;
 }
 
 /**
@@ -35,6 +37,7 @@ export function useSpatialFocus({
   position = "center",
   scrollAnchorSelector,
   onArrowPress,
+  onFocus,
 }: UseSpatialFocusOptions = {}) {
   const { ref, focused, focusKey: generatedFocusKey } = useFocusable({
     focusKey,
@@ -69,6 +72,7 @@ export function useSpatialFocus({
         const targetY = window.scrollY + rect.top - viewportHeight / 2 + rect.height / 2;
         window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
       }
+      if (onFocus) onFocus();
     },
     onEnterPress: () => {
       if (onEnterPress) onEnterPress();

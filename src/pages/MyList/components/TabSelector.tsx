@@ -1,5 +1,6 @@
 import styles from "./TabSelector.module.css";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
+import { useTVScroll } from "@/hooks/tv/useTVScroll";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 
 export type Tab = "favorites" | "history";
@@ -12,6 +13,11 @@ interface TabSelectorProps {
 }
 
 export function TabSelector({ activeTab, onTabChange, favoritesEmpty = false, historyEmpty = false }: TabSelectorProps) {
+  // La página usa scroll por transform (TVScrollProvider). Al enfocar un tab
+  // volvemos la vista al tope para que la fila de tabs quede visible bajo el
+  // header fijo y la navegación izquierda/derecha no "pierda" el foco.
+  const { resetScroll } = useTVScroll();
+
   // Al presionar "abajo" desde un tab, mover el foco al primer elemento de la
   // pestaña activa (la que se está mostrando actualmente).
   const handleDown = () => {
@@ -27,12 +33,14 @@ export function TabSelector({ activeTab, onTabChange, favoritesEmpty = false, hi
     focusKey: 'mylist-tab-favorites',
     onEnterPress: () => onTabChange('favorites'),
     onArrowPress: (dir) => (dir === 'down' ? handleDown() : true),
+    onFocus: resetScroll,
     position: 'top'
   });
   const { ref: histRef, focused: histFocused } = useSpatialFocus({
     focusKey: 'mylist-tab-history',
     onEnterPress: () => onTabChange('history'),
     onArrowPress: (dir) => (dir === 'down' ? handleDown() : true),
+    onFocus: resetScroll,
     position: 'top'
   });
 

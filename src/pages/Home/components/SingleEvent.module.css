@@ -30,6 +30,15 @@
   margin-top: 0.5rem;
 }
 
+/* Etiqueta "CAPÍTULOS PAGADOS" arriba del título del evento.
+   La doble especificidad pisa el posicionamiento base del pill en cards. */
+.eventContent .eventRestrictionBadge {
+  position: static;
+  transform: none;
+  font-size: 0.9rem;
+  padding: 0.4rem 1.1rem;
+}
+
 .eventBackgroundOverlay {
   position: absolute;
   inset: 0px;

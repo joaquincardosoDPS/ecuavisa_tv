@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 interface TVScrollContextProps {
   scrollY: number;
   scrollToNode: (node: HTMLElement, isBanner?: boolean) => void;
+  /** Vuelve la vista al tope (scrollY = 0). Útil al enfocar tabs/filas superiores. */
+  resetScroll: () => void;
 }
 
 const TVScrollContext = createContext<TVScrollContextProps | undefined>(undefined);
@@ -33,7 +35,9 @@ export function TVScrollProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const value = useMemo(() => ({ scrollY, scrollToNode }), [scrollY, scrollToNode]);
+  const resetScroll = useCallback(() => setScrollY(0), []);
+
+  const value = useMemo(() => ({ scrollY, scrollToNode, resetScroll }), [scrollY, scrollToNode, resetScroll]);
 
   return (
     <TVScrollContext.Provider value={value}>

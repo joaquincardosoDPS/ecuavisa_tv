@@ -42,6 +42,7 @@ function HistoryCard({ item, index, onPress }: HistoryCardProps) {
 
   const { ref, focused } = useCarouselFocus({
     focusKey: `mylist-history-item-${index}`,
+    index,
     onEnterPress: onPress,
   });
 
@@ -68,7 +69,23 @@ function HistoryCard({ item, index, onPress }: HistoryCardProps) {
   );
 }
 
-export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextPage }: HistoryGridProps) {
+function HistoryGridEmpty() {
+  const navigate = useNavigate();
+
+  const { ref: exploreRef, focused: exploreFocused } = useCarouselFocus({
+    focusKey: "mylist-history-empty-explore",
+    onEnterPress: () => navigate("/"),
+  });
+
+  return (
+    <div className={styles.emptyStateContainer}>
+      <p className={styles.emptyStateText}>No tienes episodios pendientes por ver.</p>
+      <Button ref={exploreRef} variant="secondary" onClick={() => navigate("/")} focused={exploreFocused}>Explorar contenido</Button>
+    </div>
+  );
+}
+
+function HistoryGridWithItems({ items, isFetchingNextPage, hasNextPage, fetchNextPage }: HistoryGridProps) {
   const navigate = useNavigate();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -84,20 +101,6 @@ export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextP
     focusKey: "zone-history-grid",
     saveLastFocusedChild: true,
   });
-
-  const { ref: exploreRef, focused: exploreFocused } = useCarouselFocus({
-    focusKey: "mylist-history-empty-explore",
-    onEnterPress: () => navigate("/"),
-  });
-
-  if (items.length === 0) {
-    return (
-      <div className={styles.emptyStateContainer}>
-        <p className={styles.emptyStateText}>No tienes episodios pendientes por ver.</p>
-        <Button ref={exploreRef} variant="secondary" onClick={() => navigate("/")} focused={exploreFocused}>Explorar contenido</Button>
-      </div>
-    );
-  }
 
   return (
     <FocusContext.Provider value={focusKey}>
@@ -116,5 +119,19 @@ export function HistoryGrid({ items, isFetchingNextPage, hasNextPage, fetchNextP
       </div>
     </FocusContext.Provider>
   );
+}
+
+/**
+ * Grid de "Seguir viendo" en Mi Lista. La vista vacía vive en un componente
+ * aparte para no registrar el focusable `mylist-history-empty-explore` (ni la
+ * zona del grid) cuando hay items: un focusable registrado sin `ref` (node
+ * null) roba el foco en la navegación espacial (izquierda desde el primer
+ * card, abajo desde el header) y hace que el foco "se pierda".
+ */
+export function HistoryGrid(props: HistoryGridProps) {
+  if (props.items.length === 0) {
+    return <HistoryGridEmpty />;
+  }
+  return <HistoryGridWithItems {...props} />;
 }
 

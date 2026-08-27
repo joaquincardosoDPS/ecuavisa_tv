@@ -4,6 +4,8 @@ import Button from "@/components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import RestrictionBadge from "@/components/ui/RestrictionBadge";
+import { isContentRestricted } from "@/utils/restriction";
 import styles from "./SingleEvent.module.css";
 
 interface SingleEventProps { category: Category; }
@@ -47,6 +49,10 @@ function SingleEvent({ category }: SingleEventProps) {
               {eventStatus.label}
             </span>
           )}
+          <RestrictionBadge
+            show={isContentRestricted(event?.restriction)}
+            className={styles.eventRestrictionBadge}
+          />
           <h2 className={styles.eventTitle}>
             {event?.title || category.title}
           </h2>

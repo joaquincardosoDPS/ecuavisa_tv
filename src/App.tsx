@@ -6,6 +6,7 @@ import { useIsMobile } from "./hooks/shared/useIsMobile";
 import { useConfigStore } from "./features/config/useConfigStore";
 import { FullScreenSpinner } from "./components/ui/FullScreenSpinner";
 import OnlyWebView from "./pages/Error/OnlyWebView";
+import { NetworkLostPopup } from "./components/ui/NetworkLostPopup";
 import { redirectToStore } from "./utils/mobileDetect";
 import fallbackLogo from "@/assets/img/logo.svg";
 
@@ -74,7 +75,11 @@ function App() {
   if (isError) return <div>Error crítico al iniciar la aplicación.</div>;
 
   return (
-    <RouterProvider router={appRouter} />
+    <>
+      <RouterProvider router={appRouter} />
+      {/* Popup global de red — visible en TODAS las pantallas (CO-CN-02) */}
+      <NetworkLostPopup />
+    </>
   )
 }
 

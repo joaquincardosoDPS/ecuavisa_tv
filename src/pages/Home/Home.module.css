@@ -73,6 +73,31 @@
     margin-bottom: 7.5rem;
 }
 
+/* Indicadores de slide del banner (puntos) */
+.bannerDots {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.bannerDot {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: rgba(var(--clr-primary-title-rgb, 255, 255, 255), 0.35);
+    transition: all 0.3s;
+}
+
+.bannerDotActive {
+    width: 1.875rem;
+    background-color: var(--clr-primary-title, #ffffff);
+}
+
 .bannerSlide {
     position: absolute;
     top: 0;
