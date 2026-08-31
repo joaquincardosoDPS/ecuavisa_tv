@@ -1,7 +1,6 @@
 .epgContainer {
   display: flex;
   flex-direction: column;
-  gap: 0px;
   width: 100%;
   height: 100%;
   cursor: grab;
@@ -24,9 +23,23 @@
   background: var(--epg-bar-bg);
 }
 
+.epgHeaderSpacer {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+}
+
+.epgTimelineTrack {
+  position: relative;
+  height: 2rem;
+}
+
 .epgHeaderBackground {
   position: absolute;
-  inset: 0px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   opacity: 0.5;
   background: var(--epg-grad-bg);
 }
@@ -76,11 +89,14 @@
 .epgChannelRow {
   display: flex;
   align-items: stretch;
-  gap: 0.75rem;
   margin-bottom: 1.5rem;
   cursor: pointer;
   border-radius: 0.5rem;
   transition: all 0.2s;
+}
+
+.epgChannelRow > * + * {
+  margin-left: 0.75rem;
 }
 
 .epgChannelLogo {
@@ -163,14 +179,6 @@
 
 .epgEventHighlight {
   background: linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10);
-}
-
-.epgEventSelectedNotNow {
-  background: rgba(var(--epg-selected-rgb), 0.4);
-}
-
-.epgEventNormal {
-  background: rgba(var(--clr-primary-title-rgb), 0.2);
 }
 
 .epgEventTitle {

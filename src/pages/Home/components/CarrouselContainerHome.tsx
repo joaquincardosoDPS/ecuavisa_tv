@@ -24,15 +24,12 @@ function CarrouselContainer({ category }: CarrouselContainerProps) {
 	return (
 		<div
 			className={[styles.homeCarouselSection, hasBgImage ? styles.homeCarouselWithBg : ""].join(" ")}
-			style={{
-				fontFamily: "var(--font-family-category)",
-				...(bgImage ? {
-					backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 100%), url(${bgImage})`,
-					backgroundSize: "cover",
-					backgroundPosition: "center",
-					backgroundRepeat: "no-repeat",
-				} : {}),
-			}}
+			style={bgImage ? {
+				backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 100%), url(${bgImage})`,
+				backgroundSize: "cover",
+				backgroundPosition: "center",
+				backgroundRepeat: "no-repeat",
+			} : undefined}
 		>
 			{(!hasIconImage || finalOrientation === "horizontal") && (
 				<h2 className={styles.homeCarouselTitle}>{category.title}</h2>

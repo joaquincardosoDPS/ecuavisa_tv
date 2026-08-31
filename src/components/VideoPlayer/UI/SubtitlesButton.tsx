@@ -25,9 +25,9 @@ const SubtitlesButtonComponent = ({
         alt="Subtítulos"
         width={22}
         height={22}
+        className={styles.iconImg}
         style={{
           filter: active || hovered ? "brightness(1.38)" : "none",
-          transition: "filter 0.15s ease",
         }}
       />
     </button>

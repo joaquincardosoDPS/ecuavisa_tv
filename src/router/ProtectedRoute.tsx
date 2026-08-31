@@ -44,7 +44,7 @@ function ProtectedRoute({ children }: { children?: React.ReactNode }) {
     }, [profiles, activeProfile, isSelectProfileRoute, setActiveProfile]);
 
     if (!isAuthenticated) {
-        return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
+        return <Navigate to="/auth/welcome" state={{ from: location.pathname }} replace />;
     }
 
     if (shouldFetchProfiles && (!profiles || !activeProfile)) {

@@ -41,8 +41,11 @@
 .actionList {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   margin-top: 2rem;
+}
+
+.actionList > * + * {
+  margin-top: 1.5rem;
 }
 
 .errorText {
@@ -91,6 +94,22 @@
   background-color: rgba(var(--clr-secondary-button), 0.25);
 }
 
+.avatarPreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+
+.avatarPlaceholderText {
+  font-size: 200px;
+  font-weight: bold;
+  font-family: Gotham;
+  line-height: 220px;
+  color: var(--clr-primary-title);
+  transition: opacity 0.3s;
+}
+
 .avatarPlaceholderWrapper {
   position: relative;
   width: 20rem;
@@ -102,7 +121,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
   overflow: hidden;
 }
 

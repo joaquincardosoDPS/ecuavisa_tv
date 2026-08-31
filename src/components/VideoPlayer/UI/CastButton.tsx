@@ -21,9 +21,9 @@ const CastButtonComponent = ({ onClick }: CastButtonProps) => {
         alt="Transmitir"
         width={22}
         height={22}
+        className={styles.iconImg}
         style={{
           filter: hovered ? "brightness(1.38)" : "none",
-          transition: "filter 0.15s ease",
         }}
       />
     </button>

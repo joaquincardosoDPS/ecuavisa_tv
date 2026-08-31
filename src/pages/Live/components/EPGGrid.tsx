@@ -9,6 +9,7 @@ interface EPGGridProps {
   signals: LiveSignal[];
   selectedKeyLive?: string;
   onSelectSignal?: (keyLive: string) => void;
+  onEnterSignal?: (keyLive: string) => void;
 }
 
 const VISIBLE_HOURS = 4;
@@ -58,7 +59,7 @@ function getTimeMarks(windowStart: Date, windowEnd: Date) {
 
 // const CURRENT_HOUR_BG = "linear-gradient(0deg, rgba(0, 198, 255, 0.64) 0%, rgba(0, 198, 255, 0.64) 100%), rgba(255, 255, 255, 0.10)";
 
-function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps) {
+function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal, onEnterSignal }: EPGGridProps) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), REFRESH_INTERVAL_MS);
@@ -130,8 +131,8 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps
   const handleRowClick = useCallback((keyLive: string) => {
     if (wasDragged.current) return;
     onSelectSignal?.(keyLive);
-  }, [onSelectSignal]);
-
+    onEnterSignal?.(keyLive);
+  }, [onSelectSignal, onEnterSignal]);
   const innerWidthPct = `${scrollRatio * 100}%`;
 
   return (
@@ -139,9 +140,9 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps
       <div className={styles.epgHeaderWrapper}>
         <div className={styles.epgHeaderBackground} />
         <div className={styles.epgHeaderBar}>
-          <div style={{ flexShrink: 0, position: "relative", zIndex: 20, width: LOGO_COL_WIDTH }} />
+          <div className={styles.epgHeaderSpacer} style={{ width: LOGO_COL_WIDTH }} />
           <div ref={headerRef} onScroll={() => handleScroll(-1)} className={styles.epgTimelineScroll}>
-            <div style={{ position: "relative", height: "2rem", width: innerWidthPct }}>
+            <div className={styles.epgTimelineTrack} style={{ width: innerWidthPct }}>
               {timeMarks.map((mark, idx) => (
                 <div key={`${mark.label}-${idx}`} className={styles.epgTimeMarkContainer} style={{ left: `${mark.startPct}%`, width: `${mark.widthPct}%` }}>
                   <div className={`${styles.epgTimeMark} ${mark.isCurrent ? styles.epgTimeMarkCurrent : styles.epgTimeMarkNormal}`} title={mark.label}>
@@ -167,7 +168,8 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal }: EPGGridProps
               signal={signal}
               events={events}
               isSelected={isSelected}
-              onSelectSignal={handleRowClick}
+              onSelectSignal={onSelectSignal}
+              onActivateSignal={handleRowClick}
               rowIdx={rowIdx}
               scrollRatio={scrollRatio}
               innerWidthPct={innerWidthPct}

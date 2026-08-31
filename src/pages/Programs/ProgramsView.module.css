@@ -1,3 +1,9 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
 .carouselsContainer {
   position: relative;
   z-index: 10;

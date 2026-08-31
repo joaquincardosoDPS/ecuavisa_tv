@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { catalogService } from "@/services/catalogService";
 import { useAuthStore } from "@/features/auth/authStore";
 import { historyService } from "@/services/historyService";
+import { adsService, type AdBreakCuepoint } from "@/services/adsService";
 import type { Chapter } from "@/interfaces/catalog.interface";
 
 /** Segundos antes de terminar en los que el player se achica */
@@ -38,6 +39,14 @@ export function usePlayerEpisode() {
     undefined,
   );
   const [nextChapter, setNextChapter] = useState<Chapter | null>(null);
+
+  // Datos del stream y publicidad
+  const [m3u8, setM3u8] = useState("");
+  const [vastUrl, setVastUrl] = useState<string | undefined>(undefined);
+  const [vastUrls, setVastUrls] = useState<string[]>([]);
+  const [midrollCuepoints, setMidrollCuepoints] = useState<AdBreakCuepoint[]>([]);
+  const [postrollVastUrls, setPostrollVastUrls] = useState<string[]>([]);
+  const [episodes, setEpisodes] = useState<Chapter[]>([]);
 
   // Estado de minimización
   const [isShrunk, setIsShrunk] = useState(false);
@@ -78,8 +87,9 @@ export function usePlayerEpisode() {
         const secs = Math.max(0, Math.ceil(remaining));
         setRemainingSeconds(secs);
 
-        // Auto-play next chapter when countdown ends
-        if (secs <= 1 && !autoPlayCancelledRef.current && segment) {
+        // Auto-play next chapter when countdown ends.
+        // Si el video ya terminó (remaining <= 0), el flujo onEnded/postroll decide.
+        if (remaining > 0 && secs <= 1 && !autoPlayCancelledRef.current && segment) {
           autoPlayCancelledRef.current = true;
           markAsFinished();
           navigate(`/play/${program}/${segment}/${nextChapterRef.current.season}/${nextChapterRef.current.chapter}`);
@@ -137,7 +147,7 @@ export function usePlayerEpisode() {
         const isNoSegments = programDetail?.single_episode === true;
 
         // Cargar capítulo actual
-        let chapterData: import("@/interfaces/catalog.interface").Chapter | undefined;
+        let chapterData: Chapter | undefined;
 
         if (isNoSegments) {
           // Programa single_episode: obtener capítulos sin segmento
@@ -174,6 +184,7 @@ export function usePlayerEpisode() {
           setChapterTitle(chapterData.title || "");
           setChapterNumber(chapterData.chapter ?? null);
           setSeasonNumber(chapterData.season ?? null);
+          setM3u8(chapterData.m3u8);
 
           let resolvedInitialSeconds: number | undefined;
 
@@ -200,8 +211,48 @@ export function usePlayerEpisode() {
             }
           }
           setInitialSeconds(resolvedInitialSeconds);
+        }
 
-          // Intentar cargar el siguiente capítulo (solo si tiene segmentos y next-cap > 0)
+        // Obtener VAST URLs para ads (esencial antes de montar el player)
+        if (!cancelled && chapterData) {
+          try {
+            const vmapData = await adsService.getVodAds(chapterData.key);
+            if (vmapData) {
+              const allPrerollUrls = adsService.getAllPrerollVastUrls(vmapData);
+              if (allPrerollUrls.length > 0) {
+                setVastUrls(allPrerollUrls);
+                setVastUrl(allPrerollUrls[0]);
+              }
+
+              const midrolls = adsService.getMidrollAdBreaks(vmapData);
+              const postrolls = adsService.getPostrollVastUrls(vmapData);
+              setMidrollCuepoints(midrolls);
+              setPostrollVastUrls(postrolls);
+            }
+          } catch {
+            // Ads not available, continue without
+          }
+        }
+
+        // Lista de episodios (para el sidebar del player)
+        if (!cancelled && chapterData && !isNoSegments) {
+          try {
+            const chaptersRes = await catalogService.getChapters({
+              program: program!,
+              segment,
+              season: seasonNum,
+              limit: 50,
+            });
+            if (chaptersRes?.data) {
+              setEpisodes(chaptersRes.data);
+            }
+          } catch {
+            // Episodes list not critical
+          }
+        }
+
+        // Intentar cargar el siguiente capítulo (solo si tiene segmentos y next-cap > 0)
+        if (!cancelled && chapterData) {
           const nextCapNum = chapterData["next-cap"];
           if (!isNoSegments && nextCapNum > 0) {
             try {
@@ -222,7 +273,9 @@ export function usePlayerEpisode() {
           } else {
             if (!cancelled) setNextChapter(null);
           }
+        }
 
+        if (!cancelled) {
           setLoading(false);
         }
       } catch {
@@ -250,6 +303,12 @@ export function usePlayerEpisode() {
     setNextChapter(null);
     setRemainingSeconds(SHRINK_THRESHOLD_SECONDS);
     setInitialSeconds(undefined);
+    setMidrollCuepoints([]);
+    setPostrollVastUrls([]);
+    setVastUrl(undefined);
+    setVastUrls([]);
+    setEpisodes([]);
+    setM3u8("");
   }, [segment, season, chapter]);
 
 
@@ -275,6 +334,12 @@ export function usePlayerEpisode() {
     initialSeconds,
     nextChapter,
     segment,
+    m3u8,
+    vastUrl,
+    vastUrls,
+    midrollCuepoints,
+    postrollVastUrls,
+    episodes,
 
     // Minimización
     isShrunk,
@@ -290,6 +355,7 @@ export function usePlayerEpisode() {
     playNext,
     goBack,
     goToEpisodes,
+    program,
     programKey,
     chapterTitle,
     chapterNumber,

@@ -7,6 +7,9 @@
 .tabsList {
   display: flex;
   flex-direction: row;
-  gap: 2.5rem;
+}
+
+.tabsList > * + * {
+  margin-left: 2.5rem;
 }
 

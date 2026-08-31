@@ -341,12 +341,9 @@ function RudoPlayer({
       {!hideOverlay && (
         <div
           onMouseMove={resetUIVisibility}
+          className="rudo-player-mouse-catcher"
           style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 2,
             pointerEvents: isUIVisible ? "none" : "auto",
-            cursor: "default",
           }}
         />
       )}

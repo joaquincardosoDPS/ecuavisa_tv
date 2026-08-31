@@ -84,14 +84,16 @@ function ContinueWatchingCarousel({ items }: ContinueWatchingProps) {
           <button
             onClick={() => emblaApi?.scrollPrev()}
             disabled={!canScrollPrev}
-            style={{ position: "absolute", left: 0, transform: "translate(-50%, -50%)", zIndex: 20, width: "3rem", height: "3rem", borderRadius: "9999px", backgroundColor: "rgba(var(--clr-primary-rgb), 0.6)", backdropFilter: "blur(4px)", border: "1px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent)", color: "var(--clr-primary-title)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s", opacity: canScrollPrev ? 1 : 0, cursor: canScrollPrev ? "pointer" : "default", top: "calc(15vw * 9 / 32)" }}
+            className={styles.carouselArrowLeft + " " + styles.carouselArrow}
+            style={{ opacity: canScrollPrev ? 1 : 0, cursor: canScrollPrev ? "pointer" : "default" }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
           </button>
           <button
             onClick={() => emblaApi?.scrollNext()}
             disabled={!canScrollNext}
-            style={{ position: "absolute", right: "3rem", transform: "translateY(-50%)", zIndex: 20, width: "3rem", height: "3rem", borderRadius: "9999px", backgroundColor: "rgba(var(--clr-primary-rgb), 0.6)", backdropFilter: "blur(4px)", border: "1px solid color-mix(in srgb, var(--clr-primary-title) 20%, transparent)", color: "var(--clr-primary-title)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s", opacity: canScrollNext ? 1 : 0, cursor: canScrollNext ? "pointer" : "default", top: "calc(15vw * 9 / 32)" }}
+            className={styles.carouselArrowRight + " " + styles.carouselArrow}
+            style={{ opacity: canScrollNext ? 1 : 0, cursor: canScrollNext ? "pointer" : "default" }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
           </button>

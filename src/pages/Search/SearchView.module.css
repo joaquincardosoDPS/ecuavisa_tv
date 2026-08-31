@@ -10,8 +10,11 @@
 .searchLayout {
 	display: flex;
 	width: 100%;
-	gap: 2rem;
 	flex: 1;
+}
+
+.searchLayout > * + * {
+	margin-left: 2rem;
 }
 
 .keyboardPanel {

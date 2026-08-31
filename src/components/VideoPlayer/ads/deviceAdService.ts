@@ -82,21 +82,24 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
         const iuMap: Record<string, string> = {};
         const iu = iuMap[slug];
 
-        base = 'https://pubads.g.doubleclick.net/gampad/ads';
-        paramsMap['iu'] = encodeURIComponent(iu);
-        paramsMap['output'] = 'xml_vast4';
-        paramsMap['sz'] = '640x480';
-        paramsMap['gdfp_req'] = '1';
-        paramsMap['tfcd'] = '0';
-        paramsMap['npa'] = '0';
+        // Solo reescribir si el slug tiene un ad unit mapeado
+        if (iu) {
+            base = 'https://pubads.g.doubleclick.net/gampad/ads';
+            paramsMap['iu'] = encodeURIComponent(iu);
+            paramsMap['output'] = 'xml_vast4';
+            paramsMap['sz'] = '640x480';
+            paramsMap['gdfp_req'] = '1';
+            paramsMap['tfcd'] = '0';
+            paramsMap['npa'] = '0';
 
-        // Eliminar parámetros exclusivos de Rudo que Google rechaza
-        delete paramsMap['app'];
-        delete paramsMap['dpssid'];
-        delete paramsMap['ndvc'];
-        delete paramsMap['sid'];
-        delete paramsMap['platform'];
-        delete paramsMap['impl'];
+            // Eliminar parámetros exclusivos de Rudo que Google rechaza
+            delete paramsMap['app'];
+            delete paramsMap['dpssid'];
+            delete paramsMap['ndvc'];
+            delete paramsMap['sid'];
+            delete paramsMap['platform'];
+            delete paramsMap['impl'];
+        }
     }
 
     // Agregar parámetros de identificación persistente (Web)
@@ -169,4 +172,69 @@ export function appendAdParamsToVastUrl(vastUrl: string, adInfo: DeviceAdInfo, f
     }
 
     return base + '?' + parts.join('&');
+}
+
+export interface ResolvedVast {
+    urls: string[];
+}
+
+export async function resolveVastUrl(vastUrl: string): Promise<ResolvedVast | null> {
+    if (!vastUrl || vastUrl.trim() === '' || vastUrl === 'none') {
+        return null;
+    }
+
+    // Solo pre-resolver URLs de rudo.video/ads/vmap/
+    if (vastUrl.indexOf('rudo.video/ads/vmap/') === -1) {
+        return { urls: [vastUrl] };
+    }
+
+    try {
+        console.log('[VAST Resolve] Pre-fetching VMAP:', vastUrl);
+        const response = await fetch(vastUrl);
+        if (!response.ok) {
+            console.warn('[VAST Resolve] HTTP error:', response.status);
+            return null;
+        }
+
+        const xmlText = await response.text();
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        const parserError = xmlDoc.querySelector('parsererror');
+        if (parserError) {
+            console.warn('[VAST Resolve] Error parsing VMAP XML');
+            return null;
+        }
+
+        const adBreaks = xmlDoc.querySelectorAll(
+            'vmap\\:AdBreak, AdBreak'
+        );
+        const prerollUrls: string[] = [];
+
+        adBreaks.forEach((adBreak) => {
+            const timeOffset = adBreak.getAttribute('timeOffset');
+            if (timeOffset !== 'start') return;
+
+            const adTagUri = adBreak.querySelector(
+                'vmap\\:AdTagURI, AdTagURI'
+            );
+            if (adTagUri && adTagUri.textContent) {
+                const url = adTagUri.textContent.trim();
+                if (url) prerollUrls.push(url);
+            }
+        });
+
+        if (prerollUrls.length === 0) {
+            console.warn('[VAST Resolve] No se encontraron AdTagURIs de preroll en VMAP');
+            return null;
+        }
+
+        console.log(`[VAST Resolve] ${prerollUrls.length} preroll URLs encontradas (waterfall)`);
+        return { urls: prerollUrls };
+
+    } catch (error) {
+        console.error('[VAST Resolve] Error pre-fetching VMAP:', error);
+        return null;
+    }
 }

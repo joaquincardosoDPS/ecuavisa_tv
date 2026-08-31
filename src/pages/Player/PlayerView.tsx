@@ -1,11 +1,13 @@
-import { useMemo, useEffect } from "react";
-import { RudoPlayer } from "@/components/RudoPlayer";
+import { useMemo, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { VideoPlayer, type Chapter as VideoPlayerChapter } from "@/components/VideoPlayer";
 import { usePlayerEpisode } from "@/hooks/player/usePlayerEpisode";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { useAnalytics } from "@/layout/AnalyticsWrapper";
 import { PlayerLoading } from "./components/PlayerLoading";
 import { PlayerError } from "./components/PlayerError";
-import { ShrunkBackdrop } from "./components/ShrunkBackdrop";
+import { EndOfEpisodeScreen } from "./components/EndOfEpisodeScreen";
 import styles from "./PlayerView.module.css";
 
 function toSlug(text: string): string {
@@ -13,7 +15,8 @@ function toSlug(text: string): string {
 }
 
 function PlayerView() {
-  const { loading, error, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, programKey, segment, chapterTitle, chapterNumber, seasonNumber } = usePlayerEpisode();
+  const navigate = useNavigate();
+  const { loading, error, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes } = usePlayerEpisode();
   useDocumentTitle(episodeTitle);
   const { trackPage } = useAnalytics();
 
@@ -39,17 +42,90 @@ function PlayerView() {
     if (analyticsPath && analyticsTitle) trackPage(analyticsPath, analyticsTitle);
   }, [analyticsPath, analyticsTitle, trackPage]);
 
+  // FocusContext para la vista completa del player
+  const { ref: viewFocusRef, focusKey: viewFocusKey } = useFocusable({
+    focusKey: "PLAYER-PAGE",
+    saveLastFocusedChild: true,
+    trackChildren: true,
+  });
+
+  // Foco imperativo cuando el player está listo
+  useEffect(() => {
+    if (!loading && !error) {
+      setFocus("PLAYER-VIEW");
+    }
+  }, [loading, error]);
+
+  // Foco en la pantalla de fin de episodio al encogerse / restaurar al expandir
+  useEffect(() => {
+    if (isShrunk) {
+      const timer = setTimeout(() => {
+        setFocus(nextChapter ? "PIP-BTN-NEXT" : "PIP-BTN-EPISODES");
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      setFocus("PLAYER-BTN-PLAYPAUSE");
+    }
+  }, [isShrunk, nextChapter]);
+
+  const handleEpisodeSelect = useCallback(
+    (ep: VideoPlayerChapter) => {
+      const seg = ep.key_segment || segment || '';
+      navigate(`/play/${program || programKey}/${seg}/${ep.season}/${ep.chapter}`);
+    },
+    [navigate, program, programKey, segment],
+  );
+
+  // Video terminó naturalmente (auto-nav cancelado por el usuario)
+  const handleEnded = useCallback(() => {
+    if (nextChapter) playNext();
+    else goToEpisodes();
+  }, [nextChapter, playNext, goToEpisodes]);
+
   if (loading) return <PlayerLoading chapterImage={chapterImage} />;
-  if (error || !currentKey) return <PlayerError error={error} onBack={goBack} />;
+  if (error || !currentKey || !m3u8) return <PlayerError error={error || "No se pudo cargar el episodio"} onBack={goBack} />;
 
   return (
-    <div className={styles.playerContainer}>
-      {isShrunk && chapterImage && <ShrunkBackdrop chapterImage={chapterImage} nextChapter={nextChapter} programTitle={episodeTitle} remainingSeconds={remainingSeconds} onPlayNext={playNext} onGoToEpisodes={goToEpisodes} />}
-      <div style={isShrunk ? { position: "fixed", bottom: "10rem", right: "5rem", width: "28vw", aspectRatio: "16/9", borderRadius: "0.75rem", overflow: "hidden", zIndex: 50, boxShadow: "0 8px 32px rgba(0,0,0,0.6)", backgroundColor: "black", transition: "all 0.6s ease-in-out" } : { position: "fixed", inset: 0, width: "100vw", height: "100vh", overflow: "hidden", backgroundColor: "black", transition: "all 0.6s ease-in-out" }}>
-        {isShrunk && <div onClick={expandPlayer} className={styles.playerOverlay} />}
-        <RudoPlayer rudoKey={currentKey} mode="vod" title={episodeTitle} description={programTitle} onBack={goBack} initialSeconds={initialSeconds} userToken={token || undefined} userProfile={activeProfile?.id || undefined} vodSlug={vodSlug} onTimeUpdate={handleTimeUpdate} hideOverlay={isShrunk} />
+    <FocusContext.Provider value={viewFocusKey}>
+      <div ref={viewFocusRef} className={styles.playerContainer}>
+        <VideoPlayer
+          src={m3u8}
+          title={episodeTitle}
+          description={programTitle}
+          rudoKey={currentKey}
+          vastUrl={vastUrl}
+          vastUrls={vastUrls}
+          autoplay
+          onBack={goBack}
+          pipMode={isShrunk}
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleEnded}
+          initialSeconds={initialSeconds}
+          vodSlug={vodSlug}
+          userToken={token || undefined}
+          userProfile={activeProfile?.id || undefined}
+          episodes={episodes}
+          currentEpisodeKey={currentKey}
+          onEpisodeSelect={handleEpisodeSelect}
+          midrollCuepoints={midrollCuepoints}
+          postrollVastUrls={postrollVastUrls}
+        />
+
+        {/* Pantalla de fin de episodio (background + info) — se renderiza
+            encima del VideoPlayer cuyo fondo es transparente en pip-active */}
+        {isShrunk && (
+          <EndOfEpisodeScreen
+            backgroundImage={chapterImage}
+            nextEpisode={nextChapter}
+            programTitle={episodeTitle}
+            countdown={remainingSeconds}
+            onNextEpisode={playNext}
+            onBack={goToEpisodes}
+            onCancelTransition={expandPlayer}
+          />
+        )}
       </div>
-    </div>
+    </FocusContext.Provider>
   );
 }
 export default PlayerView;

@@ -2,8 +2,38 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
   margin-top: 20px;
+}
+
+.topBar {
+  position: fixed;
+  top: 44px;
+  left: 40px;
+  right: 40px;
+  z-index: 2001;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: var(--clr-primary-text);
+}
+
+.backButton {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  transition: color 0.15s ease;
+}
+
+.leftSection > * + * {
+  margin-left: 10px;
 }
 
 .textContainer {
@@ -31,7 +61,6 @@
   flex-direction: row;
   align-items: start;
   justify-content: start;
-  gap: 10px;
 }
 
 .iconSpan {

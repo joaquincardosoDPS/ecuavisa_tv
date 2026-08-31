@@ -28,17 +28,10 @@ const VolumeControlComponent = ({
       {/* Botón de mute */}
       <button
         onClick={onMuteToggle}
+        className={styles.muteButton}
         style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: "4px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           color: isHovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
           opacity: muted ? 0.5 : 1,
-          transition: "color 0.15s ease, opacity 0.15s ease",
         }}
         title={muted ? "Activar sonido" : "Silenciar"}
       >
@@ -51,15 +44,10 @@ const VolumeControlComponent = ({
 
       {/* Slider vertical flotante */}
       <div
+        className={styles.sliderFloat}
         style={{
-          position: "absolute",
-          bottom: "100%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          paddingBottom: "12px",
           opacity: isHovered ? 1 : 0,
           pointerEvents: isHovered ? "auto" : "none",
-          transition: "opacity 0.2s ease",
         }}
       >
         <div className={styles.volumeSliderWrapper}

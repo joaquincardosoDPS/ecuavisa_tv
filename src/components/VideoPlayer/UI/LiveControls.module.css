@@ -1,7 +1,6 @@
 .liveBadgeWrapper {
   display: flex;
   align-items: center;
-  gap: 6px;
   color: var(--clr-primary-text);
   font-size: 0.85rem;
   font-weight: 600;
@@ -19,13 +18,19 @@
 .leftControls {
   display: flex;
   align-items: center;
-  gap: 8px;
+}
+
+.leftControls > * + * {
+  margin-left: 8px;
 }
 
 .rightControls {
   display: flex;
   align-items: center;
-  gap: 4px;
+}
+
+.rightControls > * + * {
+  margin-left: 4px;
 }
 
 .volumePopoverContainer {
@@ -48,7 +53,39 @@
   height: 8px;
   border-radius: 50%;
   background-color: var(--foc-primary);
+  margin-right: 6px;
   animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.iconSpan {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.sliderFloat {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-bottom: 12px;
+  transition: opacity 0.2s ease;
 }
 
 .volumeInput {

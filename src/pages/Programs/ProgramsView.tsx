@@ -73,7 +73,7 @@ function ProgramsView() {
   return (
     <FocusContext.Provider value={rootFocusKey}>
       <TVScrollProvider>
-        <div ref={rootRef} style={{ position: 'relative', minHeight: '100vh', overflowX: 'hidden' }}>
+        <div ref={rootRef} className={styles.page}>
           <ProgramsBanner activeProgram={activeProgram} />
           <ProgramsScrollWrapper>
             <div className={styles.carouselsContainer}>

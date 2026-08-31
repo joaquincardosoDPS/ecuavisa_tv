@@ -4,6 +4,26 @@
   align-items: center;
 }
 
+.muteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.sliderFloat {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-bottom: 12px;
+  transition: opacity 0.2s ease;
+}
+
 .volumeSliderWrapper {
   padding: 12px 8px;
   background-color: rgba(0, 0, 0, 0.85);

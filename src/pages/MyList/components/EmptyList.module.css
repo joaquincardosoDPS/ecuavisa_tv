@@ -3,7 +3,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
+}
+
+.emptyListContainer > * + * {
+  margin-top: 1.25rem;
 }
 
 .titleText {
