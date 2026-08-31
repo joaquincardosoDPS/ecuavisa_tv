@@ -40,6 +40,8 @@ export function NavbarItem({ item }: NavbarItemProps) {
             if (direction === 'right') {
                 if (nextItem) {
                     setTimeout(() => setFocus(nextItem.id), 0);
+                } else {
+                    setTimeout(() => setFocus('header-avatar'), 0);
                 }
                 return false;
             }

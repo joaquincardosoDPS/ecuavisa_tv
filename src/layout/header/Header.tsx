@@ -37,9 +37,9 @@ function HeaderContent() {
 		onEnterPress: goToProfile,
 		onArrowPress: (direction) => {
 			if (direction === 'up') return false;
-			if (direction === 'left') return false;
-			if (direction === 'right') {
-				setTimeout(() => setFocus('header-search'), 0);
+			if (direction === 'right') return false;
+			if (direction === 'left') {
+				setTimeout(() => setFocus('navbar-lista'), 0);
 				return false;
 			}
 			return true;
@@ -51,10 +51,7 @@ function HeaderContent() {
 		onEnterPress: openSearch,
 		onArrowPress: (direction) => {
 			if (direction === 'up') return false;
-			if (direction === 'left') {
-				setTimeout(() => setFocus('header-avatar'), 0);
-				return false;
-			}
+			if (direction === 'left') return false;
 			if (direction === 'right') {
 				setTimeout(() => setFocus('navbar-home'), 0);
 				return false;
@@ -66,19 +63,12 @@ function HeaderContent() {
 	return (
 		<nav className={styles.nav}>
 			<div className={styles.leftSlot}>
-				<button ref={avatarRef} className={[styles.avatarBtn, avatarFocused ? styles.focused : ""].join(" ")} onClick={goToProfile}>
-					{avatarUrl ? (
-						<img
-							src={avatarUrl}
-							alt={activeProfile?.name_perfil || "Avatar"}
-							className={styles.avatarImg}
-							draggable={false}
-							decoding="async"
-						/>
-					) : (
-						<span className={styles.avatarInitial}>{avatarInitial}</span>
-					)}
-				</button>
+				<img
+					src={configLogo || logoFallback}
+					alt="Logo"
+					className={styles.logo}
+					draggable={false}
+				/>
 			</div>
 
 			<div
@@ -100,12 +90,19 @@ function HeaderContent() {
 			</div>
 
 			<div className={styles.rightSlot}>
-				<img
-					src={configLogo || logoFallback}
-					alt="Logo"
-					className={styles.logo}
-					draggable={false}
-				/>
+				<button ref={avatarRef} className={[styles.avatarBtn, avatarFocused ? styles.focused : ""].join(" ")} onClick={goToProfile}>
+					{avatarUrl ? (
+						<img
+							src={avatarUrl}
+							alt={activeProfile?.name_perfil || "Avatar"}
+							className={styles.avatarImg}
+							draggable={false}
+							decoding="async"
+						/>
+					) : (
+						<span className={styles.avatarInitial}>{avatarInitial}</span>
+					)}
+				</button>
 			</div>
 		</nav>
 	);

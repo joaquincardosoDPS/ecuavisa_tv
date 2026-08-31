@@ -95,15 +95,14 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
         </span>
       )}
       <div className={styles.infoMeta}>
-        {program.image_logo?.medium && (
+        {program.image_logo?.medium ? (
           <div className={styles.logoWrap}>
-            <img src={program.image_logo.default} alt={program.title} className={styles.logoImg} />
+            <img src={program.image_logo.medium} alt={program.title} className={styles.logoImg} />
           </div>
-        )}
-        <div>
+        ) : (
           <h2 className={styles.infoTitle}>{program.title}</h2>
-          <p className={styles.infoDesc}>{program.description_short}</p>
-        </div>
+        )}
+        <p className={styles.infoDesc}>{program.description_short}</p>
       </div>
       <div className={styles.infoBtns}>
         <Button ref={playRef} variant="primary" onClick={handleClick} tabIndex={isBannerFocused ? 0 : -1} focused={playFocused}>
