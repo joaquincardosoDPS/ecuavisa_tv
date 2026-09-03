@@ -8,6 +8,7 @@ import { useAnalytics } from "@/layout/AnalyticsWrapper";
 import { PlayerLoading } from "./components/PlayerLoading";
 import { PlayerError } from "./components/PlayerError";
 import { EndOfEpisodeScreen } from "./components/EndOfEpisodeScreen";
+import RestrictionModal from "@/components/ui/RestrictionModal";
 import styles from "./PlayerView.module.css";
 
 function toSlug(text: string): string {
@@ -16,7 +17,7 @@ function toSlug(text: string): string {
 
 function PlayerView() {
   const navigate = useNavigate();
-  const { loading, error, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes } = usePlayerEpisode();
+  const { loading, error, restricted, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes } = usePlayerEpisode();
   useDocumentTitle(episodeTitle);
   const { trackPage } = useAnalytics();
 
@@ -83,6 +84,14 @@ function PlayerView() {
   }, [nextChapter, playNext, goToEpisodes]);
 
   if (loading) return <PlayerLoading chapterImage={chapterImage} />;
+  // Capítulo protegido sin acceso: paywall en lugar del reproductor.
+  if (restricted) {
+    return (
+      <div className={styles.playerContainer}>
+        <RestrictionModal isOpen onClose={goBack} />
+      </div>
+    );
+  }
   if (error || !currentKey || !m3u8) return <PlayerError error={error || "No se pudo cargar el episodio"} onBack={goBack} />;
 
   return (

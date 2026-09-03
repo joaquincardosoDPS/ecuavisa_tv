@@ -1,6 +1,6 @@
 export const RUDO_CDN_URL = 'https://cdn.rudo.video';
 export const RUDO_API_URL = 'https://consumers.rudo.video/categories/all';
-export const RUDO_BASE_USER = 'https://consumers.rudo.video/users'
+export const RUDO_BASE_USER = 'https://consumers.rudo.video/users_external'
 
 
 const LS_CLIENT_KEY = 'app_client';
@@ -15,7 +15,7 @@ if (localStorage.getItem(LS_VERSION_KEY) !== LS_CURRENT_VERSION) {
 
 
 // export const CLIENT = resolveClient();
-export const CLIENT = 'chv';
+export const CLIENT = 'ecuavisa';
 export const BASENAME = import.meta.env.BASE_URL.replace(/\/+$/, '') || '/';
 
 export const ADS_FALLBACK_DOMAIN = 'https://www.ecuavisa.com';
@@ -29,6 +29,8 @@ export const APPLE_CLIENT_ID = 'https://consumers.rudo.video/users/login_rrss'; 
 export const RUDO_DEVICE_CODE_URL = `${RUDO_BASE_USER}/device_code`
 export const RUDO_DEVICE_VERIFY_URL = `${RUDO_BASE_USER}/device_verify`
 export const RUDO_DEVICE_PAIR_URL = `${RUDO_BASE_USER}/device_pair`
+// PPV - Programas comprados por el usuario
+export const RUDO_PPV_URL = `${RUDO_BASE_USER}/ppv`
 
 //export const RUDO_PLAYLIST_URL = `${RUDO_CDN_URL}/assets/${CLIENT}/playlists/static/playlist.json`;
 
@@ -42,6 +44,8 @@ export const RUDO_PLAYLIST_GLOBAL_EPG_URL = `${RUDO_CDN_URL}/assets/${CLIENT}/pl
 export const RUDO_VOD_CATEGORY = `https://consumers.rudo.video/categories/all`; // Permite ver todas las categorias - vod category
 // Capitulos
 export const RUDO_VOD_CHAPTERS = `https://consumers.rudo.video/chapters/all`; //  Permite ver todos los capitulos de un programa
+// Unlock token de capítulo protegido (PPV): devuelve el access token del video
+export const RUDO_CHAPTER_UNLOCK_TOKEN_URL = `https://consumers.rudo.video/chapters/unlock_token`;
 // Detalle - Segment Button
 export const RUDO_VOD_DETAIL = `https://consumers.rudo.video/programs/get`; // Permite ver detalle de los programas - componente segment button
 // Buscador

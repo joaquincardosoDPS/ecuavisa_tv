@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '@/services/api';
 import { RUDO_DEVICE_CODE_URL, RUDO_DEVICE_VERIFY_URL } from '@/config-global';
-import { profileService } from '@/services/profileService';
 import { useAuthStore } from '@/features/auth/authStore';
 
 interface DeviceCodeData {
@@ -27,6 +26,8 @@ interface DeviceVerifyResponse {
         name: string;
         last_name?: string | null;
         token: string;
+        /** Suscripción activa (PPV/premium). Viene en el payload de la sesión. */
+        subscription_active?: boolean;
         [key: string]: unknown;
     };
 }
@@ -79,18 +80,6 @@ export function useLoginData(onLoginSuccess: () => void) {
                 console.log('[Auth] Device verified, user:', data.user.email);
                 useAuthStore.getState().login(data.user.token, data.user);
                 localStorage.removeItem('token_tv');
-
-                try {
-                    const profilesRes = await profileService.getAll(data.user.token);
-                    const profiles = profilesRes?.data || [];
-                    if (profiles.length > 0) {
-                        useAuthStore.getState().setActiveProfile(profiles[0]);
-                        console.log('[Auth] Default profile set:', profiles[0].name_perfil);
-                    }
-                } catch (err) {
-                    console.warn('[Auth] Could not fetch profiles after login:', err);
-                }
-
                 onLoginSuccessRef.current();
             }
         } catch {

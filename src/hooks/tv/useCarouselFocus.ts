@@ -6,6 +6,10 @@ interface UseCarouselFocusProps {
   focusKey?: string;
   isBanner?: boolean;
   index?: number;
+  /** Total de ítems del carrusel. Si se define, se bloquea la navegación
+   *  hacia la derecha en el último ítem (y hacia la izquierda en el primero)
+   *  para no saltar a otra sección. */
+  totalItems?: number;
   emblaApi?: EmblaCarouselType;
   onEnterPress?: () => void;
   onArrowPress?: (direction: string) => boolean;
@@ -16,6 +20,7 @@ export function useCarouselFocus({
   focusKey,
   isBanner = false,
   index,
+  totalItems,
   emblaApi,
   onEnterPress,
   onArrowPress,
@@ -49,10 +54,20 @@ export function useCarouselFocus({
       }
     },
     onArrowPress: (direction) => {
+      // Barreras del carrusel: bloquean antes del manejador custom para que
+      // el foco se quede en el primer/último ítem y no salte a otra sección.
+      if (totalItems !== undefined && index !== undefined) {
+        if (direction === 'left' && index === 0) {
+          return false;
+        }
+        if (direction === 'right' && index >= totalItems - 1) {
+          return false;
+        }
+      }
       if (onArrowPress) {
         return onArrowPress(direction);
       }
-      // Bloqueamos la navegación hacia la izquierda si estamos en el primer elemento
+      // Sin totalItems: bloquear solo la izquierda en el primer elemento
       // para evitar saltos inesperados hacia el banner o el header
       if (direction === 'left' && index === 0) {
         return false;

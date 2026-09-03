@@ -42,11 +42,11 @@ function CarrouselContainer({ category }: CarrouselContainerProps) {
 						<h2 className={styles.homeIconTitle}>{category.title}</h2>
 					</div>
 					<div className={styles.homeCarouselWrap}>
-						<CardCarrousel programs={category.programs} orientation={finalOrientation} hasIconImage={hasIconImage} categorySlug={category.key} format={format} />
+						<CardCarrousel programs={category.programs} orientation={finalOrientation} hasIconImage={hasIconImage} categorySlug={category.key} categoryTitle={category.title} format={format} />
 					</div>
 				</div>
 			) : (
-				<CardCarrousel programs={category.programs} orientation={finalOrientation} hasIconImage={hasIconImage} categorySlug={category.key} format={format} />
+				<CardCarrousel programs={category.programs} orientation={finalOrientation} hasIconImage={hasIconImage} categorySlug={category.key} categoryTitle={category.title} format={format} />
 			)}
 		</div>
 	);

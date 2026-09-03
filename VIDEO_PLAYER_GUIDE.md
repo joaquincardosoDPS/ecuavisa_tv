@@ -33,7 +33,7 @@ El componente se encuentra en `src/components/VideoPlayer` y tiene la siguiente 
 | `autoplay` | `boolean` | Inicia la reproducción automáticamente (por defecto `true`). |
 | `onBack` | `function` | Callback para la acción del botón "Volver". |
 | `initialSeconds` | `number` | Punto de inicio de la reproducción en segundos. |
-| `episodes` | `Chapter[]` | Lista de capítulos para habilitar el menú lateral. |
+| `episodes` | `Chapter[]` | Lista de capítulos para el panel "Capítulos" (se abre con el botón de grilla del seekbar). |
 | `currentEpisodeKey` | `string` | Identificador del capítulo actual. |
 | `onEpisodeSelect` | `function` | Callback cuando el usuario selecciona otro capítulo. |
 | `onTimeUpdate` | `function` | Callback en cada `timeupdate` con `(currentTime, duration)`. |

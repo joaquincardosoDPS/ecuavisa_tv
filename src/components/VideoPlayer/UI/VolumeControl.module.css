@@ -15,37 +15,9 @@
   transition: color 0.15s ease, opacity 0.15s ease;
 }
 
-.sliderFloat {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding-bottom: 12px;
-  transition: opacity 0.2s ease;
-}
-
-.volumeSliderWrapper {
-  padding: 12px 8px;
-  background-color: rgba(0, 0, 0, 0.85);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .volumeIconSpan {
   display: inline-flex;
   width: 28px;
   height: 28px;
-}
-
-.volumeSliderInput {
-  writing-mode: vertical-lr;
-  direction: rtl;
-  width: 4px;
-  height: 80px;
-  accent-color: var(--clr-icon);
-  cursor: pointer;
-  appearance: auto;
 }
 

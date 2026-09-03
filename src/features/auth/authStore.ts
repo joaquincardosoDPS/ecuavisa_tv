@@ -7,6 +7,8 @@ interface AuthUser {
     email: string;
     name: string;
     token: string;
+    /** Suscripción activa (PPV/premium). Viene en el payload de la sesión. */
+    subscription_active?: boolean;
     [key: string]: unknown;
 }
 

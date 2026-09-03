@@ -1,0 +1,20 @@
+.button {
+  background: var(--clr-primary-title);
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  cursor: pointer;
+  color: var(--clr-primary);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.focused,
+.button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px var(--foc-primary);
+  color: var(--foc-primary);
+}

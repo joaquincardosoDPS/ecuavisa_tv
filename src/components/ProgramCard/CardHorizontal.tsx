@@ -15,12 +15,13 @@ interface CardHorizontalProps {
   program: Program | Event;
   format?: string;
   index: number;
+  totalItems?: number;
   emblaApi?: EmblaCarouselType | null;
   parentFocusKey?: string;
   autoFocusFirst?: boolean;
 }
 
-function CardHorizontal({ program, format, index, emblaApi, parentFocusKey, autoFocusFirst }: CardHorizontalProps) {
+function CardHorizontal({ program, format, index, totalItems, emblaApi, parentFocusKey, autoFocusFirst }: CardHorizontalProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isProgramsView = pathname === "/programas";
@@ -61,6 +62,7 @@ function CardHorizontal({ program, format, index, emblaApi, parentFocusKey, auto
   const { ref, focused } = useCarouselFocus({
     focusKey,
     index,
+    totalItems,
     emblaApi: emblaApi ?? undefined,
     onEnterPress: handleClick,
     onFocus: handleFocusEnter,

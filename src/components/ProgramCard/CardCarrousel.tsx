@@ -14,11 +14,14 @@ interface CardCarrouselProps {
   orientation?: "horizontal" | "vertical";
   hasIconImage?: boolean;
   categorySlug?: string;
+  /** Título humano de la categoría; se pasa al navegar a "Ver más" para
+   *  que la página de categoría muestre el nombre real y no la key. */
+  categoryTitle?: string;
   format?: string;
   autoFocusFirst?: boolean;
 }
 
-function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, format, autoFocusFirst }: CardCarrouselProps) {
+function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, categoryTitle, format, autoFocusFirst }: CardCarrouselProps) {
   const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -48,6 +51,10 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
   const arrowTop = isVertical
     ? "calc(var(--card-w-vertical, 15vw) * 3 / 4)"
     : "calc(var(--card-w-horizontal, 15vw) * 9 / 32)";
+
+  // El botón "Ver más" solo aparece con 10 programas; suma un ítem al carrusel.
+  const showViewMore = programs.length === 10 && !!categorySlug && format !== "ranking";
+  const totalItems = programs.length + (showViewMore ? 1 : 0);
 
   return (
     <FocusContext.Provider value={generatedFocusKey}>
@@ -79,16 +86,19 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
             {programs.map((program, index) => {
               const itemFormat = "type" in program ? "event" : format;
               return isVertical
-                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />
-                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />;
+                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} totalItems={totalItems} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />
+                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} totalItems={totalItems} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />;
             })}
-            {programs.length === 10 && categorySlug && format !== "ranking" && (() => {
+            {showViewMore && (() => {
               const viewMoreIndex = programs.length;
+              const goToCategory = () =>
+                navigate(`/categoria/${categorySlug}`, { state: { categoryTitle } });
               const { ref: viewMoreRef, focused: viewMoreFocused } = useCarouselFocus({
                 focusKey: `${focusKey}-view-more`,
                 index: viewMoreIndex,
+                totalItems,
                 emblaApi: emblaApi ?? undefined,
-                onEnterPress: () => navigate(`/categoria/${categorySlug}`),
+                onEnterPress: goToCategory,
                 onArrowPress: (direction) => {
                   const lastProgram = programs[programs.length - 1];
                   if (!lastProgram) return true;
@@ -105,7 +115,7 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
                 <div
                   ref={viewMoreRef}
                   tabIndex={0}
-                  onClick={() => navigate(`/categoria/${categorySlug}`)}
+                  onClick={goToCategory}
                   className={`${styles.cardImg} ${styles.viewMoreCard} ${isVertical ? styles.viewMoreCardVertical : styles.viewMoreCardHorizontal} ${viewMoreFocused ? styles.focused : ''}`}
                 >
                   <span className={styles.viewMoreText}>Ver Más</span>

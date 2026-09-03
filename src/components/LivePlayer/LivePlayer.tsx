@@ -73,7 +73,7 @@ export function LivePlayer({
       if (onBack) onBack();
     },
     onArrowPress: (direction) => {
-      if (direction === "up" || direction === "left") return false;
+      if (direction === "up" || direction === "left" || direction === "down") return false;
       if (direction === "right") {
         setFocus("LIVE-BTN-PLAYPAUSE");
         return false;
@@ -87,7 +87,7 @@ export function LivePlayer({
     focusable: isFullscreen,
     onEnterPress: () => togglePlayPause(),
     onArrowPress: (direction) => {
-      if (direction === "up") return false;
+      if (direction === "up" || direction === "down" || direction === "right") return false;
       if (direction === "left") {
         setFocus("LIVE-BTN-BACK");
         return false;

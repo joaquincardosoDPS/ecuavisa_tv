@@ -8,12 +8,14 @@ interface SkipButtonProps {
   /** Segundos a saltar: negativo para retroceder, positivo para avanzar */
   seconds: number;
   onClick?: () => void;
+  /** Si existe un capítulo siguiente: define el destino de la flecha derecha desde el botón de avanzar. */
+  hasNextChapter?: boolean;
 }
 
 const resizeSvg = (raw: string, size: number) =>
   raw.replace(/width="[^"]*"/, `width="${size}"`).replace(/height="[^"]*"/, `height="${size}"`);
 
-const SkipButtonComponent = ({ seconds, onClick }: SkipButtonProps) => {
+const SkipButtonComponent = ({ seconds, onClick, hasNextChapter = false }: SkipButtonProps) => {
   const isForward = seconds > 0;
   const label = isForward
     ? `Avanzar ${Math.abs(seconds)} segundos`
@@ -36,7 +38,11 @@ const SkipButtonComponent = ({ seconds, onClick }: SkipButtonProps) => {
         return false;
       }
       if (direction === "right") {
-        setFocus(isForward ? "PLAYER-BTN-CHAPTER-NEXT" : "PLAYER-BTN-PLAYPAUSE");
+        if (isForward) {
+          setFocus(hasNextChapter ? "PLAYER-BTN-CHAPTER-NEXT" : "PLAYER-BTN-EPISODES");
+        } else {
+          setFocus("PLAYER-BTN-PLAYPAUSE");
+        }
         return false;
       }
       return true;

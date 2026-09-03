@@ -24,6 +24,8 @@ interface AuthResponse {
         last_name?: string | null;
         token: string;
         pay_status?: boolean;
+        /** Suscripción activa (PPV/premium). Viene en el payload de la sesión. */
+        subscription_active?: boolean;
         [key: string]: unknown;
     };
 }

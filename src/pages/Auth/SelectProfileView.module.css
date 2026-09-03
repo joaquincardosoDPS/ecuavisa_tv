@@ -4,6 +4,33 @@
     flex-direction: column;
     justify-content: center;
     padding: 6.25rem;
+    position: relative;
+}
+
+.editToggle {
+    position: absolute;
+    top: 2.5rem;
+    right: 6.25rem;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-color: var(--clr-secondary-button);
+    color: var(--clr-primary-title);
+    font-family: var(--font-family-button);
+    font-size: 1.125rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+}
+
+.editToggle:hover,
+.editToggle.focused {
+    box-shadow: 0 0 20px 0 var(--foc-primary);
+    border-color: rgba(var(--clr-primary-title-rgb), 0.3);
+}
+
+.editToggle.focused {
+    transform: scale(1.04);
 }
 
 .heading {
@@ -57,7 +84,13 @@
     transition: all 0.3s;
 }
 
-.profileBtn:hover .avatarCircle { border-color: var(--foc-primary); }
+.profileBtn:hover .avatarCircle,
+.profileBtn.focused .avatarCircle { border-color: var(--foc-primary); }
+
+.profileBtn.focused .avatarCircle {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(var(--clr-primary-title-rgb), 0.2), 0 0 22px 0 var(--foc-primary);
+}
 
 .avatarImg { width: 100%; height: 100%; object-fit: cover; }
 
@@ -85,7 +118,8 @@
     transition: color 0.2s;
 }
 
-.profileBtn:hover .profileName { color: var(--clr-primary-title); }
+.profileBtn:hover .profileName,
+.profileBtn.focused .profileName { color: var(--clr-primary-title); }
 
 .addBtn {
     display: flex;
@@ -114,7 +148,13 @@
     transition: all 0.3s;
 }
 
-.addBtn:hover .addCircle { border-color: var(--foc-primary); }
+.addBtn:hover .addCircle,
+.addBtn.focused .addCircle { border-color: var(--foc-primary); }
+
+.addBtn.focused .addCircle {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(var(--clr-primary-title-rgb), 0.2), 0 0 22px 0 var(--foc-primary);
+}
 
 .addPlus {
     font-size: 3rem;

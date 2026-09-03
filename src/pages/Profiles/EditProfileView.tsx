@@ -1,13 +1,100 @@
+import { useEffect } from "react";
+import { FocusContext, setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useEditProfile } from "@/hooks/profiles/useEditProfile";
+import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { BackButton } from "@/components/ui/BackButton";
-import ProfileActionRow from "@/components/ui/ProfileActionRow";
-import Button from "@/components/ui/Button";
+import { NameKeyboard } from "./components/NameKeyboard";
+import iconEdit from "@/assets/img/icons/iconos-edit.svg";
 import styles from "./EditProfileView.module.css";
 
+// Límite de caracteres del nombre de perfil.
+const MAX_NAME_LENGTH = 12;
+
+// Botón de lápiz bajo el avatar para elegir otro avatar.
+function AvatarPickerButton({ onPick }: { onPick: () => void }) {
+  const { ref, focused } = useSpatialFocus({
+    focusKey: "edit-avatar-pick",
+    onEnterPress: onPick,
+  });
+
+  return (
+    <button
+      type="button"
+      ref={ref}
+      className={[styles.avatarPickButton, focused ? styles.focusedGlow : ""].join(" ")}
+      onClick={onPick}
+      aria-label="Cambiar avatar"
+    >
+      <img src={iconEdit} alt="" className={styles.avatarPickIcon} />
+    </button>
+  );
+}
+
+interface BottomActionProps {
+  label: string;
+  onPress: () => void;
+  focusKey: string;
+  kind: "save" | "delete";
+  disabled?: boolean;
+}
+
+// Botones inferiores GUARDAR CAMBIOS / ELIMINAR PERFIL.
+function BottomAction({ label, onPress, focusKey, kind, disabled }: BottomActionProps) {
+  const { ref, focused } = useSpatialFocus({ focusKey, onEnterPress: onPress });
+
+  return (
+    <button
+      type="button"
+      ref={ref}
+      disabled={disabled}
+      className={[
+        styles.bottomButton,
+        kind === "save" ? styles.saveButton : styles.deleteButton,
+        focused ? styles.focusedGlow : "",
+      ].join(" ")}
+      onClick={onPress}
+    >
+      {label}
+    </button>
+  );
+}
+
 function EditProfileView() {
-  const { isCreateMode, existingProfile, isDefaultProfile, name, setName, selectedAvatar, avatarGroups, showDeleteModal, setShowDeleteModal, isDeleting, isSubmitting, submitError, submitSuccess, isLoading, handleSubmit, handleDelete, navigate } = useEditProfile();
+  const {
+    isCreateMode,
+    existingProfile,
+    isDefaultProfile,
+    name,
+    setName,
+    selectedAvatar,
+    avatarGroups,
+    isLoading,
+    isSubmitting,
+    submitError,
+    submitSuccess,
+    showDeleteModal,
+    setShowDeleteModal,
+    isDeleting,
+    handleSubmit,
+    handleDelete,
+    navigate,
+  } = useEditProfile();
+
+  // Zona de foco de la página.
+  const { ref: pageRef, focusKey: pageFocusKey } = useFocusable({
+    focusKey: "page-edit-profile",
+    saveLastFocusedChild: true,
+    autoRestoreFocus: true,
+  });
+
+  useEffect(() => {
+    if (isLoading) return;
+    const timer = setTimeout(() => setFocus("namekey-a"), 80);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   if (isLoading) return <FullScreenSpinner />;
 
   const avatarUrl = (() => {
@@ -23,58 +110,103 @@ function EditProfileView() {
     return null;
   })();
 
+  const displayName = (name || existingProfile?.name_perfil || "").toUpperCase();
+  const initial = displayName ? displayName.charAt(0) : "?";
+
+  const typeChar = (char: string) => {
+    if (isSubmitting) return;
+    setName((displayName + char.toUpperCase()).slice(0, MAX_NAME_LENGTH));
+  };
+
+  const removeChar = () => {
+    if (isSubmitting) return;
+    setName(displayName.slice(0, -1));
+  };
+
+  const clearName = () => {
+    if (isSubmitting) return;
+    setName("");
+  };
+
+  const canDelete = !isCreateMode && !isDefaultProfile;
+  const title = isCreateMode ? "Crear perfil" : "Editar mi perfil";
+
   return (
-    <div className={styles.pageContainer}>
-      <BackButton />
-      <div className={styles.contentLayout}>
-        <div className={styles.formSection}>
-          <h1 className={styles.pageTitle}>
-            {isCreateMode ? "Nuevo perfil" : "Mi perfil"}
-          </h1>
-          <p className={styles.pageSubtitle}>
-            {isCreateMode ? "Creá tu perfil de Ecuavisa" : "Personalizá tu experiencia en Ecuavisa"}
-          </p>
-          <p className={styles.pageDescription}>
-            {isCreateMode ? "Elige un nombre y avatar obligatorios para crear tu nuevo perfil" : "Personaliza tu experiencia en Ecuavisa y disfruta de contenido hecho para ti"}
-          </p>
-          <div className={styles.actionList}>
-            <ProfileActionRow icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>} label={isCreateMode ? "Elegir avatar *" : "Elegir avatar"} variant="navigation" onClick={() => navigate('avatars')} />
-            <ProfileActionRow icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>} label={isCreateMode ? "Nombre *" : "Nombre"} variant="editable" value={name || (isCreateMode ? "Toca para escribir nombre" : "")} onValueChange={setName} onSave={!isCreateMode ? () => handleSubmit(name, false) : undefined} />
+    <FocusContext.Provider value={pageFocusKey}>
+      <div ref={pageRef} className={styles.pageContainer}>
+        <div className={styles.headerRow}>
+          
+          <div className={styles.headerText}>
+            <h1 className={styles.pageTitle}>{title}</h1>
+            <p className={styles.pageSubtitle}>
+              {isCreateMode
+                ? "Elige un avatar y escribe el nombre del perfil"
+                : "Escribe el nombre con el teclado y cambia tu avatar"}
+            </p>
+          </div>
+        </div>
+
+        <div className={styles.contentLayout}>
+          <div className={styles.avatarColumn}>
+            <div className={styles.avatarFrame}>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName || "Avatar"} className={styles.avatarImage} />
+              ) : (
+                <span className={styles.avatarInitial}>{initial}</span>
+              )}
+            </div>
+            <AvatarPickerButton onPick={() => navigate("avatars")} />
+            <p className={styles.avatarNameLabel}>{displayName || "Mi perfil"}</p>
+          </div>
+
+          <div className={styles.editorColumn}>
+            <div className={styles.nameDisplay}>
+            </div>
+            <NameKeyboard
+              onKey={typeChar}
+              onBackspace={removeChar}
+              onClear={clearName}
+              onSearch={() => handleSubmit()}
+            />
             {submitError && <p className={styles.errorText}>{submitError}</p>}
-            {submitSuccess && <p className={styles.successText}>{isCreateMode ? "¡Perfil creado con éxito!" : "¡Perfil actualizado!"}</p>}
-            {isCreateMode && (
-              <div className={styles.submitButtonWrapper}>
-                <Button variant="primary" onClick={() => handleSubmit(name, true)} disabled={isSubmitting} className={styles.submitButton}>
-                  {isSubmitting ? "Creando perfil..." : "Crear perfil"}
-                </Button>
-              </div>
-            )}
-            {!isCreateMode && !isDefaultProfile && (
-              <ProfileActionRow icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>} label="Eliminar perfil" variant="action" onClick={() => setShowDeleteModal(true)} />
+            {submitSuccess && (
+              <p className={styles.successText}>
+                {isCreateMode ? "¡Perfil creado!" : "¡Perfil actualizado!"}
+              </p>
             )}
           </div>
         </div>
-        <div className={styles.avatarSection}>
-          {avatarUrl ? (
-            <div className={styles.avatarPreviewWrapper}>
-              <img src={avatarUrl} alt={name || "Perfil"} className={styles.avatarPreviewImg} style={{ opacity: isSubmitting ? 0.4 : 1 }} />
-            </div>
-          ) : (
-            <div className={styles.avatarPlaceholderWrapper}>
-              <div className={styles.avatarPlaceholderText} style={{ opacity: isSubmitting ? 0.4 : 1 }}>
-                {(name || existingProfile?.name_perfil || 'U').charAt(0).toUpperCase()}
-              </div>
-            </div>
+
+        <div className={styles.actionsRow}>
+          <BottomAction
+            label={isCreateMode ? "CREAR PERFIL" : "GUARDAR CAMBIOS"}
+            focusKey="edit-save"
+            kind="save"
+            disabled={isSubmitting}
+            onPress={() => handleSubmit()}
+          />
+          {canDelete && (
+            <BottomAction
+              label="ELIMINAR PERFIL"
+              focusKey="edit-delete"
+              kind="delete"
+              onPress={() => setShowDeleteModal(true)}
+            />
           )}
-          <p className={styles.avatarNameText}>
-            {name || existingProfile?.name_perfil || (isCreateMode ? "Nombre de perfil" : "")}
-          </p>
         </div>
       </div>
-      {!isCreateMode && (
-        <ConfirmModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} message={`¿Quieres borrar el perfil de ${existingProfile?.name_perfil || ""}?`} confirmLabel="Borrar" loadingLabel="Borrando..." isLoading={isDeleting} />
-      )}
-    </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        message={`¿Quieres borrar el perfil de ${existingProfile?.name_perfil || ""}?`}
+        confirmLabel="Borrar"
+        loadingLabel="Borrando..."
+        isLoading={isDeleting}
+      />
+    </FocusContext.Provider>
   );
 }
+
 export default EditProfileView;

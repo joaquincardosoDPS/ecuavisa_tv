@@ -99,6 +99,17 @@ const VideoPlayerComponent = ({
         preventHide: isSidebarOpen || forceControlsVisible,
     });
 
+    // Si el panel de capítulos está abierto, Back lo cierra y devuelve
+    // el foco al botón de episodios en lugar de salir del player.
+    const handleBack = useCallback(() => {
+        if (isSidebarOpen) {
+            setIsSidebarOpen(false);
+            setTimeout(() => setFocus("PLAYER-BTN-EPISODES"), 120);
+            return;
+        }
+        if (onBack) onBack();
+    }, [isSidebarOpen, onBack]);
+
     // Volume state
     const [volume, setVolume] = useState(getStoredVolume());
     const [muted, setMuted] = useState(false);
@@ -172,7 +183,7 @@ const VideoPlayerComponent = ({
 
     // ── Keyboard (hook compartido) ──
     usePlayerKeyboard({
-        onBack: onBack || (() => {}),
+        onBack: handleBack,
         isUIVisible,
         showUI: resetUIVisibility,
         isLive,
@@ -442,7 +453,7 @@ const VideoPlayerComponent = ({
                             description={description}
                             isVisible={isUIVisible}
                             isLive={isLive}
-                            onBackClick={onBack}
+                            onBackClick={handleBack}
                         />
                         <PlayerControls
                             playing={isPlaying}
@@ -471,6 +482,7 @@ const VideoPlayerComponent = ({
                             onRestartChapter={onRestartChapter}
                             onNextChapter={onNextChapter}
                             hasNextChapter={hasNextChapter}
+                            chaptersPanelOpen={isSidebarOpen}
                             adCuepoints={midrollCuepoints}
                             playedCuepoints={playedCuepointsArray}
                         />

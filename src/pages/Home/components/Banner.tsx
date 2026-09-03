@@ -23,7 +23,7 @@ function BannerArrow({ direction, onClick, currentProgramId }: { direction: 'lef
 			if (direction === 'right') {
 				if (dir === 'right') return false;
 				if (dir === 'left') {
-					setFocus(`banner-info-${currentProgramId}`);
+					setFocus(`banner-play-${currentProgramId}`);
 					return false;
 				}
 			}

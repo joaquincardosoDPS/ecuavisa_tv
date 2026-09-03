@@ -32,13 +32,14 @@ function getProgress(event: EPGEvent): number {
   return ((now.getTime() - begin.getTime()) / (end.getTime() - begin.getTime())) * 100;
 }
 
-function EPGCard({ channel, event, index, emblaApi, onPress }: { channel: EPGChannel; event: EPGEvent; index: number; emblaApi?: EmblaCarouselType; onPress?: () => void }) {
+function EPGCard({ channel, event, index, totalItems, emblaApi, onPress }: { channel: EPGChannel; event: EPGEvent; index: number; totalItems?: number; emblaApi?: EmblaCarouselType; onPress?: () => void }) {
   const progress = getProgress(event);
   const coverImage = event.pictures?.poster || event.pictures?.photo || event.pictures?.cover || event.pictures?.background || "";
 
   const { ref, focused } = useCarouselFocus({
     focusKey: `epg-${channel.key_live}`,
     index,
+    totalItems,
     emblaApi,
     onEnterPress: onPress,
     onArrowPress: (direction) => {
@@ -113,6 +114,12 @@ function HomeLiveGrid() {
 
   if (isLoading || !channels || channels.length === 0) return null;
 
+  // Solo se renderizan los canales con evento en curso; sus índices en el
+  // carrusel (y en embla) deben ser consecutivos para el scroll y el bloqueo.
+  const liveItems = channels
+    .map((ch) => ({ ch, event: getCurrentEvent(ch.events) }))
+    .filter((x): x is { ch: EPGChannel; event: EPGEvent } => x.event !== null);
+
   return (
     <FocusContext.Provider value={generatedFocusKey}>
       <div data-section="live-epg" className={styles.liveGridContainer}>
@@ -136,11 +143,9 @@ function HomeLiveGrid() {
           </button>
           <div ref={emblaRef} className={styles.emblaViewport}>
             <div className={styles.emblaContainer}>
-              {channels.map((ch, index) => {
-                const event = getCurrentEvent(ch.events);
-                if (!event) return null;
-                return <EPGCard key={ch.key_live} channel={ch} event={event} index={index} emblaApi={emblaApi} onPress={() => navigate(`/live?signal=${ch.key_live}`)} />;
-              })}
+              {liveItems.map(({ ch, event }, index) => (
+                <EPGCard key={ch.key_live} channel={ch} event={event} index={index} totalItems={liveItems.length} emblaApi={emblaApi} onPress={() => navigate(`/live?signal=${ch.key_live}`)} />
+              ))}
               <div className={styles.carouselSpacer} />
             </div>
           </div>

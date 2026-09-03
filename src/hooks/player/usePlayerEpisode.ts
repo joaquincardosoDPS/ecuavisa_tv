@@ -4,6 +4,8 @@ import { catalogService } from "@/services/catalogService";
 import { useAuthStore } from "@/features/auth/authStore";
 import { historyService } from "@/services/historyService";
 import { adsService, type AdBreakCuepoint } from "@/services/adsService";
+import { setSignedParams, unlockTokenService, type ProtectedToken } from "@/services/unlockTokenService";
+import { isContentRestricted } from "@/utils/restriction";
 import type { Chapter } from "@/interfaces/catalog.interface";
 
 /** Segundos antes de terminar en los que el player se achica */
@@ -20,9 +22,13 @@ export function usePlayerEpisode() {
   const location = useLocation();
   const token = useAuthStore((s) => s.token);
   const activeProfile = useAuthStore((s) => s.activeProfile);
+  // subscription_active viene en la sesión (payload del user).
+  const subscriptionActive = Boolean(useAuthStore((s) => s.user)?.subscription_active);
 
-  // resumeTime pasado desde HistoryView / ContinueWatchingCarousel
-  const stateResumeTime = (location.state as { resumeTime?: number } | null)?.resumeTime;
+  // resumeTime y protectedToken pasados desde HistoryView / ContinueWatchingCarousel / ChapterCard
+  const locationState = location.state as { resumeTime?: number; protectedToken?: ProtectedToken } | null;
+  const stateResumeTime = locationState?.resumeTime;
+  const stateProtectedToken = locationState?.protectedToken;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +53,8 @@ export function usePlayerEpisode() {
   const [midrollCuepoints, setMidrollCuepoints] = useState<AdBreakCuepoint[]>([]);
   const [postrollVastUrls, setPostrollVastUrls] = useState<string[]>([]);
   const [episodes, setEpisodes] = useState<Chapter[]>([]);
+  /** Capítulo protegido (PPV) sin acceso: mostrar paywall en vez de reproducir. */
+  const [restricted, setRestricted] = useState(false);
 
   // Estado de minimización
   const [isShrunk, setIsShrunk] = useState(false);
@@ -174,6 +182,53 @@ export function usePlayerEpisode() {
           return;
         }
 
+        // Capítulo protegido (PPV): obtener el unlock token y firmar el m3u8,
+        // equivalente al flujo legacy de getProtectedVideoUrl.
+        let finalM3u8 = chapterData.m3u8;
+        let locked = false;
+        const isProtected =
+          isContentRestricted(chapterData.restriction) ||
+          isContentRestricted(programDetail?.restriction);
+
+        if (isProtected) {
+          const signedParams = setSignedParams(stateProtectedToken);
+          if (signedParams) {
+            finalM3u8 =
+              chapterData.m3u8 +
+              (chapterData.m3u8.includes("?") ? "&" : "?") +
+              signedParams;
+          } else if (subscriptionActive && token) {
+            try {
+              const unlockRes = await unlockTokenService.get({
+                token,
+                keyVideo: chapterData.key,
+              });
+              const tok = unlockRes?.data;
+              if (
+                tok &&
+                typeof tok.st === "string" &&
+                typeof tok.ts === "number" &&
+                typeof tok.e === "number"
+              ) {
+                const params = setSignedParams({ st: tok.st, ts: tok.ts, e: tok.e });
+                if (params) {
+                  finalM3u8 =
+                    chapterData.m3u8 +
+                    (chapterData.m3u8.includes("?") ? "&" : "?") +
+                    params;
+                }
+              } else {
+                locked = true;
+              }
+            } catch {
+              locked = true;
+            }
+          } else {
+            // Sin suscripción activa (o sin sesión): paywall, no reproducir.
+            locked = true;
+          }
+        }
+
         if (!cancelled) {
           setCurrentKey(chapterData.key);
           setEpisodeTitle(chapterData.name_program || chapterData.title || "");
@@ -184,7 +239,8 @@ export function usePlayerEpisode() {
           setChapterTitle(chapterData.title || "");
           setChapterNumber(chapterData.chapter ?? null);
           setSeasonNumber(chapterData.season ?? null);
-          setM3u8(chapterData.m3u8);
+          setM3u8(locked ? "" : finalM3u8);
+          setRestricted(locked);
 
           let resolvedInitialSeconds: number | undefined;
 
@@ -292,7 +348,7 @@ export function usePlayerEpisode() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-fetch when route params or auth change, not on navigate/program/stateResumeTime reference changes
-  }, [segment, season, chapter, token, activeProfile]);
+  }, [segment, season, chapter, token, activeProfile, subscriptionActive]);
 
   // Resetear estado al cambiar de episodio
   useEffect(() => {
@@ -309,6 +365,7 @@ export function usePlayerEpisode() {
     setVastUrls([]);
     setEpisodes([]);
     setM3u8("");
+    setRestricted(false);
   }, [segment, season, chapter]);
 
 
@@ -350,6 +407,9 @@ export function usePlayerEpisode() {
     // Autenticación
     token,
     activeProfile,
+
+    // Paywall de contenido protegido
+    restricted,
 
     // Navegación
     playNext,

@@ -1,5 +1,5 @@
-import React from "react";
-import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import React, { useEffect } from "react";
+import { useFocusable, setFocus, getCurrentFocusKey } from "@noriginmedia/norigin-spatial-navigation";
 import iconoRewindRaw from "@/assets/img/icons/iconos-rewind.svg?raw";
 import iconoNextRaw from "@/assets/img/icons/iconos-next.svg?raw";
 import styles from "./ChapterButton.module.css";
@@ -49,7 +49,9 @@ const ChapterButtonComponent = ({
         return false;
       }
       if (direction === "right") {
-        if (!isNext) {
+        if (isNext) {
+          setFocus("PLAYER-BTN-EPISODES");
+        } else {
           setFocus("PLAYER-BTN-SKIP-REW");
         }
         return false;
@@ -57,6 +59,14 @@ const ChapterButtonComponent = ({
       return true;
     },
   });
+
+  // Si el capítulo siguiente deja de existir mientras este botón está enfocado,
+  // el nodo queda como foco "muerto" (focusable: false sin foco visual).
+  useEffect(() => {
+    if (disabled && getCurrentFocusKey() === focusKey) {
+      setFocus(isNext ? "PLAYER-BTN-EPISODES" : "PLAYER-BTN-SKIP-REW");
+    }
+  }, [disabled, focusKey, isNext]);
 
   return (
     <button

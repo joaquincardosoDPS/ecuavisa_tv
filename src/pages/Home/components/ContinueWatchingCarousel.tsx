@@ -15,13 +15,14 @@ function formatDuration(seconds: number): string {
 
 interface ContinueWatchingProps { items: ContinueWatchingItem[]; }
 
-function ContinueWatchingCard({ item, index, emblaApi, onPress }: { item: ContinueWatchingItem, index: number, emblaApi?: EmblaCarouselType, onPress: () => void }) {
+function ContinueWatchingCard({ item, index, totalItems, emblaApi, onPress }: { item: ContinueWatchingItem, index: number, totalItems?: number, emblaApi?: EmblaCarouselType, onPress: () => void }) {
   const imgSrc = item.image_land?.medium || item.image_land?.default || item.image;
   const progress = item.duration_seg > 0 ? Math.min(100, (item.time / item.duration_seg) * 100) : 0;
 
   const { ref, focused } = useCarouselFocus({
     focusKey: `continue-${item.slug}`,
     index,
+    totalItems,
     emblaApi,
     onEnterPress: onPress,
   });
@@ -100,7 +101,7 @@ function ContinueWatchingCarousel({ items }: ContinueWatchingProps) {
           <div ref={emblaRef} className={styles.emblaViewport}>
             <div className={styles.emblaContainer}>
               {items.map((item, index) => (
-                <ContinueWatchingCard key={item.slug} item={item} index={index} emblaApi={emblaApi} onPress={() => navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, { state: { resumeTime: item.time } })} />
+                <ContinueWatchingCard key={item.slug} item={item} index={index} totalItems={items.length} emblaApi={emblaApi} onPress={() => navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, { state: { resumeTime: item.time } })} />
               ))}
               <div className={styles.carouselSpacer} />
             </div>

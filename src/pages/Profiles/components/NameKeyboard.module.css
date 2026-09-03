@@ -1,0 +1,89 @@
+.keyboard {
+  /* --col = ancho de una tecla + sus márgenes; todo se dimensiona por columnas
+     para que las filas de acción ocupen lo mismo que una fila de 6 teclas. */
+  --key-size: 4rem;
+  --key-margin: 0.25rem;
+  --col: calc(var(--key-size) + var(--key-margin) * 2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.row,
+.actionRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--key-size);
+  height: 3.5rem;
+  margin: var(--key-margin);
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  background-color: rgba(var(--clr-secondary-button), 0.6);
+  color: var(--clr-primary-title);
+  font-size: 1.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
+.key:hover,
+.key.focused {
+  background-color: var(--foc-primary);
+  color: var(--clr-primary-title);
+  transform: scale(1.08);
+  border-color: rgba(var(--clr-primary-title-rgb), 0.25);
+}
+
+.actionRow {
+  margin-top: 0.25rem;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.5rem;
+  margin: var(--key-margin);
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  background-color: rgba(var(--clr-secondary-button), 0.6);
+  color: var(--clr-primary-title);
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
+.action:hover,
+.action.focused {
+  background-color: var(--foc-primary);
+  color: var(--clr-primary-title);
+  transform: scale(1.04);
+  border-color: rgba(var(--clr-primary-title-rgb), 0.25);
+}
+
+/* ESPACIO (3 cols) + BUSCAR (2 cols) + X (1 col) = una fila de 6 teclas */
+.spaceBtn {
+  width: calc(var(--col) * 3 - var(--key-margin) * 2);
+}
+
+.searchBtn {
+  width: calc(var(--col) * 2 - var(--key-margin) * 2);
+}
+
+.backBtn {
+  width: calc(var(--col) - var(--key-margin) * 2);
+}
+
+/* BORRAR ocupa una fila completa (6 teclas) */
+.clearBtn {
+  width: calc(var(--col) * 6 - var(--key-margin) * 2);
+}

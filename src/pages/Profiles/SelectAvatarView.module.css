@@ -65,7 +65,32 @@
   align-items: center;
   justify-content: center;
   border: 4px solid transparent;
-  transition: all 0.3s;
+  transform: scale(1);
+  box-shadow: none;
+  transition: transform 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+/* Avatar elegido (marca azul): borde de acento + leve escala. */
+.avatarSelected {
+  border-color: var(--epg-accent);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px 0 var(--epg-accent);
+}
+
+/* Hover (Magic Mouse) = foco (REGLA F6.1). */
+.avatarButton:hover .avatarFrame {
+  border-color: var(--foc-primary);
+  box-shadow: 0 0 0 3px var(--foc-primary), 0 0 24px 0 var(--foc-primary);
+  transform: scale(1.05);
+}
+
+/* Foco espacial (D-pad): borde claro + resplandor + escala. La especificidad
+   combinada gana sobre `.avatarSelected` para que el cursor siempre sea
+   evidente aunque el avatar enfocado ya esté marcado como elegido. */
+.avatarButton.avatarFocused .avatarFrame {
+  border-color: var(--foc-primary);
+  box-shadow: 0 0 0 3px var(--foc-primary), 0 0 24px 0 var(--foc-primary);
+  transform: scale(1.05);
 }
 
 .loadingOverlay {

@@ -1,10 +1,11 @@
-import { EpisodeSidebar } from "./EpisodeSidebar";
+import ChaptersPanel from "./ChaptersPanel";
 import { Seekbar } from "./Seekbar";
 import type { ProgramChapter } from "../types";
 
 import iconosConfig from "@/assets/img/icons/iconos-config.svg";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import React from "react";
+import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./PlayerControls.module.css";
 
 // ---- Botón de Opciones ----
@@ -114,6 +115,8 @@ interface PlayerControlsProps {
   onEpisodeSelect?: (episode: ProgramChapter) => void;
   onHideControls?: () => void;
   onSidebarVisibilityChange?: (isOpen: boolean) => void;
+  /** Estado controlado del panel de capítulos (lo controla VideoPlayer para poder cerrarlo con Back) */
+  chaptersPanelOpen?: boolean;
 
   onRestartChapter?: () => void;
   onNextChapter?: () => void;
@@ -143,25 +146,27 @@ const PlayerControlsComponent = ({
   onEpisodeSelect,
   onHideControls,
   onSidebarVisibilityChange,
+  chaptersPanelOpen = false,
   onRestartChapter,
   onNextChapter,
   hasNextChapter = false,
   adCuepoints,
   playedCuepoints,
 }: PlayerControlsProps) => {
-  const [isChaptersSidebarOpen, setIsChaptersSidebarOpen] = useState(false);
+  useEffect(() => {
+    if (!visible && chaptersPanelOpen) {
+      onSidebarVisibilityChange?.(false);
+    }
+  }, [visible, chaptersPanelOpen, onSidebarVisibilityChange]);
 
   useEffect(() => {
-    if (!visible && isChaptersSidebarOpen) {
-      setIsChaptersSidebarOpen(false);
-    }
-  }, [visible, isChaptersSidebarOpen]);
+    onSidebarVisibilityChange?.(chaptersPanelOpen);
+  }, [chaptersPanelOpen, onSidebarVisibilityChange]);
 
-  useEffect(() => {
-    if (onSidebarVisibilityChange) {
-      onSidebarVisibilityChange(isChaptersSidebarOpen);
-    }
-  }, [isChaptersSidebarOpen, onSidebarVisibilityChange]);
+  const closeChaptersPanel = useCallback(() => {
+    onSidebarVisibilityChange?.(false);
+    setTimeout(() => setFocus("PLAYER-BTN-EPISODES"), 120);
+  }, [onSidebarVisibilityChange]);
 
   return (
     <div
@@ -201,6 +206,7 @@ const PlayerControlsComponent = ({
             onFullscreen={onFullscreen}
             onRestartChapter={onRestartChapter}
             onNextChapter={onNextChapter}
+            onSeeAllChapters={() => onSidebarVisibilityChange?.(true)}
             hasNextChapter={hasNextChapter}
             adCuepoints={adCuepoints}
             playedCuepoints={playedCuepoints}
@@ -250,21 +256,19 @@ const PlayerControlsComponent = ({
       </div>
 
       {episodes.length > 0 && (
-        <EpisodeSidebar
+        <ChaptersPanel
           episodes={episodes}
           currentEpisodeKey={currentEpisodeKey}
-          visible={isChaptersSidebarOpen}
-          onClose={() => setIsChaptersSidebarOpen(false)}
-          onCloseAll={() => {
-            setIsChaptersSidebarOpen(false);
-            if (onHideControls) onHideControls();
-          }}
+          visible={chaptersPanelOpen}
+          onClose={closeChaptersPanel}
           onEpisodeSelect={(episode) => {
-            setIsChaptersSidebarOpen(false);
-            if (episode.key !== currentEpisodeKey && onEpisodeSelect) {
+            onSidebarVisibilityChange?.(false);
+            if (episode.key === currentEpisodeKey) {
+              if (onHideControls) onHideControls();
+              return;
+            }
+            if (onEpisodeSelect) {
               onEpisodeSelect(episode);
-            } else if (onHideControls) {
-              onHideControls();
             }
           }}
         />

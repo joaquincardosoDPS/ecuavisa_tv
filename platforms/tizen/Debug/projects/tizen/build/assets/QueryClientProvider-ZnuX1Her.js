@@ -1,1 +1,0 @@
-import{J as e,X as r,q as t}from"./api-zZX5DrMF.js";var n=r(e(),1),o=t(),s=n.createContext(void 0),i=e=>{const r=n.useContext(s);if(e)return e;if(!r)throw new Error("No QueryClient set, use QueryClientProvider to set one");return r},u=({client:e,children:r})=>(n.useEffect(()=>(e.mount(),()=>{e.unmount()}),[e]),(0,o.jsx)(s.Provider,{value:e,children:r}));export{i as n,u as t};

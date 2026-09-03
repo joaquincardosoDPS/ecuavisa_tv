@@ -3,6 +3,7 @@ import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation
 import { SkipButton } from "./SkipButton";
 import { PlayPauseButton } from "./PlayPauseButton";
 import { ChapterButton } from "./ChapterButton";
+import { EpisodesButton } from "./EpisodesButton";
 import { VolumeControl } from "./VolumeControl";
 import { FullscreenButton } from "./FullscreenButton";
 import { LiveControls } from "./LiveControls";
@@ -26,6 +27,7 @@ interface SeekbarProps {
   onFullscreen?: () => void;
   onRestartChapter?: () => void;
   onNextChapter?: () => void;
+  onSeeAllChapters?: () => void;
   hasNextChapter?: boolean;
   adCuepoints?: { timeSeconds: number }[];
   playedCuepoints?: number[];
@@ -61,6 +63,7 @@ const SeekbarComponent = ({
   onFullscreen,
   onRestartChapter,
   onNextChapter,
+  onSeeAllChapters,
   hasNextChapter = false,
   adCuepoints,
   playedCuepoints,
@@ -323,15 +326,14 @@ const SeekbarComponent = ({
               <ChapterButton action="restart" onClick={onRestartChapter} />
               <SkipButton seconds={-10} onClick={() => onSkip && onSkip(-10)} />
               <PlayPauseButton playing={playing} onClick={onPlayPause} />
-              <SkipButton seconds={10} onClick={() => onSkip && onSkip(10)} />
+              <SkipButton seconds={10} onClick={() => onSkip && onSkip(10)} hasNextChapter={hasNextChapter} />
               <ChapterButton action="next" onClick={onNextChapter} disabled={!hasNextChapter} />
+              <EpisodesButton onClick={onSeeAllChapters} hasNextChapter={hasNextChapter} />
             </div>
 
             <div className={styles.rightControls}>
               <VolumeControl
-                volume={volume}
                 muted={muted}
-                onVolumeChange={onVolumeChange}
                 onMuteToggle={onMuteToggle}
               />
               <FullscreenButton onClick={onFullscreen} />

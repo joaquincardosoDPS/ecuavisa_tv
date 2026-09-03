@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalogService";
 import type { Program } from "@/interfaces/catalog.interface";
@@ -18,7 +18,12 @@ interface UseCategoryProgramsReturn {
 
 export function useCategoryPrograms(): UseCategoryProgramsReturn {
   const { slug } = useParams<{ slug: string }>();
-  const [categoryTitle, setCategoryTitle] = useState("");
+  const location = useLocation();
+  // El "Ver más" del carrusel navega con el título real de la categoría en el
+  // estado; se usa para no mostrar la key (slug) como encabezado.
+  const [categoryTitle, setCategoryTitle] = useState(
+    (location.state as { categoryTitle?: string } | null)?.categoryTitle || ""
+  );
 
   const {
     data,

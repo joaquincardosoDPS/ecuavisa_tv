@@ -1,5 +1,6 @@
 import type { Chapter, ChapterWithHistory, Segment } from "@/interfaces/catalog.interface";
 import { useChapters } from "@/hooks/program/useChapters";
+import { usePurchasedPrograms } from "@/hooks/program/usePurchasedPrograms";
 import { useEffect } from "react";
 import ChapterCard from "@/pages/Event/components/ChapterCard";
 import Button from "@/components/ui/Button";
@@ -55,6 +56,9 @@ function LoadMore({ programKey, onClick, isFetching }: { programKey: string; onC
 
 function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setActiveSeason, onLoaded, onFirstChapter, showChapter = true, badge, programRestriction }: Props) {
   const { chaptersWithHistory, isLoading: isLoadingChapters, fetchNextPage, hasNextPage, isFetchingNextPage } = useChapters(slug, activeSeason, activeSegment?.key || null);
+  // Si el usuario tiene suscripción activa y compró el programa (PPV), sus capítulos quedan desbloqueados.
+  const { hasPurchased } = usePurchasedPrograms();
+  const isPurchased = hasPurchased(programKey);
 
   useEffect(() => {
     if (!isLoadingChapters && onLoaded) onLoaded();
@@ -111,6 +115,7 @@ function ChaptersContainer({ slug, programKey, activeSegment, activeSeason, setA
                 isFirstRow={index < 5}
                 badge={badge}
                 programRestriction={programRestriction}
+                isPurchased={isPurchased}
               />
             ))}
           </div>

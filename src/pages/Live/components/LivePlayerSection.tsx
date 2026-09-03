@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import type { EPGEvent, LiveSignal } from "@/interfaces/catalog.interface";
 import ExpandButton from "@/components/ui/ExpandButton";
@@ -13,11 +13,19 @@ interface LivePlayerSectionProps {
 }
 
 function LivePlayerSection({ signal, currentEvent, isExpanded, onToggleExpand }: LivePlayerSectionProps) {
+  const wasExpandedRef = useRef(isExpanded);
+
   useEffect(() => {
+    const wasExpanded = wasExpandedRef.current;
+    wasExpandedRef.current = isExpanded;
+
     if (isExpanded) {
       setTimeout(() => setFocus("LIVE-BTN-BACK"), 200);
+    } else if (wasExpanded && signal) {
+      // Al colapsar, devolver el foco a la fila EPG del canal que estaba activo
+      setTimeout(() => setFocus(`epg-row-${signal.key_live}`), 200);
     }
-  }, [isExpanded]);
+  }, [isExpanded, signal]);
 
   if (!signal) {
     return (

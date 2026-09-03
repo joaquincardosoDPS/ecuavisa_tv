@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { getEventStatus } from "@/utils/eventStatus";
 import { PlayButton } from "@/components/icons/play-button";
-import { InfoCircle } from "@/components/icons/info-circle";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import RestrictionBadge from "@/components/ui/RestrictionBadge";
@@ -38,31 +37,6 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
     onArrowPress: (direction) => {
       if (direction === 'left') {
         setFocus('banner-arrow-left');
-        return false;
-      }
-      if (direction === 'right') {
-        setFocus(`banner-info-${program.id}`);
-        return false;
-      }
-      if (direction === 'down') {
-        setFocus('zone-live-epg');
-        return false;
-      }
-      if (direction === 'up') {
-        setFocus('zone-header');
-        return false;
-      }
-      return true;
-    }
-  });
-
-  const { ref: infoRef, focused: infoFocused } = useCarouselFocus({
-    focusKey: `banner-info-${program.id}`,
-    isBanner: true,
-    onEnterPress: handleClick,
-    onArrowPress: (direction) => {
-      if (direction === 'left') {
-        setFocus(`banner-play-${program.id}`);
         return false;
       }
       if (direction === 'right') {
@@ -106,10 +80,7 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
       </div>
       <div className={styles.infoBtns}>
         <Button ref={playRef} variant="primary" onClick={handleClick} tabIndex={isBannerFocused ? 0 : -1} focused={playFocused}>
-          <PlayButton width={30} height={30} className={styles.playbuttonStyle1} /> Ver en vivo
-        </Button>
-        <Button ref={infoRef} variant="primary" onClick={handleClick} tabIndex={isBannerFocused ? 0 : -1} focused={infoFocused}>
-          <InfoCircle width={30} height={30} className={styles.infocircleStyle2} /> Informacion
+          <PlayButton width={30} height={30} className={styles.playbuttonStyle1} /> Ver Ahora
         </Button>
       </div>
     </div>

@@ -1,1 +1,0 @@
-System.register([],function(t,e){var r,n;return t({n:function(t){try{localStorage.setItem(r,String(t))}catch(e){}},t:function(){try{var t=localStorage.getItem(r);if(null!==t){var e=parseFloat(t);if(!isNaN(e)&&e>=0&&e<=1)return e}}catch(a){}return n}}),{setters:[],execute:function(){r="rudo_player_volume",n=.5}}});

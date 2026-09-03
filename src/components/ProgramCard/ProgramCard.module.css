@@ -401,7 +401,7 @@
 
 .viewMoreCardVertical {
     width: var(--card-w-vertical);
-    height: calc(var(--card-w-vertical) * 3 / 2);
+    height: calc(var(--card-w-vertical) * 16 / 9);
     border-radius: 0.75rem;
 }
 

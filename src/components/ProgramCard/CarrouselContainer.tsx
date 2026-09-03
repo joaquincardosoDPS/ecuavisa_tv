@@ -17,7 +17,7 @@ function CarrouselContainer({ category, autoFocusFirst }: CarrouselContainerProp
 			<h2 className={styles.containerTitle}>{category.title}</h2>
 			<div className={styles.carouselFlexContainer}>
 				<div className={styles.carouselItemContainer}>
-					<CardCarrousel programs={category.programs} categorySlug={category.key} autoFocusFirst={autoFocusFirst} />
+					<CardCarrousel programs={category.programs} categorySlug={category.key} categoryTitle={category.title} autoFocusFirst={autoFocusFirst} />
 				</div>
 			</div>
 		</div>

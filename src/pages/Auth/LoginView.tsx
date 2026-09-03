@@ -13,7 +13,7 @@ function LoginView() {
   const bgImage = useConfigStore((s) => s.config?.background) || bgLogin;
 
   const { deviceData, isLoading, error } = useLoginData(() =>
-    navigate('/', { replace: true })
+    navigate('/seleccionar-perfil', { replace: true })
   );
 
   /* Botón Back → volver a la pantalla de bienvenida (REGLA 4.1) */

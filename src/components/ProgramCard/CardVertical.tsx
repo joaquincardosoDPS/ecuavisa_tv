@@ -15,12 +15,13 @@ interface CardVerticalProps {
   program: Program | Event;
   format?: string;
   index: number;
+  totalItems?: number;
   emblaApi?: EmblaCarouselType | null;
   parentFocusKey?: string;
   autoFocusFirst?: boolean;
 }
 
-function CardVertical({ program, format, index, emblaApi, parentFocusKey, autoFocusFirst }: CardVerticalProps) {
+function CardVertical({ program, format, index, totalItems, emblaApi, parentFocusKey, autoFocusFirst }: CardVerticalProps) {
   const navigate = useNavigate();
   const isEvent = format === "event";
   const isRanking = format === "ranking";
@@ -46,6 +47,7 @@ function CardVertical({ program, format, index, emblaApi, parentFocusKey, autoFo
   const { ref, focused } = useCarouselFocus({
     focusKey,
     index,
+    totalItems,
     emblaApi: emblaApi ?? undefined,
     onEnterPress: handleClick,
   });

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
+import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import iconoVolumenRaw from "@/assets/img/icons/iconos-volumen.svg?raw";
 import styles from "./VolumeControl.module.css";
 
 interface VolumeControlProps {
-  volume?: number;
   muted?: boolean;
-  onVolumeChange?: (volume: number) => void;
   onMuteToggle?: () => void;
 }
 
@@ -13,15 +12,40 @@ const resizeSvg = (raw: string, size: number) =>
   raw.replace(/width="[^"]*"/, `width="${size}"`).replace(/height="[^"]*"/, `height="${size}"`);
 
 const VolumeControlComponent = ({
-  volume = 1,
   muted = false,
-  onVolumeChange,
   onMuteToggle,
 }: VolumeControlProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  const { ref, focused } = useFocusable({
+    focusKey: "PLAYER-BTN-VOLUME",
+    onEnterPress: () => onMuteToggle?.(),
+    onArrowPress: (direction) => {
+      if (direction === "left") {
+        setFocus("PLAYER-BTN-EPISODES");
+        return false;
+      }
+      if (direction === "right") {
+        setFocus("PLAYER-BTN-FULLSCREEN");
+        return false;
+      }
+      if (direction === "up") {
+        setFocus("PLAYER-BTN-BACK");
+        return false;
+      }
+      if (direction === "down") {
+        setFocus("PLAYER-SEEKBAR-THUMB");
+        return false;
+      }
+      return true;
+    },
+  });
+
+  const isActive = isHovered || focused;
+
   return (
     <div
+      ref={ref}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)} className={styles.volumeContainer}
     >
@@ -30,7 +54,7 @@ const VolumeControlComponent = ({
         onClick={onMuteToggle}
         className={styles.muteButton}
         style={{
-          color: isHovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+          color: isActive ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
           opacity: muted ? 0.5 : 1,
         }}
         title={muted ? "Activar sonido" : "Silenciar"}
@@ -41,30 +65,6 @@ const VolumeControlComponent = ({
           }} className={styles.volumeIconSpan}
         />
       </button>
-
-      {/* Slider vertical flotante */}
-      <div
-        className={styles.sliderFloat}
-        style={{
-          opacity: isHovered ? 1 : 0,
-          pointerEvents: isHovered ? "auto" : "none",
-        }}
-      >
-        <div className={styles.volumeSliderWrapper}
-        >
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={muted ? 0 : volume}
-          onChange={(e) =>
-            onVolumeChange && onVolumeChange(parseFloat(e.target.value))
-          }
-          title="Volumen" className={styles.volumeSliderInput}
-        />
-        </div>
-      </div>
     </div>
   );
 };
