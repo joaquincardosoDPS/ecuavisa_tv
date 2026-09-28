@@ -18,7 +18,7 @@
 }
 
 .pageTitle {
-  font-size: 2.25rem;
+  font-size: 3rem;
   font-weight: bold;
   line-height: 1.2;
   color: var(--clr-primary-title);
@@ -146,8 +146,8 @@
 }
 
 .profileSelect {
-  width: 8.5rem;
-  height: 8.5rem;
+  width: 9rem;
+  height: 9rem;
   border-radius: 9999px;
   border: 3px solid transparent;
   overflow: hidden;
@@ -183,7 +183,7 @@
 }
 
 .profileName {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   color: rgba(var(--clr-primary-title-rgb), 0.7);
   margin-top: 0.75rem;
 }
@@ -223,6 +223,47 @@
   height: 1.1rem;
 }
 
+/* Tarjeta "Crear perfil" */
+.addProfileCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 2.5rem 2rem 0;
+}
+
+.addProfileBtn {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 9999px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--clr-secondary);
+  color: rgba(var(--clr-primary-title-rgb), 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
+.addProfilePlus {
+  font-size: 4rem;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.addProfileFocused {
+  transform: scale(1.05);
+  border-color: var(--foc-primary);
+  color: var(--foc-primary);
+  box-shadow: 0 0 22px 0 var(--foc-primary);
+}
+
+.addProfileLabel {
+  font-size: 1.5rem;
+  color: rgba(var(--clr-primary-title-rgb), 0.7);
+  margin-top: 0.75rem;
+}
+
 /* --- Estados de error / vacío --- */
 .errorText {
   color: #f87171;
@@ -241,7 +282,7 @@
 
 .logoutButton {
   padding: 0.75rem 2.5rem;
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   border-radius: 0.875rem;
 }
 

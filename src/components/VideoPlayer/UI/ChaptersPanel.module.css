@@ -57,6 +57,12 @@
   border-color: var(--foc-primary);
 }
 
+/* Sin acceso (PPV no comprado): el candado del RestrictionOverlay marca la tarjeta */
+.card.locked .episodeTitle,
+.card.locked .durationText {
+  opacity: 0.6;
+}
+
 .thumbnail {
   position: absolute;
   top: 0;

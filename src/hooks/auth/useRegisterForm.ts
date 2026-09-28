@@ -189,7 +189,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
         return;
       }
 
-      // console.log("[Register] Success:", response);
       const token = response.user!.token;
       useAuthStore.getState().login(token, response.user);
 
@@ -204,7 +203,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
         axiosError?.response?.data?.msj ||
         "Error de conexión. Intenta de nuevo.";
       setSubmitError(msg);
-      console.error("[Register] Error:", error);
     } finally {
       setIsSubmitting(false);
     }

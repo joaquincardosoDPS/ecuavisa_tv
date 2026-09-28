@@ -11,10 +11,15 @@
     "build:webos": "tsc -b && node scripts/build-platform.mjs webos",
     "build:tizen": "tsc -b && node scripts/build-platform.mjs tizen",
     "build:hisense": "tsc -b && node scripts/build-platform.mjs hisense",
+    "tizen:connect": "node scripts/tizen.mjs connect", 
+    "tizen:disconnect": "node scripts/tizen.mjs disconnect",
+    "tizen:devices": "node scripts/tizen.mjs devices",
+    "tizen:cert": "node scripts/tizen.mjs cert",
+    "tizen:profiles": "node scripts/tizen.mjs profiles",
+    "deploy:tizen": "cd platforms/tizen && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz pack && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz install -p Debug/tizen.wgt",
     "build:package": "ares-package --no-minify ./platforms/webos/build",
-    "install:webos5": "ares-install --device grande com.digitalproserver.michv_1.0.0_all.ipk",
-    "inspect:webos5": "ares-inspect --device grande --app com.digitalproserver.michv --open",
-    "deploy:tizen": "cd platforms/tizen && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz pack && /home/gonzalo/.tizen-extension-platform/server/sdktools/data/tools/tizen-core/tz install -p Debug/tizen.wgt"
+    "install:webos5": "ares-install --device grande com.digitalproserver.ecuavisa_1.0.0_all.ipk",
+    "inspect:webos5": "ares-inspect --device grande --app com.digitalproserver.ecuavisa --open"
   },
   "dependencies": {
     "@glomex/vast-ima-player": "^1.21.2",

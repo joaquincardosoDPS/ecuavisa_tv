@@ -33,8 +33,8 @@ export const historyService = {
                 time: Math.floor(params.time),
                 ...(params.end !== undefined && { end: params.end }),
             });
-        } catch (error) {
-            console.warn('[HistoryService] Error saving progress:', error);
+        } catch {
+            /* noop */
         }
     },
 

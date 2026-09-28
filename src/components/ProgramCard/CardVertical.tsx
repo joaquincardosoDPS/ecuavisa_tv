@@ -19,15 +19,19 @@ interface CardVerticalProps {
   emblaApi?: EmblaCarouselType | null;
   parentFocusKey?: string;
   autoFocusFirst?: boolean;
+  showImage?: boolean;
 }
 
-function CardVertical({ program, format, index, totalItems, emblaApi, parentFocusKey, autoFocusFirst }: CardVerticalProps) {
+function CardVertical({ program, format, index, totalItems, emblaApi, parentFocusKey, autoFocusFirst, showImage = true }: CardVerticalProps) {
   const navigate = useNavigate();
   const isEvent = format === "event";
   const isRanking = format === "ranking";
   const eventData = isEvent ? (program as Event) : null;
   const programData = !isEvent ? (program as Program) : null;
-  const imageSrc = isEvent ? eventData?.image_port?.small : programData?.image_port?.small;
+    const imagePort = isEvent ? eventData?.image_port : programData?.image_port;
+  // "small" (225x400) alcanza para una tarjeta de 15vw y pesa ~10x menos decodificada que "medium"
+  const imageSrc = imagePort?.small || imagePort?.medium
+    || (isEvent ? eventData?.image_background?.small || eventData?.image_background?.medium : null);
   const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
   const showDate = eventStatus !== null && eventStatus.label === "Próximamente";
 
@@ -55,7 +59,6 @@ function CardVertical({ program, format, index, totalItems, emblaApi, parentFocu
   useEffect(() => {
     if (autoFocusFirst) {
       const timeout = setTimeout(() => {
-        console.log("[CardVertical] Auto-focusing first card:", focusKey);
         setFocus(focusKey);
       }, 100);
       return () => clearTimeout(timeout);
@@ -89,13 +92,13 @@ function CardVertical({ program, format, index, totalItems, emblaApi, parentFocu
           </div>
         )}
 
-        {imageSrc ? (
-          <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" />
+        {showImage && (imageSrc ? (
+          <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" decoding="async" />
         ) : (
           <div className={styles.cardImgFallback}>
             <span className={styles.cardImgFallbackText}>{program.title}</span>
           </div>
-        )}
+        ))}
         {!isEvent && (
           <RestrictionBadge
             show={isContentRestricted(programData?.restriction)}
@@ -103,6 +106,11 @@ function CardVertical({ program, format, index, totalItems, emblaApi, parentFocu
           />
         )}
       </div>
+      {isEvent && eventData && (
+        <div className={styles.cardMeta}>
+          <p className={styles.cardTitle}>{eventData.title}</p>
+        </div>
+      )}
     </div>
   );
 }

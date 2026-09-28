@@ -1,0 +1,1 @@
+System.register(["./useConfigStore-legacy-eNI3pTgM.js"],function(e,t){var a;return{setters:[function(e){a=e.n}],execute:function(){e("t",a(e=>({name:"",selectedAvatar:null,setName:t=>e({name:t}),setSelectedAvatar:t=>e({selectedAvatar:t}),clear:()=>e({name:"",selectedAvatar:null})})))}}});

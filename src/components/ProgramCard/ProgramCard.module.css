@@ -10,7 +10,7 @@
     flex-shrink: 0;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     background-color: var(--clr-primary);
     border-radius: 0.5rem;
 
@@ -385,30 +385,30 @@
 }
 
 
-.viewMoreText {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: var(--clr-primary-title);
-}
-
+/* "Ver Más": ocupa el slot de una tarjeta (misma medida, radio y foco) con el texto centrado */
 .viewMoreCard {
-    background-color: var(--clr-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background-color: var(--clr-secondary);
 }
 
 .viewMoreCardVertical {
     width: var(--card-w-vertical);
     height: calc(var(--card-w-vertical) * 16 / 9);
-    border-radius: 0.75rem;
 }
 
 .viewMoreCardHorizontal {
     width: var(--card-w-horizontal);
     height: calc(var(--card-w-horizontal) * 9 / 16);
-    border-radius: 0.5rem;
+}
+
+.viewMoreText {
+    color: var(--clr-primary-title);
+    font-size: 1.5rem;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 

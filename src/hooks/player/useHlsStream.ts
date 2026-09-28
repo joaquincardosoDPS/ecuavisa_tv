@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Hls from 'hls.js';
 import type { MetadataSample } from 'hls.js';
+import { getPlatformAnalytics } from '@/utils/platform';
 
 interface UseHlsStreamOptions {
     videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -55,7 +56,7 @@ function buildLiveUrl(src: string, token: string): string {
     const match = src.match(/\/hls\/([^/]+)\//);
     const firstSegment = match ? match[1] : null;
     if (firstSegment) {
-        return `https://redirector.dps.live/hls/${firstSegment}/playlist.m3u8?auth-token=${encodeURIComponent(token)}`;
+        return `https://redirector.dps.live/hls/${firstSegment}/playlist.m3u8?auth-token=${encodeURIComponent(token)}&platform=${encodeURIComponent(getPlatformAnalytics())}`;
     }
     return src;
 }
@@ -130,10 +131,10 @@ export function useHlsStream({
         if (!video) return;
 
         if (video.readyState >= 2) {
-            video.play().catch(err => console.warn('[HlsStream] Play error:', err));
+            video.play().catch(() => { /* noop: autoplay puede estar bloqueado */ });
         } else {
             video.addEventListener('canplay', () => {
-                video.play().catch(err => console.warn('[HlsStream] Play error after canplay:', err));
+                video.play().catch(() => { /* noop: autoplay puede estar bloqueado */ });
             }, { once: true });
         }
     }, [videoRef]);
@@ -150,7 +151,6 @@ export function useHlsStream({
         if (!videoElement) return;
 
         if (!src || src === 'undefined' || src === 'null') {
-            console.warn('[HlsStream] URL inválida:', src);
             return;
         }
 
@@ -197,7 +197,7 @@ export function useHlsStream({
                 }
 
                 if (autoplay) {
-                    videoElement.play().catch(err => console.warn('[HlsStream] Autoplay prevented:', err));
+                    videoElement.play().catch(() => { /* noop: autoplay puede estar bloqueado */ });
                 }
 
                 if (initialSeconds && initialSeconds > 0 && !isLive) {
@@ -206,13 +206,6 @@ export function useHlsStream({
 
                 if (onManifestParsedRef.current) {
                     onManifestParsedRef.current();
-                }
-            });
-
-            hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
-                const level = hls.levels[data.level];
-                if (level) {
-                    console.info(`[HlsStream] Calidad: ${level.height}p (${Math.round(level.bitrate / 1024)} kbps)`);
                 }
             });
 
@@ -226,15 +219,12 @@ export function useHlsStream({
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
-                            console.error('[HlsStream] Network error, reintentando:', data);
                             hls.startLoad();
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
-                            console.error('[HlsStream] Media error, recuperando:', data);
                             hls.recoverMediaError();
                             break;
                         default:
-                            console.error('[HlsStream] Error fatal:', data);
                             hls.destroy();
                             if (onFatalErrorRef.current) {
                                 onFatalErrorRef.current(data);

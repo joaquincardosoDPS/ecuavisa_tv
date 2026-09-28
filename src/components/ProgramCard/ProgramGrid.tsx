@@ -17,6 +17,12 @@ interface ProgramGridProps {
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
+  /**
+   * Usa el id del item en la focusKey en vez del índice. Necesario cuando la lista
+   * se reordena al recargar (ej. Mi Lista: el último agregado entra primero), porque
+   * con claves por índice el foco guardado termina apuntando a otra tarjeta.
+   */
+  stableKeys?: boolean;
 }
 
 function isProgram(item: GridItem): item is Program {
@@ -42,10 +48,11 @@ function ProgramGrid({
   isError = false,
   loadingText = "Cargando...",
   errorText = "Error al cargar",
-  cols = 4,
+  cols = 3,
   fetchNextPage,
   hasNextPage = false,
   isFetchingNextPage = false,
+  stableKeys = false,
 }: ProgramGridProps) {
   const sentinelRef = useInfiniteScroll(() => fetchNextPage?.(), hasNextPage && !isFetchingNextPage);
 
@@ -66,6 +73,7 @@ function ProgramGrid({
             <AlternativeCard 
               key={item.id} 
               index={index}
+              focusKey={stableKeys ? `program-grid-item-${item.id}` : undefined}
               program={toProgram(item)} 
               onFocus={() => {
                 if (isNearEnd && hasNextPage && !isFetchingNextPage && fetchNextPage) {

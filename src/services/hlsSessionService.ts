@@ -1,7 +1,10 @@
+import { getPlatformAnalytics } from '@/utils/platform';
+
 export interface HlsSessionParams {
     dpssid: string;
     ndvc: string;
     sid: string;
+    platform: string;
 }
 
 export async function getHlsSessionParams(): Promise<HlsSessionParams> {
@@ -17,7 +20,7 @@ export async function getHlsSessionParams(): Promise<HlsSessionParams> {
         ndvc = '1';
     }
 
-    return { dpssid, ndvc, sid };
+    return { dpssid, ndvc, sid, platform: getPlatformAnalytics() };
 }
 
 function generateLocalId(prefix: string = ''): string {
@@ -46,6 +49,7 @@ export function forceSessionParams(url: string, params: HlsSessionParams): strin
         urlObj.searchParams.set('dpssid', params.dpssid);
         urlObj.searchParams.set('ndvc', params.ndvc);
         urlObj.searchParams.set('sid', params.sid);
+        urlObj.searchParams.set('platform', params.platform);
 
         if (!url.startsWith('http')) {
             return urlObj.pathname + urlObj.search;
@@ -57,6 +61,7 @@ export function forceSessionParams(url: string, params: HlsSessionParams): strin
             `dpssid=${params.dpssid}`,
             `ndvc=${params.ndvc}`,
             `sid=${params.sid}`,
+            `platform=${params.platform}`,
         ];
         entries.forEach(param => {
             const key = param.split('=')[0];

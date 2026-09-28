@@ -7,12 +7,6 @@ type AdPhase = 'vast' | 'dai' | 'content';
 
 interface DaiStreamData {
     url?: string;
-    adProgressData?: {
-        adPosition: number;
-        totalAds: number;
-        duration: number;
-        currentTime: number;
-    };
 }
 
 interface DaiStreamEvent {
@@ -98,8 +92,8 @@ export function useDaiStream({
                 } else if (typeof streamManagerRef.current.reset === 'function') {
                     streamManagerRef.current.reset();
                 }
-            } catch (e) {
-                console.warn("[Live] Error cleaning StreamManager", e);
+            } catch {
+                /* noop */
             }
             streamManagerRef.current = null;
         }
@@ -126,13 +120,11 @@ export function useDaiStream({
         let sessionParams: HlsSessionParams | null = null;
         try {
             sessionParams = await getHlsSessionParams();
-            console.log("[Live] Session params obtenidos:", sessionParams);
-        } catch (err) {
-            console.warn("[Live] No se pudieron obtener session params:", err);
+        } catch {
+            /* noop: sin params se continúa sin tracking */
         }
 
         if (generationRef.current !== myGeneration) {
-            console.warn("[Live] Generación cambió durante getHlsSessionParams, abortando");
             return;
         }
 
@@ -142,21 +134,16 @@ export function useDaiStream({
 
         const loadUrl = (url: string) => {
             if (generationRef.current !== myGeneration) {
-                console.warn("[Live] Stale loadUrl call ignored");
                 return;
             }
             if (!url) {
-                console.error("[Live] No URL provided to loadUrl");
                 return;
             }
-            console.log("[Live] Resolved stream URL:", url);
             setResolvedStreamUrl(url);
         };
 
         const daiApi = google?.ima?.dai?.api;
         if (currentAssetKey && adUiRef && adUiRef.current && daiApi) {
-            console.log("[Live] Inicializando Google IMA DAI para:", currentAssetKey);
-
             try {
                 const streamManager = new daiApi.StreamManager(video, adUiRef.current);
                 streamManagerRef.current = streamManager;
@@ -165,7 +152,6 @@ export function useDaiStream({
                     daiApi.StreamEvent.Type.LOADED,
                     (e: DaiStreamEvent) => {
                         if (generationRef.current !== myGeneration) return;
-                        console.log("[Live] DAI Stream loaded");
                         const streamUrl = e.getStreamData().url;
                         if (streamUrl) {
                             setAdPhase('content');
@@ -177,9 +163,8 @@ export function useDaiStream({
 
                 streamManager.addEventListener(
                     daiApi.StreamEvent.Type.ERROR,
-                    (e: DaiStreamEvent) => {
+                    () => {
                         if (generationRef.current !== myGeneration) return;
-                        console.error("[Live] DAI Error, playing backup stream.", e);
                         setAdPhase('content');
                         loadUrl(currentStreamSrc);
                     },
@@ -190,7 +175,6 @@ export function useDaiStream({
                     daiApi.StreamEvent.Type.AD_BREAK_STARTED,
                     () => {
                         if (generationRef.current !== myGeneration) return;
-                        console.log("[Live] Ad Break Started");
                         setIsAdPlaying(true);
                         video.controls = false;
                         if (adUiRef.current) adUiRef.current.style.display = 'block';
@@ -202,25 +186,9 @@ export function useDaiStream({
                     daiApi.StreamEvent.Type.AD_BREAK_ENDED,
                     () => {
                         if (generationRef.current !== myGeneration) return;
-                        console.log("[Live] Ad Break Ended");
                         setIsAdPlaying(false);
                         video.controls = false;
                         if (adUiRef.current) adUiRef.current.style.display = 'none';
-                    },
-                    false
-                );
-
-                streamManager.addEventListener(
-                    daiApi.StreamEvent.Type.AD_PROGRESS,
-                    (e: DaiStreamEvent) => {
-                        if (generationRef.current !== myGeneration) return;
-                        const adProgressData = e.getStreamData().adProgressData;
-                        if (adProgressData) {
-                            console.log(
-                                `[Live] Ad ${adProgressData.adPosition}/${adProgressData.totalAds} ` +
-                                `${Math.floor(adProgressData.duration - adProgressData.currentTime)}s remaining`
-                            );
-                        }
                     },
                     false
                 );
@@ -241,26 +209,19 @@ export function useDaiStream({
                 const streamRequest = new daiApi.LiveStreamRequest();
                 streamRequest.assetKey = currentAssetKey;
                 streamManager.requestStream(streamRequest);
-                console.log("[Live] DAI LiveStreamRequest enviado con assetKey:", currentAssetKey);
 
-            } catch (err) {
-                console.error("[Live] Error initializing IMA DAI:", err);
+            } catch {
                 setAdPhase('content');
                 loadUrl(currentStreamSrc);
             }
 
         } else {
-            if (currentAssetKey) {
-                console.log("[Live] IMA SDK no disponible. Reproduciendo HLS estándar.");
-            }
             setAdPhase('content');
             loadUrl(currentStreamSrc);
         }
     }, [videoRef, adUiRef, cleanupStreamManager, onSessionParamsReady]);
 
     const onVastFinished = useCallback(() => {
-        console.log("[Live] VAST preroll terminado, iniciando DAI/HLS...");
-
         const video = videoRef.current;
         if (video) {
             video.muted = false;
@@ -289,7 +250,6 @@ export function useDaiStream({
 
         generationRef.current++;
         const currentGen = generationRef.current;
-        console.log("[Live] Nueva señal, generación:", currentGen, "src:", streamSrc);
 
         cancelPendingTimeout();
 
@@ -299,15 +259,12 @@ export function useDaiStream({
         lastProcessedPtsRef.current = -1;
 
         if (hasVast) {
-            console.log("[Live] Señal con VAST preroll, mostrando preroll...");
             setAdPhase('vast');
         } else {
-            console.log("[Live] Sin VAST preroll, iniciando DAI/HLS directo...");
             setAdPhase('dai');
             startTimeoutRef.current = setTimeout(() => {
                 startTimeoutRef.current = null;
                 if (generationRef.current !== currentGen) {
-                    console.warn("[Live] setTimeout stale, generación cambió durante delay");
                     return;
                 }
                 startDaiOrHls();

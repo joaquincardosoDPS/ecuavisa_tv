@@ -77,7 +77,6 @@ export function useLoginData(onLoginSuccess: () => void) {
             });
 
             if (data.status === 'ok' && data.user?.token) {
-                console.log('[Auth] Device verified, user:', data.user.email);
                 useAuthStore.getState().login(data.user.token, data.user);
                 localStorage.removeItem('token_tv');
                 onLoginSuccessRef.current();

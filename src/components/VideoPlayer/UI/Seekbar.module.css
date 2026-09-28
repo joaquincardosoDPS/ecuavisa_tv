@@ -4,16 +4,19 @@
 
 .controlRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   width: 100%;
   margin-bottom: 10px;
   color: var(--clr-primary-text);
 }
 
+/* flex:1 en las columnas laterales: los botones centrales quedan fijos
+   aunque cambie el ancho del texto de tiempo durante el seek */
 .timeDisplay {
   display: flex;
+  flex: 1;
   font-weight: normal;
+  font-variant-numeric: tabular-nums;
 }
 
 .timeDisplay > * + * {
@@ -31,6 +34,7 @@
 .centerControls {
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 .centerControls > * + * {
@@ -40,6 +44,8 @@
 .rightControls {
   display: flex;
   align-items: center;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .rightControls > * + * {

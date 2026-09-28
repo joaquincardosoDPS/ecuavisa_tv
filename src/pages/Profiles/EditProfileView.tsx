@@ -1,10 +1,9 @@
 import { useEffect } from "react";
-import { FocusContext, setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
+import { FocusContext, SpatialNavigation, setFocus, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useEditProfile } from "@/hooks/profiles/useEditProfile";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import ConfirmModal from "@/components/ui/ConfirmModal";
-import { BackButton } from "@/components/ui/BackButton";
 import { NameKeyboard } from "./components/NameKeyboard";
 import iconEdit from "@/assets/img/icons/iconos-edit.svg";
 import styles from "./EditProfileView.module.css";
@@ -42,7 +41,12 @@ interface BottomActionProps {
 
 // Botones inferiores GUARDAR CAMBIOS / ELIMINAR PERFIL.
 function BottomAction({ label, onPress, focusKey, kind, disabled }: BottomActionProps) {
-  const { ref, focused } = useSpatialFocus({ focusKey, onEnterPress: onPress });
+  const { ref, focused } = useSpatialFocus({
+    focusKey,
+    onEnterPress: () => {
+      if (!disabled) onPress();
+    },
+  });
 
   return (
     <button
@@ -110,17 +114,18 @@ function EditProfileView() {
     return null;
   })();
 
-  const displayName = (name || existingProfile?.name_perfil || "").toUpperCase();
-  const initial = displayName ? displayName.charAt(0) : "?";
+  // Solo el draft en edición: si el usuario borra todo, no se reintroduce el nombre original del perfil
+  const draftName = (name || "").toUpperCase();
+  const initial = (name || existingProfile?.name_perfil || "").toUpperCase().charAt(0) || "?";
 
   const typeChar = (char: string) => {
     if (isSubmitting) return;
-    setName((displayName + char.toUpperCase()).slice(0, MAX_NAME_LENGTH));
+    setName((name + char.toUpperCase()).slice(0, MAX_NAME_LENGTH));
   };
 
   const removeChar = () => {
     if (isSubmitting) return;
-    setName(displayName.slice(0, -1));
+    setName(name.slice(0, -1));
   };
 
   const clearName = () => {
@@ -130,6 +135,14 @@ function EditProfileView() {
 
   const canDelete = !isCreateMode && !isDefaultProfile;
   const title = isCreateMode ? "Crear perfil" : "Editar mi perfil";
+
+  // Al cerrar el modal sus focos se desmontan: devolver el foco a "Eliminar perfil"
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setTimeout(() => {
+      if (SpatialNavigation.doesFocusableExist("edit-delete")) setFocus("edit-delete");
+    }, 150);
+  };
 
   return (
     <FocusContext.Provider value={pageFocusKey}>
@@ -150,23 +163,20 @@ function EditProfileView() {
           <div className={styles.avatarColumn}>
             <div className={styles.avatarFrame}>
               {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName || "Avatar"} className={styles.avatarImage} />
+                <img src={avatarUrl} alt={draftName || "Avatar"} className={styles.avatarImage} />
               ) : (
                 <span className={styles.avatarInitial}>{initial}</span>
               )}
             </div>
             <AvatarPickerButton onPick={() => navigate("avatars")} />
-            <p className={styles.avatarNameLabel}>{displayName || "Mi perfil"}</p>
+            <p className={styles.avatarNameLabel}>{draftName || "Mi perfil"}</p>
           </div>
 
           <div className={styles.editorColumn}>
-            <div className={styles.nameDisplay}>
-            </div>
             <NameKeyboard
               onKey={typeChar}
               onBackspace={removeChar}
               onClear={clearName}
-              onSearch={() => handleSubmit()}
             />
             {submitError && <p className={styles.errorText}>{submitError}</p>}
             {submitSuccess && (
@@ -182,7 +192,7 @@ function EditProfileView() {
             label={isCreateMode ? "CREAR PERFIL" : "GUARDAR CAMBIOS"}
             focusKey="edit-save"
             kind="save"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !name.trim()}
             onPress={() => handleSubmit()}
           />
           {canDelete && (
@@ -198,7 +208,7 @@ function EditProfileView() {
 
       <ConfirmModal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={closeDeleteModal}
         onConfirm={handleDelete}
         message={`¿Quieres borrar el perfil de ${existingProfile?.name_perfil || ""}?`}
         confirmLabel="Borrar"

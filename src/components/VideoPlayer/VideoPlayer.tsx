@@ -9,14 +9,17 @@ import { usePlayerAnalytics } from "./hooks/usePlayerAnalytics";
 import { useWatchHistory } from "./hooks/useWatchHistory";
 import { VastPlayer } from "./ads/VastPlayer";
 import { Spinner } from "@/components/ui/Spinner";
+import RestrictionModal from "@/components/ui/RestrictionModal";
 import { PlayerTopBar } from "./UI/PlayerTopBar";
 import { PlayerControls } from "./UI/PlayerControls";
 import type { VideoPlayerProps, Chapter, ProgramChapter } from "./types";
 import { keepScreenAwake } from "@/utils/platform";
+import { forceSessionParams, getHlsSessionParams } from "@/services/hlsSessionService";
+import type { HlsSessionParams } from "@/services/hlsSessionService";
 import { getStoredVolume, setStoredVolume } from "@/utils/volumeStorage";
 import "./VideoPlayer.css";
 
-const toProgramChapter = (ch: Chapter): ProgramChapter => ({
+const toProgramChapter = (ch: Chapter, lockedKeys: Set<string>): ProgramChapter => ({
     id: ch.key,
     key: ch.key,
     title: ch.title,
@@ -24,6 +27,7 @@ const toProgramChapter = (ch: Chapter): ProgramChapter => ({
     link: ch.slug,
     duration: ch.duration,
     restriction: ch.restriction,
+    locked: lockedKeys.has(ch.key),
     description: ch.description,
 });
 
@@ -45,6 +49,7 @@ const VideoPlayerComponent = ({
     episodes = [],
     currentEpisodeKey,
     onEpisodeSelect,
+    lockedEpisodes = [],
     hideUI = false,
     onQualitiesChange,
     onAdsPlaying,
@@ -95,20 +100,33 @@ const VideoPlayerComponent = ({
 
     // ── UI Visibility (hook compartido) ──
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // Capítulo de pago sin acceso: abre el modal de compra en vez de navegar.
+    const [lockedEpisodeKey, setLockedEpisodeKey] = useState<string | null>(null);
     const { isUIVisible, setIsUIVisible, resetUIVisibility } = useUIVisibility({
-        preventHide: isSidebarOpen || forceControlsVisible,
+        preventHide: isSidebarOpen || forceControlsVisible || lockedEpisodeKey !== null,
     });
+
+    const closeLockedEpisodeModal = useCallback(() => {
+        setLockedEpisodeKey((key) => {
+            if (key) setTimeout(() => setFocus(`PLAYER-EPISODE-${key}`), 120);
+            return null;
+        });
+    }, []);
 
     // Si el panel de capítulos está abierto, Back lo cierra y devuelve
     // el foco al botón de episodios en lugar de salir del player.
     const handleBack = useCallback(() => {
+        if (lockedEpisodeKey) {
+            closeLockedEpisodeModal();
+            return;
+        }
         if (isSidebarOpen) {
             setIsSidebarOpen(false);
             setTimeout(() => setFocus("PLAYER-BTN-EPISODES"), 120);
             return;
         }
         if (onBack) onBack();
-    }, [isSidebarOpen, onBack]);
+    }, [lockedEpisodeKey, closeLockedEpisodeModal, isSidebarOpen, onBack]);
 
     // Volume state
     const [volume, setVolume] = useState(getStoredVolume());
@@ -116,6 +134,24 @@ const VideoPlayerComponent = ({
 
     // Ref para el <video> (propiedad del componente)
     const videoRef = useRef<HTMLVideoElement>(null);
+
+    // ── Session params DPS (métricas de reproducción) ──
+    const sessionParamsRef = useRef<HlsSessionParams | null>(null);
+
+    useEffect(() => {
+        getHlsSessionParams().then((params) => {
+            sessionParamsRef.current = params;
+        });
+    }, []);
+
+    // El ref se consulta por request: los params llegan después de crear el Hls
+    const xhrSetup = useCallback((xhr: XMLHttpRequest, requestUrl: string) => {
+        const params = sessionParamsRef.current;
+        if (!params) return;
+        if (requestUrl.indexOf('.ts') !== -1 && requestUrl.indexOf('dai.google.com') === -1) {
+            xhr.open('GET', forceSessionParams(requestUrl, params), true);
+        }
+    }, []);
 
     // ── HLS (hook compartido) ──
     const hlsStream = useHlsStream({
@@ -125,6 +161,7 @@ const VideoPlayerComponent = ({
         isLive,
         livetoken,
         initialSeconds,
+        xhrSetup,
     });
 
     const {
@@ -271,15 +308,15 @@ const VideoPlayerComponent = ({
 
         if (video) {
             if (video.readyState >= 2) {
-                video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error:', err));
+                video.play().catch(() => { /* noop */ });
             } else {
                 const onReady = () => {
-                    video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error (canplay):', err));
+                    video.play().catch(() => { /* noop */ });
                 };
                 video.addEventListener('canplay', onReady, { once: true });
                 setTimeout(() => {
                     video.removeEventListener('canplay', onReady);
-                    video.play().catch(err => console.warn('[VideoPlayer] Post-ad play error (timeout):', err));
+                    video.play().catch(() => { /* noop */ });
                 }, 5000);
             }
         }
@@ -303,15 +340,15 @@ const VideoPlayerComponent = ({
         }
 
         if (video.readyState >= 2) {
-            video.play().catch(err => console.warn('[VideoPlayer] Post-midroll play error:', err));
+            video.play().catch(() => { /* noop */ });
         } else {
             const onReady = () => {
-                video.play().catch(err => console.warn('[VideoPlayer] Post-midroll play error (canplay):', err));
+                video.play().catch(() => { /* noop */ });
             };
             video.addEventListener('canplay', onReady, { once: true });
             setTimeout(() => {
                 video.removeEventListener('canplay', onReady);
-                video.play().catch(err => console.warn('[VideoPlayer] Post-midroll play error (timeout):', err));
+                video.play().catch(() => { /* noop */ });
             }, 5000);
         }
 
@@ -392,18 +429,24 @@ const VideoPlayerComponent = ({
         if (document.fullscreenElement) {
             document.exitFullscreen();
         } else {
-            container.requestFullscreen().catch(console.error);
+            container.requestFullscreen().catch(() => { /* noop */ });
         }
     }, []);
 
     // Episodios para el sidebar (ProgramChapter[])
+    const lockedKeys = useMemo(() => new Set(lockedEpisodes), [lockedEpisodes]);
+
     const programChapters = useMemo(
-        () => episodes.map(toProgramChapter),
-        [episodes],
+        () => episodes.map((ch) => toProgramChapter(ch, lockedKeys)),
+        [episodes, lockedKeys],
     );
 
     const handleEpisodeSelect = useCallback(
         (episode: ProgramChapter) => {
+            if (episode.locked) {
+                setLockedEpisodeKey(episode.key);
+                return;
+            }
             if (!onEpisodeSelect) return;
             const original = episodes.find((e) => e.key === episode.key);
             if (original) onEpisodeSelect(original);
@@ -495,6 +538,8 @@ const VideoPlayerComponent = ({
                         <Spinner />
                     </div>
                 )}
+
+                <RestrictionModal isOpen={lockedEpisodeKey !== null} onClose={closeLockedEpisodeModal} />
             </div>
         </FocusContext.Provider>
     );

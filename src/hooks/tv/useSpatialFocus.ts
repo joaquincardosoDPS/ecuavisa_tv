@@ -10,6 +10,8 @@ interface UseSpatialFocusOptions {
   edgeMargin?: number;
   /** Cómo alinear el nodo al hacer scroll: 'center' (por defecto) | 'top' (lo deja cerca del borde superior para revelar el contenido de abajo). */
   position?: "center" | "top";
+  /** Al enfocar, sube la vista al tope (0) en vez de centrar el nodo. Útil para el botón principal del hero. */
+  scrollToTop?: boolean;
   /**
    * Selector de un elemento "ancla" (ej. contenedor de tabs). Si se define,
    * al enfocar el nodo se hace scroll para alinear ESE elemento arriba
@@ -36,12 +38,18 @@ export function useSpatialFocus({
   edgeMargin = 96,
   position = "center",
   scrollAnchorSelector,
+  scrollToTop = false,
   onArrowPress,
   onFocus,
 }: UseSpatialFocusOptions = {}) {
   const { ref, focused, focusKey: generatedFocusKey } = useFocusable({
     focusKey,
     onFocus: (layout) => {
+      if (scrollToTop) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (onFocus) onFocus();
+        return;
+      }
       if (!scrollOnFocus || !layout.node) return;
       const node = layout.node as HTMLElement;
       const rect = node.getBoundingClientRect();

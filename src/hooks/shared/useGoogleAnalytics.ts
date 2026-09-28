@@ -1,3 +1,5 @@
+import { getPlatformAnalytics } from '@/utils/platform';
+
 declare global {
   interface Window {
     dataLayer: IArguments[];
@@ -62,9 +64,9 @@ export function initGtag(googleId: string): void {
     document.head.appendChild(script);
 
     window.gtag('js', new Date());
-    window.gtag('set', { 'send_to': googleId });
-  } catch (e) {
-    console.warn('[GA4] Error al inicializar:', e);
+    window.gtag('set', { 'send_to': googleId, platform: getPlatformAnalytics() });
+  } catch {
+    /* noop: si GA no carga, la app sigue funcionando */
   }
 }
 

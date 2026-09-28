@@ -7,14 +7,15 @@ import { useProgramsData } from "@/hooks/program/useProgramsData";
 import { useImagePreloader } from "@/hooks/shared/useImagePreloader";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
-import { TVScrollProvider, useTVScroll } from "@/hooks/tv/useTVScroll";
+import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
 import { useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./ProgramsView.module.css";
 
 function ProgramsScrollWrapper({ children }: { children: React.ReactNode }) {
-  const { scrollY } = useTVScroll();
+  const scrollY = useTVScrollY();
+  const { containerRef } = useTVScroll();
   return (
-    <div style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
+    <div ref={containerRef} style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
       {children}
     </div>
   );

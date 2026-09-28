@@ -97,10 +97,23 @@
 }
 .chaptersGrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem 1.5rem; }
 .loadMoreWrap { display: flex; justify-content: center; }
+/* "Ver mas" de capítulos: píldora con fondo oscuro, borde fino claro y texto blanco */
+.loadMoreWrap .loadMoreBtn {
+  border-radius: 9999px;
+  padding: 0.9rem 2.2rem;
+  background-color: var(--clr-secondary);
+  border-color: rgba(var(--clr-primary-title-rgb), 0.35);
+  color: var(--clr-primary-title);
+}
+.loadMoreWrap .loadMoreBtn:hover:not(:disabled),
+.loadMoreWrap .loadMoreBtn:focus:not(:disabled) {
+  background-color: var(--clr-secondary);
+  color: var(--clr-primary-title);
+}
 .loadMoreFocused button {
-    border-color: var(--foc-primary) !important;
-    box-shadow: 0 0 20px rgba(255, 19, 118, 0.4);
-    transform: scale(1.02);
+  border-color: var(--foc-primary) !important;
+  box-shadow: 0 0 20px rgba(255, 19, 118, 0.4);
+  transform: scale(1.02);
 }
 
 /* ── Tabs ── */
@@ -124,10 +137,6 @@
 
 .loadingText {
   color: var(--clr-primary-title);
-}
-
-.loadMoreBtn {
-  border-radius: 9999px;
 }
 
 .emptyText {

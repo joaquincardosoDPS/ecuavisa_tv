@@ -3,14 +3,14 @@ import type { Chapter, Program } from "@/interfaces/catalog.interface";
 import { useFavorite } from "@/hooks/mylist/useFavorite";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { useContinueWatching } from "@/hooks/program/useContinueWatching";
+import { usePurchasedPrograms } from "@/hooks/program/usePurchasedPrograms";
 import { useNavigate } from "react-router-dom";
-import { BackButton } from "@/components/ui/BackButton";
+//import { BackButton } from "@/components/ui/BackButton";
 import HeartIcon from "@/components/icons/HeartIcon";
 import { PlayButton } from "@/components/icons/play-button";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import { useEffect } from "react";
-import { useAuthStore } from "@/features/auth/authStore";
 import { isContentRestricted } from "@/utils/restriction";
 import styles from "../Program.module.css";
 
@@ -30,7 +30,8 @@ function PlayActionButton({
   onPress: () => void;
   label: string;
 }) {
-  const { ref, focused } = useSpatialFocus({ focusKey, onEnterPress: onPress });
+  // "Ver ahora" es el punto de entrada del hero: al enfocarlo, la vista sube al tope
+  const { ref, focused } = useSpatialFocus({ focusKey, onEnterPress: onPress, scrollToTop: true });
   return (
     <div ref={ref} tabIndex={0} className={focused ? styles.focused : undefined}>
       <Button
@@ -56,10 +57,11 @@ function InfoBanner({ program, firstChapter, badge, schedule }: InfoBannerProps)
   const navigate = useNavigate();
   const { isFavorited, isEnabled, toggleFavorite } = useFavorite(program.key);
   const { item: continueWatchingItem } = useContinueWatching(program.key);
+  const { hasPurchased } = usePurchasedPrograms();
   const firstSegment = program.segments?.[0];
-  const subscriptionActive = Boolean(useAuthStore((s) => s.user)?.subscription_active);
-  // Un programa de pago (restriction=1) solo muestra el botón con suscripción activa.
-  const showPlayButton = !isContentRestricted(program.restriction) || subscriptionActive;
+  // Un programa de pago (restriction=1) solo muestra el botón si hay suscripción
+  // activa Y el programa está comprado (PPV); hasPurchased ya exige la suscripción.
+  const showPlayButton = !isContentRestricted(program.restriction) || hasPurchased(program.key);
 
   const playFocusKey = `program-play-${program.key}`;
   const favFocusKey = `program-fav-${program.key}`;
@@ -97,9 +99,12 @@ function InfoBanner({ program, firstChapter, badge, schedule }: InfoBannerProps)
 
   return (
     <div className={styles.infoWrap}>
-      <div className={styles.backWrap}>
+      {/* 
+        <div className={styles.backWrap}>
         <BackButton />
       </div>
+      */}
+
       <div className={styles.infoContent}>
         {logoImg && (
           <div className={styles.logoBox}>

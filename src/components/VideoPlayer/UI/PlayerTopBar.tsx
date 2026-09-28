@@ -46,7 +46,7 @@ const PlayerTopBarComponent = ({
           onClick={onBackClick}
           className={styles.backButton}
           style={{
-            color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+            color: focused ? "var(--foc-primary)" : "var(--clr-icon)",
           }}
         >
           <span

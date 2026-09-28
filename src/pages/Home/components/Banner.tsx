@@ -1,6 +1,6 @@
 import type { Program, Event } from "@/interfaces/catalog.interface";
 import { BannerInfo } from "./BannerInfo";
-import { useState, useEffect } from "react";
+import { memo, useState, useEffect } from "react";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import styles from "../Home.module.css";
@@ -77,22 +77,30 @@ function Banner({ slider }: BannerProps) {
 
 	if (!slider || slider.length === 0) return null;
 
+	const prevIndex = (currentIndex - 1 + total) % total;
+	const nextIndex = (currentIndex + 1) % total;
+
 	return (
 		<FocusContext.Provider value={generatedFocusKey}>
 			<div className={styles.bannerRoot}>
-				{slider.map((program, i) => (
+				{/* Solo el slide actual y sus vecinos cargan imagen: evita decodificar
+				    todas las portadas del banner al entrar al Home */}
+				{slider.map((program, i) => {
+					const shouldLoadImage = i === currentIndex || i === prevIndex || i === nextIndex;
+					return (
 					<div
 						key={program.id}
 						className={styles.bannerSlide}
 						style={{
-							backgroundImage: `url(${program.image_slider?.big || program.image_land?.default})`,
+							backgroundImage: shouldLoadImage ? `url(${program.image_slider?.big || program.image_land?.big || program.image_land?.default})` : undefined,
 							opacity: i === currentIndex ? 1 : 0,
 							zIndex: i === currentIndex ? 1 : 0,
 						}}
 					>
 						<div className={[styles.bannerOverlay, "banner-overlay"].join(" ")} />
 					</div>
-				))}
+					);
+				})}
 
 				<div className={styles.bannerControls}>
 					<BannerArrow direction="left" onClick={() => setCurrentIndex((i) => (i - 1 + total) % total)} currentProgramId={slider[currentIndex].id} />
@@ -131,4 +139,4 @@ function Banner({ slider }: BannerProps) {
 	);
 }
 
-export default Banner;
+export default memo(Banner);

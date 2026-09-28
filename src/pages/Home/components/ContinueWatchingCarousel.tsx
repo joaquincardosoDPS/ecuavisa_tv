@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { HistoryItem as ContinueWatchingItem } from "@/interfaces/history.interface";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import { useNearViewport } from "@/hooks/tv/useNearViewport";
 import styles from "./ContinueWatchingCarousel.module.css";
 
 function formatDuration(seconds: number): string {
@@ -15,7 +16,7 @@ function formatDuration(seconds: number): string {
 
 interface ContinueWatchingProps { items: ContinueWatchingItem[]; }
 
-function ContinueWatchingCard({ item, index, totalItems, emblaApi, onPress }: { item: ContinueWatchingItem, index: number, totalItems?: number, emblaApi?: EmblaCarouselType, onPress: () => void }) {
+function ContinueWatchingCard({ item, index, totalItems, emblaApi, onPress, showImage }: { item: ContinueWatchingItem, index: number, totalItems?: number, emblaApi?: EmblaCarouselType, onPress: () => void, showImage?: boolean }) {
   const imgSrc = item.image_land?.medium || item.image_land?.default || item.image;
   const progress = item.duration_seg > 0 ? Math.min(100, (item.time / item.duration_seg) * 100) : 0;
 
@@ -30,13 +31,13 @@ function ContinueWatchingCard({ item, index, totalItems, emblaApi, onPress }: { 
   return (
     <div ref={ref} tabIndex={0} onClick={onPress} className={[styles.cardWrapper, focused ? styles.focused : ''].join(" ")}>
       <div className={styles.cardImageContainer}>
-        {imgSrc ? (
+        {showImage && (imgSrc ? (
           <img src={imgSrc} alt={item.title} className={styles.cardImage} draggable={false} decoding="async" />
         ) : (
           <div className={styles.titleWrapper}>
             <span className={styles.fallbackTitle}>{item.title}</span>
           </div>
-        )}
+        ))}
         <div className={styles.progressTrack}>
           <div className={styles.progressBar} style={{ width: `${progress}%` }} />
         </div>
@@ -52,6 +53,7 @@ function ContinueWatchingCard({ item, index, totalItems, emblaApi, onPress }: { 
 
 function ContinueWatchingCarousel({ items }: ContinueWatchingProps) {
   const navigate = useNavigate();
+  const { ref: containerRef, isNear: showImages } = useNearViewport(true);
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
@@ -79,7 +81,7 @@ function ContinueWatchingCarousel({ items }: ContinueWatchingProps) {
 
   return (
     <FocusContext.Provider value={generatedFocusKey}>
-      <div data-section="continue-watching" className={styles.carouselContainer}>
+      <div ref={containerRef} data-section="continue-watching" className={styles.carouselContainer}>
         <h2 className={styles.carouselTitle}>Seguir Viendo</h2>
         <div ref={ref} className={styles.carouselWrapper}>
           <button
@@ -101,7 +103,7 @@ function ContinueWatchingCarousel({ items }: ContinueWatchingProps) {
           <div ref={emblaRef} className={styles.emblaViewport}>
             <div className={styles.emblaContainer}>
               {items.map((item, index) => (
-                <ContinueWatchingCard key={item.slug} item={item} index={index} totalItems={items.length} emblaApi={emblaApi} onPress={() => navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, { state: { resumeTime: item.time } })} />
+                <ContinueWatchingCard key={item.slug} item={item} index={index} totalItems={items.length} emblaApi={emblaApi} showImage={showImages} onPress={() => navigate(`/play/${item.key_program}/${item.key_segment}/${item.season}/${item.chapter}`, { state: { resumeTime: item.time } })} />
               ))}
               <div className={styles.carouselSpacer} />
             </div>

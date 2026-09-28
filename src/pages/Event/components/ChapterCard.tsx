@@ -35,8 +35,7 @@ function getProgress(playbackTime: number, durationSeg: number): number {
 function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false, isFirstRow = false, badge, programRestriction, isPurchased = false }: ChapterCardProps) {
   const navigate = useNavigate();
   const authToken = useAuthStore((s) => s.token);
-  const subscriptionActive = Boolean(useAuthStore((s) => s.user)?.subscription_active);
-  const imageSrc = chapter.image_land.small;
+  const imageSrc = chapter.image_land?.small || chapter.image || "";
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
 
   const chapterFocusKey = `chapter-${programKey}-${chapter.key_segment}-${chapter.season}-${chapter.chapter}`;
@@ -60,18 +59,16 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
       return;
     }
 
-    // Sin suscripción activa: el contenido de pago solo muestra el modal de compra.
-    if (!subscriptionActive) {
+    // Sin suscripción activa o sin el programa comprado (PPV): el contenido de
+    // pago solo muestra el modal de compra. No se pide el unlock token porque el
+    // backend lo entrega a cualquier suscriptor y se reproduciría sin haberlo pagado.
+    if (!isPurchased || !authToken) {
       setShowRestrictionModal(true);
       return;
     }
 
-    // Con suscripción activa: intentar desbloquear con unlock_token para reproducirlo.
+    // Con suscripción activa y compra confirmada: desbloquear con unlock_token.
     try {
-      if (!authToken) {
-        setShowRestrictionModal(true);
-        return;
-      }
       const res = await unlockTokenService.get({ token: authToken, keyVideo: chapter.key });
       const tok = res.data;
       if (
@@ -110,7 +107,9 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
   return (
     <div ref={ref} onClick={handleClick} className={[styles.cardContainer, focused ? styles.focused : ""].join(" ")}>
       <div className={styles.imageWrapper}>
-        <img src={imageSrc} alt={chapter.title} loading="lazy" className={styles.thumbnailImage} />
+        {imageSrc && (
+          <img src={imageSrc} alt={chapter.title} loading="lazy" className={styles.thumbnailImage} />
+        )}
         <RestrictionOverlay show={isRestricted} />
         {hasProgress && (
           <div className={styles.progressBarContainer}>

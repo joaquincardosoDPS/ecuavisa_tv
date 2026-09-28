@@ -30,9 +30,7 @@ export function useCarouselFocus({
 
   const { ref, focused, focusKey: generatedFocusKey } = useFocusable({
     focusKey,
-    onFocus: (_layout, _extraProps, details) => {
-      console.log(`✅ [FOCUS DEBUG] Enfocado -> key: ${focusKey}, generado: ${generatedFocusKey}, index: ${index}, isBanner: ${isBanner}`, details);
-      
+    onFocus: () => {
       // 1. Center vertically on the screen using our context
       if (ref.current) {
         scrollToNode(ref.current, isBanner);

@@ -10,7 +10,6 @@ export const useEvent = (slug?: string) => {
     });
 
     const category = eventQuery.data?.data?.category?.slug;
-    console.log(category)
 
     const eventsQuery = useQuery({
         queryKey: ['events', slug, category],

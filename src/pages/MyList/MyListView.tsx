@@ -9,7 +9,7 @@ import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { TabSelector } from "./components/TabSelector";
 import { HistoryGrid } from "./components/HistoryGrid";
 import EmptyList from "./components/EmptyList";
-import { TVScrollProvider, useTVScroll } from "@/hooks/tv/useTVScroll";
+import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import { getCurrentFocusKey, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./MyListView.module.css";
@@ -17,30 +17,31 @@ import styles from "./MyListView.module.css";
 type Tab = "favorites" | "history";
 
 function MyListScrollWrapper({ children }: { children: React.ReactNode }) {
-	const { scrollY } = useTVScroll();
+	const scrollY = useTVScrollY();
+	const { containerRef } = useTVScroll();
 	return (
-		<div style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
+		<div ref={containerRef} style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
 			{children}
 		</div>
 	);
 }
 
-function SetInitialFocus({ tab, favoritesEmpty, historyEmpty }: { tab: Tab; favoritesEmpty: boolean; historyEmpty: boolean }) {
+function SetInitialFocus({ tab, favoritesEmpty, historyEmpty, favoritesFirstKey, historyFirstKey }: { tab: Tab; favoritesEmpty: boolean; historyEmpty: boolean; favoritesFirstKey?: string; historyFirstKey?: string }) {
 	useEffect(() => {
 		// Small delay to let focus tree register
 		const t = setTimeout(() => {
 			try {
 				if (tab === 'favorites') {
-					setFocus(favoritesEmpty ? 'mylist-empty-add' : 'program-grid-item-0');
+					setFocus(favoritesEmpty || !favoritesFirstKey ? 'mylist-empty-add' : favoritesFirstKey);
 				} else {
-					setFocus(historyEmpty ? 'mylist-history-empty-explore' : 'mylist-history-item-0');
+					setFocus(historyEmpty || !historyFirstKey ? 'mylist-history-empty-explore' : historyFirstKey);
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		}, 80);
 		return () => clearTimeout(t);
-	}, [tab, favoritesEmpty, historyEmpty]);
+	}, [tab, favoritesEmpty, historyEmpty, favoritesFirstKey, historyFirstKey]);
 	return null;
 }
 
@@ -70,22 +71,27 @@ function MyListView() {
 	const isError = activeTab === "favorites" ? favError : histError;
 	const error = activeTab === "favorites" ? favErr : histErr;
 
+	// Claves de foco del primer ítem de cada grilla: son estables por item, así el
+	// foco no se descoloca cuando la lista se reordena al recargar (el nuevo queda primero).
+	const favoritesFirstKey = favorites[0] ? `program-grid-item-${favorites[0].id}` : undefined;
+	const historyFirstKey = historyItems[0] ? `mylist-history-item-${historyItems[0].slug}` : undefined;
+
 	// Si el botón "Ver más" estaba enfocado y desaparece (última página cargada),
 	// movemos el foco a la última tarjeta para continuar la navegación.
 	useEffect(() => {
 		if (favHasNext || favFetching) return;
 		if (getCurrentFocusKey() !== "mylist-load-more") return;
-		const lastIndex = favorites.length - 1;
-		if (lastIndex < 0) return;
-		setFocus(`program-grid-item-${lastIndex}`);
-	}, [favHasNext, favFetching, favorites.length]);
+		const lastItem = favorites[favorites.length - 1];
+		if (!lastItem) return;
+		setFocus(`program-grid-item-${lastItem.id}`);
+	}, [favHasNext, favFetching, favorites]);
 
 	return (
 		<TVScrollProvider>
 			<div className={styles.pageContainer}>
 				<MyListScrollWrapper>
 					{/*<BackButton />*/}
-					<TabSelector activeTab={activeTab} onTabChange={setActiveTab} favoritesEmpty={!favorites || favorites.length === 0} historyEmpty={!historyItems || historyItems.length === 0} />
+					<TabSelector activeTab={activeTab} onTabChange={setActiveTab} favoritesEmpty={!favorites || favorites.length === 0} historyEmpty={!historyItems || historyItems.length === 0} favoritesFirstKey={favoritesFirstKey} historyFirstKey={historyFirstKey} />
 					{!isAuthenticated ? (
 						<div className={styles.authPromptContainer}>
 							<p className={styles.authPromptText}>
@@ -102,7 +108,7 @@ function MyListView() {
 					) : activeTab === "favorites" ? (
 						!favorites || favorites.length === 0 ? <EmptyList /> : (
 							<>
-								<ProgramGrid programs={favorites} cols={5} />
+								<ProgramGrid programs={favorites} cols={4} stableKeys />
 								{favHasNext && (
 									<FavoritesLoadMoreButton onClick={() => { if (!favFetching) favNext(); }} isFetching={favFetching} />
 								)}
@@ -112,7 +118,7 @@ function MyListView() {
 						<HistoryGrid items={historyItems} fetchNextPage={histNext} hasNextPage={histHasNext} isFetchingNextPage={histFetching} />
 					)}
 					{isAuthenticated && !isLoading && !isError && (
-						<SetInitialFocus tab={activeTab} favoritesEmpty={activeTab === "favorites" && (!favorites || favorites.length === 0)} historyEmpty={activeTab === "history" && (!historyItems || historyItems.length === 0)} />
+						<SetInitialFocus tab={activeTab} favoritesEmpty={activeTab === "favorites" && (!favorites || favorites.length === 0)} historyEmpty={activeTab === "history" && (!historyItems || historyItems.length === 0)} favoritesFirstKey={favoritesFirstKey} historyFirstKey={historyFirstKey} />
 					)}
 				</MyListScrollWrapper>
 			</div>

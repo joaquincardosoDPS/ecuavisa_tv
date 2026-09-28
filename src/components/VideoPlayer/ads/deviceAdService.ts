@@ -189,10 +189,8 @@ export async function resolveVastUrl(vastUrl: string): Promise<ResolvedVast | nu
     }
 
     try {
-        console.log('[VAST Resolve] Pre-fetching VMAP:', vastUrl);
         const response = await fetch(vastUrl);
         if (!response.ok) {
-            console.warn('[VAST Resolve] HTTP error:', response.status);
             return null;
         }
 
@@ -203,7 +201,6 @@ export async function resolveVastUrl(vastUrl: string): Promise<ResolvedVast | nu
 
         const parserError = xmlDoc.querySelector('parsererror');
         if (parserError) {
-            console.warn('[VAST Resolve] Error parsing VMAP XML');
             return null;
         }
 
@@ -226,15 +223,12 @@ export async function resolveVastUrl(vastUrl: string): Promise<ResolvedVast | nu
         });
 
         if (prerollUrls.length === 0) {
-            console.warn('[VAST Resolve] No se encontraron AdTagURIs de preroll en VMAP');
             return null;
         }
 
-        console.log(`[VAST Resolve] ${prerollUrls.length} preroll URLs encontradas (waterfall)`);
         return { urls: prerollUrls };
 
-    } catch (error) {
-        console.error('[VAST Resolve] Error pre-fetching VMAP:', error);
+    } catch {
         return null;
     }
 }

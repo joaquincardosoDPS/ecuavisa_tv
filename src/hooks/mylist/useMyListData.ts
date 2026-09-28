@@ -44,6 +44,9 @@ export function useMyListData(): UseMyListDataReturn {
       return lastPageParam < lastPageNum ? lastPageParam + 1 : undefined;
     },
     enabled: isAuthenticated,
+    // Los favoritos se editan desde otras vistas: al entrar a Mi Lista siempre se relee.
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const favorites = data?.pages.flatMap((page) => page.data || []) ?? [];

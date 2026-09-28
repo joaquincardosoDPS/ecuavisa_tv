@@ -9,6 +9,8 @@ import { PlayerLoading } from "./components/PlayerLoading";
 import { PlayerError } from "./components/PlayerError";
 import { EndOfEpisodeScreen } from "./components/EndOfEpisodeScreen";
 import RestrictionModal from "@/components/ui/RestrictionModal";
+import { usePurchasedPrograms } from "@/hooks/program/usePurchasedPrograms";
+import { isContentRestricted } from "@/utils/restriction";
 import styles from "./PlayerView.module.css";
 
 function toSlug(text: string): string {
@@ -17,9 +19,19 @@ function toSlug(text: string): string {
 
 function PlayerView() {
   const navigate = useNavigate();
-  const { loading, error, restricted, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes } = usePlayerEpisode();
+  const { loading, error, restricted, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes, programRestriction } = usePlayerEpisode();
   useDocumentTitle(episodeTitle);
   const { trackPage } = useAnalytics();
+  const { hasPurchased } = usePurchasedPrograms();
+
+  // Capítulos del panel sin acceso: heredan la restricción del programa y hace
+  // falta la compra (PPV). Misma regla que el gate de reproducción.
+  const lockedEpisodes = useMemo(() => {
+    if (hasPurchased(program || programKey)) return [];
+    return episodes
+      .filter((ep) => isContentRestricted(ep.restriction) || isContentRestricted(programRestriction))
+      .map((ep) => ep.key);
+  }, [hasPurchased, program, programKey, episodes, programRestriction]);
 
   const analyticsPath = useMemo(() => {
     if (!programKey || !chapterTitle) return null;
@@ -116,6 +128,7 @@ function PlayerView() {
           episodes={episodes}
           currentEpisodeKey={currentKey}
           onEpisodeSelect={handleEpisodeSelect}
+          lockedEpisodes={lockedEpisodes}
           midrollCuepoints={midrollCuepoints}
           postrollVastUrls={postrollVastUrls}
         />

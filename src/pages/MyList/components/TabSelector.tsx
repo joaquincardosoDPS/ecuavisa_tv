@@ -10,9 +10,12 @@ interface TabSelectorProps {
   onTabChange: (tab: Tab) => void;
   favoritesEmpty?: boolean;
   historyEmpty?: boolean;
+  /** focusKey del primer ítem de cada grilla (clave estable por item). */
+  favoritesFirstKey?: string;
+  historyFirstKey?: string;
 }
 
-export function TabSelector({ activeTab, onTabChange, favoritesEmpty = false, historyEmpty = false }: TabSelectorProps) {
+export function TabSelector({ activeTab, onTabChange, favoritesEmpty = false, historyEmpty = false, favoritesFirstKey, historyFirstKey }: TabSelectorProps) {
   // La página usa scroll por transform (TVScrollProvider). Al enfocar un tab
   // volvemos la vista al tope para que la fila de tabs quede visible bajo el
   // header fijo y la navegación izquierda/derecha no "pierda" el foco.
@@ -22,9 +25,9 @@ export function TabSelector({ activeTab, onTabChange, favoritesEmpty = false, hi
   // pestaña activa (la que se está mostrando actualmente).
   const handleDown = () => {
     if (activeTab === 'favorites') {
-      setFocus(favoritesEmpty ? 'mylist-empty-add' : 'program-grid-item-0');
+      setFocus(favoritesEmpty || !favoritesFirstKey ? 'mylist-empty-add' : favoritesFirstKey);
     } else {
-      setFocus(historyEmpty ? 'mylist-history-empty-explore' : 'mylist-history-item-0');
+      setFocus(historyEmpty || !historyFirstKey ? 'mylist-history-empty-explore' : historyFirstKey);
     }
     return false;
   };

@@ -54,7 +54,7 @@ const VolumeControlComponent = ({
         onClick={onMuteToggle}
         className={styles.muteButton}
         style={{
-          color: isActive ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+          color: isActive ? "var(--foc-primary)" : "var(--clr-icon)",
           opacity: muted ? 0.5 : 1,
         }}
         title={muted ? "Activar sonido" : "Silenciar"}

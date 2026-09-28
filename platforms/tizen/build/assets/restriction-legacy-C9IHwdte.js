@@ -1,0 +1,1 @@
+System.register([],function(t,e){return t({n:function(t){return"boolean"==typeof t?t:"number"==typeof t?1===t:"string"==typeof t&&("1"===t||"true"===t.toLowerCase())},t:function(t){return null!=t&&"1"===String(t)}}),{setters:[],execute:function(){}}});

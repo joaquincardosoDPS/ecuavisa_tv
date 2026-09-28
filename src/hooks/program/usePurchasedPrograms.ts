@@ -1,7 +1,19 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/features/auth/authStore';
-import { ppvService } from '@/services/ppvService';
+import { ppvService, type PpvData } from '@/services/ppvService';
+import { isSubscriptionActive } from '@/utils/restriction';
+
+/** Clave compartida: el player reutiliza la caché para decidir si firma el capítulo. */
+export const purchasedProgramsQueryKey = (token: string | null) => ['ppv', token];
+
+export async function fetchPurchasedPrograms(token: string): Promise<PpvData> {
+    const response = await ppvService.getPurchased(token);
+    if (response.status === 'error' || !response.data) {
+        throw new Error(response.msj || 'Error al obtener los programas comprados');
+    }
+    return response.data;
+}
 
 /**
  * Programas comprados (PPV) del usuario autenticado.
@@ -11,17 +23,11 @@ import { ppvService } from '@/services/ppvService';
  */
 export function usePurchasedPrograms() {
     const token = useAuthStore((s) => s.token);
-    const subscriptionActive = Boolean(useAuthStore((s) => s.user)?.subscription_active);
+    const subscriptionActive = isSubscriptionActive(useAuthStore((s) => s.user)?.subscription_active);
 
     const query = useQuery({
-        queryKey: ['ppv', token],
-        queryFn: async () => {
-            const response = await ppvService.getPurchased(token!);
-            if (response.status === 'error' || !response.data) {
-                throw new Error(response.msj || 'Error al obtener los programas comprados');
-            }
-            return response.data;
-        },
+        queryKey: purchasedProgramsQueryKey(token),
+        queryFn: () => fetchPurchasedPrograms(token!),
         // Solo se consulta el endpoint si hay sesión con suscripción activa.
         enabled: !!token && subscriptionActive,
     });

@@ -48,12 +48,6 @@ function AnalyticsProvider({ children }: { children: React.ReactNode }) {
       const pageLocation = `${window.location.origin}${finalPath}`;
       const pageTitle = manualTitle || document.title;
 
-      console.log(
-        '%c[GA4 page_view]',
-        'color: #4285F4; font-weight: bold;',
-        { page_title: pageTitle, page_path: finalPath, page_location: pageLocation },
-      );
-
       window.gtag('event', 'page_view', {
         page_path: finalPath,
         page_location: pageLocation,

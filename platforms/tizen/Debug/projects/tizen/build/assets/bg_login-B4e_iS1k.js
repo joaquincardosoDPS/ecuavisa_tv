@@ -1,0 +1,1 @@
+var r=""+new URL("bg_login-C0Y-m3zI.png",import.meta.url).href;export{r as t};

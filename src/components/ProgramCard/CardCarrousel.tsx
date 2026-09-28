@@ -1,8 +1,8 @@
 import useEmblaCarousel from "embla-carousel-react";
 import type { Program, Event } from "@/interfaces/catalog.interface";
-import type { EmblaOptionsType } from "embla-carousel";
+import type { EmblaOptionsType, EmblaCarouselType } from "embla-carousel";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import CardHorizontal from "./CardHorizontal";
@@ -19,9 +19,52 @@ interface CardCarrouselProps {
   categoryTitle?: string;
   format?: string;
   autoFocusFirst?: boolean;
+  /** Si la fila está lejos de la pantalla se dejan de montar las imágenes para no llenar la memoria de la TV. */
+  renderImages?: boolean;
 }
 
-function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, categoryTitle, format, autoFocusFirst }: CardCarrouselProps) {
+interface ViewMoreCardProps {
+  focusKey: string;
+  index: number;
+  totalItems: number;
+  emblaApi?: EmblaCarouselType;
+  isVertical: boolean;
+  parentFocusKey: string;
+  lastProgram?: Program | Event;
+  onEnterPress: () => void;
+}
+
+function ViewMoreCard({ focusKey, index, totalItems, emblaApi, isVertical, parentFocusKey, lastProgram, onEnterPress }: ViewMoreCardProps) {
+  const { ref, focused } = useCarouselFocus({
+    focusKey,
+    index,
+    totalItems,
+    emblaApi,
+    onEnterPress,
+    onArrowPress: (direction) => {
+      if (!lastProgram) return true;
+      const towardAdjacent = isVertical ? direction === "up" : direction === "left";
+      if (towardAdjacent) {
+        setFocus(`${parentFocusKey}-item-${lastProgram.id}`);
+        return false;
+      }
+      return true;
+    },
+  });
+
+  return (
+    <div
+      ref={ref}
+      tabIndex={0}
+      onClick={onEnterPress}
+      className={`${styles.cardImg} ${styles.viewMoreCard} ${isVertical ? styles.viewMoreCardVertical : styles.viewMoreCardHorizontal} ${focused ? styles.focused : ''}`}
+    >
+      <span className={styles.viewMoreText}>Ver Más</span>
+    </div>
+  );
+}
+
+function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = false, categorySlug, categoryTitle, format, autoFocusFirst, renderImages = true }: CardCarrouselProps) {
   const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -86,42 +129,21 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
             {programs.map((program, index) => {
               const itemFormat = "type" in program ? "event" : format;
               return isVertical
-                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} totalItems={totalItems} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />
-                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} totalItems={totalItems} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} />;
+                ? <CardVertical key={program.id} program={program} format={itemFormat} index={index} totalItems={totalItems} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} showImage={renderImages} />
+                : <CardHorizontal key={program.id} program={program} format={itemFormat} index={index} totalItems={totalItems} emblaApi={emblaApi} parentFocusKey={generatedFocusKey} autoFocusFirst={autoFocusFirst && index === 0} showImage={renderImages} />;
             })}
-            {showViewMore && (() => {
-              const viewMoreIndex = programs.length;
-              const goToCategory = () =>
-                navigate(`/categoria/${categorySlug}`, { state: { categoryTitle } });
-              const { ref: viewMoreRef, focused: viewMoreFocused } = useCarouselFocus({
-                focusKey: `${focusKey}-view-more`,
-                index: viewMoreIndex,
-                totalItems,
-                emblaApi: emblaApi ?? undefined,
-                onEnterPress: goToCategory,
-                onArrowPress: (direction) => {
-                  const lastProgram = programs[programs.length - 1];
-                  if (!lastProgram) return true;
-                  const towardAdjacent = isVertical ? direction === "up" : direction === "left";
-                  if (towardAdjacent) {
-                    setFocus(`${generatedFocusKey}-item-${lastProgram.id}`);
-                    return false;
-                  }
-                  return true;
-                },
-              });
-
-              return (
-                <div
-                  ref={viewMoreRef}
-                  tabIndex={0}
-                  onClick={goToCategory}
-                  className={`${styles.cardImg} ${styles.viewMoreCard} ${isVertical ? styles.viewMoreCardVertical : styles.viewMoreCardHorizontal} ${viewMoreFocused ? styles.focused : ''}`}
-                >
-                  <span className={styles.viewMoreText}>Ver Más</span>
-                </div>
-              );
-            })()}
+            {showViewMore && (
+              <ViewMoreCard
+                focusKey={`${focusKey}-view-more`}
+                index={programs.length}
+                totalItems={totalItems}
+                emblaApi={emblaApi ?? undefined}
+                isVertical={isVertical}
+                parentFocusKey={generatedFocusKey}
+                lastProgram={programs[programs.length - 1]}
+                onEnterPress={() => navigate(`/categoria/${categorySlug}`, { state: { categoryTitle } })}
+              />
+            )}
             <div className={styles.carouselSpacer} style={{ width: hasIconImage ? "31.25rem" : "4rem" }} />
           </div>
         </div>
@@ -130,4 +152,4 @@ function CardCarrousel({ programs, orientation = "horizontal", hasIconImage = fa
   );
 }
 
-export default CardCarrousel;
+export default memo(CardCarrousel);

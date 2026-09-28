@@ -70,17 +70,13 @@
   border-color: rgba(var(--clr-primary-title-rgb), 0.25);
 }
 
-/* ESPACIO (3 cols) + BUSCAR (2 cols) + X (1 col) = una fila de 6 teclas */
+/* ESPACIO (4 cols) + X (2 cols) = una fila de 6 teclas */
 .spaceBtn {
-  width: calc(var(--col) * 3 - var(--key-margin) * 2);
-}
-
-.searchBtn {
-  width: calc(var(--col) * 2 - var(--key-margin) * 2);
+  width: calc(var(--col) * 4 - var(--key-margin) * 2);
 }
 
 .backBtn {
-  width: calc(var(--col) - var(--key-margin) * 2);
+  width: calc(var(--col) * 2 - var(--key-margin) * 2);
 }
 
 /* BORRAR ocupa una fila completa (6 teclas) */

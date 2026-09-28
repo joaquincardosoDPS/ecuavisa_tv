@@ -24,20 +24,9 @@ export const adsService = {
     getVodAds: async (chapterKey: string): Promise<ParsedVmapData | null> => {
         const url = `${RUDO_VOD_ADS}/${chapterKey}?client=${CLIENT}`;
         try {
-            console.log('[AdsService] Consultando VMAP:', url);
             const response = await axios.get<string>(url);
-
-            const parsed = VmapParser.parseVmapXml(response.data);
-            console.log('[AdsService] VMAP parseado:', {
-                hasAds: parsed.hasAds,
-                prerolls: parsed.prerollAds.length,
-                midrolls: parsed.midrollAds.length,
-                postrolls: parsed.postrollAds.length,
-            });
-
-            return parsed;
-        } catch (error) {
-            console.warn('[AdsService] Error obteniendo ads:', error);
+            return VmapParser.parseVmapXml(response.data);
+        } catch {
             return null;
         }
     },

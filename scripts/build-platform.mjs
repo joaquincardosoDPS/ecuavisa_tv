@@ -99,7 +99,7 @@ console.log(`\n✅ Build para ${platform.toUpperCase()} listo en platforms/${pla
 if (platform === 'webos') {
     console.log(`📱 Empaquetar:  ares-package --no-minify ./platforms/webos/build`);
     console.log('📲 Instalar:    ares-install <archivo.ipk>');
-    console.log('🚀 Lanzar:      ares-launch com.digitalproserver.michv');
+    console.log('🚀 Lanzar:      ares-launch com.digitalproserver.ecuavisa');
 } else if (platform === 'tizen') {
     console.log(`📱 Empaquetar:  cd platforms/tizen && tz pack`);
     console.log('📲 Instalar:    tz install -p Debug/tizen.wgt');

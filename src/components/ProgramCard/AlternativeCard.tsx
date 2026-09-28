@@ -5,12 +5,12 @@ import RestrictionBadge from "@/components/ui/RestrictionBadge";
 import { isContentRestricted } from "@/utils/restriction";
 import styles from "./ProgramCard.module.css";
 
-function AlternativeCard({ program, index, onFocus }: { program: Program; index?: number; onFocus?: () => void }) {
+function AlternativeCard({ program, index, onFocus, focusKey }: { program: Program; index?: number; onFocus?: () => void; focusKey?: string }) {
     const navigate = useNavigate();
     const imageSrc = program?.image_land?.small;
 
     const { ref, focused } = useCarouselFocus({
-        focusKey: `program-grid-item-${index ?? program.id}`,
+        focusKey: focusKey ?? `program-grid-item-${index ?? program.id}`,
         index,
         onEnterPress: () => navigate(`/programas/${program.key}`),
         onFocus,

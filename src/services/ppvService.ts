@@ -1,7 +1,7 @@
 import api from './api';
 import { RUDO_PPV_URL } from '@/config-global';
 
-interface PpvData {
+export interface PpvData {
     subscription_active: boolean;
     programs: string[];
 }

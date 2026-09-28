@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./NameKeyboard.module.css";
 
@@ -16,7 +16,6 @@ interface NameKeyboardProps {
   onKey: (char: string) => void;
   onBackspace: () => void;
   onClear: () => void;
-  onSearch: () => void;
 }
 
 const NameKey = memo(({ char, onPress }: { char: string; onPress: (c: string) => void }) => {
@@ -40,11 +39,13 @@ NameKey.displayName = "NameKey";
 
 function NameAction({
   label,
+  icon,
   focusKey,
   onPress,
   className,
 }: {
-  label: string;
+  label?: string;
+  icon?: ReactNode;
   focusKey: string;
   onPress: () => void;
   className?: string;
@@ -57,13 +58,14 @@ function NameAction({
       ref={ref}
       className={[styles.action, className, focused ? styles.focused : ""].filter(Boolean).join(" ")}
       onClick={onPress}
+      aria-label={label}
     >
-      {label}
+      {icon || label}
     </button>
   );
 }
 
-export function NameKeyboard({ onKey, onBackspace, onClear, onSearch }: NameKeyboardProps) {
+export function NameKeyboard({ onKey, onBackspace, onClear }: NameKeyboardProps) {
   const { focusKey, ref } = useFocusable({
     focusKey: "zone-name-keyboard",
     saveLastFocusedChild: true,
@@ -81,8 +83,19 @@ export function NameKeyboard({ onKey, onBackspace, onClear, onSearch }: NameKeyb
         ))}
         <div className={styles.actionRow}>
           <NameAction label="ESPACIO" focusKey="namekey-space" onPress={() => onKey(" ")} className={styles.spaceBtn} />
-          <NameAction label="BUSCAR" focusKey="namekey-search" onPress={onSearch} className={styles.searchBtn} />
-          <NameAction label="X" focusKey="namekey-backspace" onPress={onBackspace} className={styles.backBtn} />
+          <NameAction
+            label="Borrar"
+            focusKey="namekey-backspace"
+            onPress={onBackspace}
+            className={styles.backBtn}
+            icon={
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                <line x1="18" y1="9" x2="12" y2="15" />
+                <line x1="12" y1="9" x2="18" y2="15" />
+              </svg>
+            }
+          />
         </div>
         <NameAction label="BORRAR" focusKey="namekey-clear" onPress={onClear} className={styles.clearBtn} />
       </div>

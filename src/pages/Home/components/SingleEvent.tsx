@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Category, Event } from "@/interfaces/catalog.interface";
 import { getEventStatus } from "@/utils/eventStatus";
 import Button from "@/components/ui/Button";
@@ -18,7 +19,7 @@ const SingleEventButton = ({ event, category, handleClick }: { event: Event | nu
   });
 
   return (
-    <Button ref={buttonRef} variant="primary" onClick={handleClick} tabIndex={0} focused={buttonFocused}>
+    <Button ref={buttonRef} variant="primary" pill onClick={handleClick} tabIndex={0} focused={buttonFocused}>
       Ver detalles
     </Button>
   );
@@ -28,7 +29,8 @@ function SingleEvent({ category }: SingleEventProps) {
   const navigate = useNavigate();
   const event = (category.programs?.[0] as Event) || null;
   const eventStatus = event ? getEventStatus(event) : null;
-  const bgImageUrl = category.image_background_category?.default || event?.image_background?.default || "";
+  const bgImageUrl = category.image_background_category?.normal || category.image_background_category?.default
+    || event?.image_background?.normal || event?.image_background?.default || "";
 
   const { focusKey: generatedFocusKey, ref: zoneRef } = useFocusable({
     focusKey: `zone-single-event-${category.key}`,
@@ -53,6 +55,12 @@ function SingleEvent({ category }: SingleEventProps) {
             show={isContentRestricted(event?.restriction)}
             className={styles.eventRestrictionBadge}
           />
+          {(() => {
+            const logo = event?.image_logo?.default || event?.image_logo?.big || event?.image_logo?.medium || category.image_logo_category?.default;
+            return logo ? (
+              <img src={logo} alt={event?.title || category.title} className={styles.eventLogo} />
+            ) : null;
+          })()}
           <h2 className={styles.eventTitle}>
             {event?.title || category.title}
           </h2>
@@ -69,4 +77,4 @@ function SingleEvent({ category }: SingleEventProps) {
     </FocusContext.Provider>
   );
 }
-export default SingleEvent;
+export default memo(SingleEvent);

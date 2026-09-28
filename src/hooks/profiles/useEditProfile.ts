@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth/authStore";
@@ -77,9 +77,15 @@ export function useEditProfile(): UseEditProfileReturn {
 
   const isDefaultProfile = existingProfile?.default === true;
 
-  // Prellenar datos si es edición y el draft está vacío
+  // Precargar los datos del perfil una sola vez al entrar en edición. Sin este
+  // guard, al borrar el nombre hasta vaciarlo el efecto re-ejecutaba y lo volvía
+  // a rellenar con el nombre original (nunca se podía dejar el campo vacío).
+  const didPrefill = useRef(false);
+
   useEffect(() => {
+    if (didPrefill.current) return;
     if (existingProfile) {
+      didPrefill.current = true;
       if (!name) {
         setName(existingProfile.name_perfil);
       }
@@ -87,6 +93,7 @@ export function useEditProfile(): UseEditProfileReturn {
         setSelectedAvatar(existingProfile.avatar || null);
       }
     } else if (isCreateMode && !name && selectedAvatar === null) {
+      didPrefill.current = true;
       clearDraft();
     }
   }, [existingProfile, isCreateMode, id, name, selectedAvatar, setName, setSelectedAvatar, clearDraft]);
@@ -165,8 +172,7 @@ export function useEditProfile(): UseEditProfileReturn {
         clearDraft();
         setTimeout(() => navigate("/mi-ecuavisa/perfiles"), 1200);
       }
-    } catch (err) {
-      console.error("[EditProfile] Error:", err);
+    } catch {
       setSubmitError("Error de conexión. Intenta de nuevo.");
     } finally {
       setIsSubmitting(false);
@@ -188,8 +194,7 @@ export function useEditProfile(): UseEditProfileReturn {
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
       clearDraft();
       navigate("/mi-ecuavisa/perfiles");
-    } catch (err) {
-      console.error("[EditProfile] Delete error:", err);
+    } catch {
       setSubmitError("Error de conexión. Intenta de nuevo.");
       setShowDeleteModal(false);
     } finally {

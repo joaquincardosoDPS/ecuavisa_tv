@@ -80,7 +80,7 @@ const ChapterButtonComponent = ({
           ? "rgba(255, 255, 255, 0.3)"
           : focused
             ? "var(--foc-primary)"
-            : "var(--clr-text-primary-button)",
+            : "var(--clr-icon)",
         opacity: disabled ? 0.35 : 1,
         pointerEvents: disabled ? "none" : "auto",
       }}

@@ -46,7 +46,7 @@ const PlayPauseButtonComponent = ({
       onClick={onClick}
       className={styles.button}
       style={{
-        color: focused ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+        color: focused ? "var(--foc-primary)" : "var(--clr-icon)",
       }}
       title={playing ? "Pausar" : "Ver ahora"}
     >

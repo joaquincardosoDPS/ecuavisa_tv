@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Event } from "@/interfaces/catalog.interface";
 import Button from "@/components/ui/Button";
-import { BackButton } from "@/components/ui/BackButton";
+//import { BackButton } from "@/components/ui/BackButton";
 import { PlayButton } from "@/components/icons/play-button";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
@@ -28,15 +28,17 @@ function Banner({ event }: { event: Event | null }) {
   const handlePlay = () => {
     if (!event) return;
     if (event.live_associated?.key) {
-      navigate(`/en-vivo?signal=${event.live_associated.key}`);
+      navigate(`/live?signal=${event.live_associated.key}`);
     } else if (event.program_associated?.key) {
       navigate(`/programas/${event.program_associated.key}`);
     }
   };
 
+  // "Ver ahora" es el punto de entrada del hero: al enfocarlo, la vista sube al tope
   const { ref: playRef, focused: playFocused } = useSpatialFocus({
     focusKey: playFocusKey,
     onEnterPress: handlePlay,
+    scrollToTop: true,
   });
 
   // Foco inicial en "Ver ahora"
@@ -71,13 +73,13 @@ function Banner({ event }: { event: Event | null }) {
       </div>
       <div className={styles.infoWrap}>
         <div className={styles.backWrap}>
-          <BackButton />
+          {/*<BackButton />*/}
         </div>
         <div className={styles.infoContent}>
           {eventStatus && (
             <span
               className={eventStyles.eventBadge}
-              style={{ backgroundColor: now < eventDate ? '#FFA500' : '#e11d48', color: now < eventDate ? '#000' : '#fff' }}
+              style={{ backgroundColor: now < eventDate ? 'var(--foc-tertiary)' : 'var(--foc-tertiary)', color: now < eventDate ? '#201E90' : '#201E90' }}
             >
               {eventStatus}
             </span>

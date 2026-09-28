@@ -54,7 +54,9 @@ export function useHistoryData(): UseHistoryDataReturn {
       return lastPageParam < lastPageNum ? lastPageParam + 1 : undefined;
     },
     enabled: isAuthenticated,
-    staleTime: 1000 * 60 * 2,
+    // El avance de reproducción cambia mientras el usuario ve contenido.
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const historyItems = data?.pages.flatMap((page) => page.data || []) ?? [];

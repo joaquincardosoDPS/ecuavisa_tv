@@ -6,6 +6,16 @@ import { useAuthStore } from '../../features/auth/authStore';
 import { initGtag } from './useGoogleAnalytics';
 import { useEffect, useRef } from 'react';
 
+// rgba() requiere el color en canales separados ("r, g, b"), no el hex original
+function hexToRgb(hex: string): string | null {
+    const shorthand = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthand, (_m, r, g, b) => r + r + g + g + b + b);
+    const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return match
+        ? `${parseInt(match[1], 16)}, ${parseInt(match[2], 16)}, ${parseInt(match[3], 16)}`
+        : null;
+}
+
 export const useAppInitialization = () => {
     const setConfig = useConfigStore((state) => state.setConfig);
     const sessionChecked = useRef(false);
@@ -38,6 +48,10 @@ export const useAppInitialization = () => {
                     key.startsWith('grad-')
                 ) {
                     root.style.setProperty(`--${key}`, value as string);
+                    const rgb = hexToRgb(value as string);
+                    if (rgb) {
+                        root.style.setProperty(`--${key}-rgb`, rgb);
+                    }
                 }
             });
 

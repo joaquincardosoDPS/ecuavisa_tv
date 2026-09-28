@@ -32,9 +32,7 @@ export const HlsBackgroundVideo = ({ url, style }: HlsBackgroundVideoProps) => {
         if (hls) {
           hls.currentLevel = 0;
         }
-        videoElement.play().catch((err) => {
-          console.warn("[HlsBackground] Autoplay prevented or failed:", err);
-        });
+        videoElement.play().catch(() => { /* noop: autoplay puede estar bloqueado */ });
       });
 
       hls.on(Hls.Events.ERROR, (_event, data) => {

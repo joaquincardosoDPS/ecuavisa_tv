@@ -19,18 +19,20 @@ interface CardHorizontalProps {
   emblaApi?: EmblaCarouselType | null;
   parentFocusKey?: string;
   autoFocusFirst?: boolean;
+  showImage?: boolean;
 }
 
-function CardHorizontal({ program, format, index, totalItems, emblaApi, parentFocusKey, autoFocusFirst }: CardHorizontalProps) {
+function CardHorizontal({ program, format, index, totalItems, emblaApi, parentFocusKey, autoFocusFirst, showImage = true }: CardHorizontalProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isProgramsView = pathname === "/programas";
   const isEvent = format === "event";
   const eventData = isEvent ? (program as Event) : null;
   const programData = !isEvent ? (program as Program) : null;
-  const imageSrc = isEvent
-    ? eventData?.image_land?.small || eventData?.image_background?.small
-    : programData?.image_land?.small;
+  const imageLand = isEvent ? eventData?.image_land : programData?.image_land;
+  // Con las tarjetas al doble de tamaño, "small" se veía pixelada: se pide "medium" y queda como respaldo.
+  const imageSrc = imageLand?.small || imageLand?.small
+    || (isEvent ? eventData?.image_background?.medium || eventData?.image_background?.small : null);
   const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
   const showDate = eventStatus !== null && eventStatus.label === "Próximamente";
   const setActiveProgram = useProgramsStore((state) => state.setActiveProgram);
@@ -94,13 +96,13 @@ function CardHorizontal({ program, format, index, totalItems, emblaApi, parentFo
             {eventStatus.label}
           </span>
         )}
-        {imageSrc ? (
-          <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" />
+        {showImage && (imageSrc ? (
+          <img src={imageSrc} alt={program.title} draggable={false} loading="lazy" decoding="async" />
         ) : (
           <div className={styles.cardImgFallback}>
             <span className={styles.cardImgFallbackText}>{program.title}</span>
           </div>
-        )}
+        ))}
         {!isEvent && (
           <RestrictionBadge show={isContentRestricted(programData?.restriction)} />
         )}

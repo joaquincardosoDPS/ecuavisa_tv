@@ -120,6 +120,18 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal, onEnterSignal 
     document.body.style.userSelect = '';
   }, []);
 
+  // La grilla solo tiene scroll horizontal, así que el gesto lateral del
+  // trackpad (o shift + rueda) mueve la línea de tiempo y todas las filas.
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    const header = headerRef.current;
+    const horizontal = e.deltaX !== 0 ? e.deltaX : e.shiftKey ? e.deltaY : 0;
+    if (!header || !horizontal) return;
+    const max = header.scrollWidth - header.clientWidth;
+    const next = Math.max(0, Math.min(max, header.scrollLeft + horizontal));
+    header.scrollLeft = next;
+    scrollRefs.current.forEach((ref) => { if (ref) ref.scrollLeft = next; });
+  }, []);
+
   useEffect(() => {
     if (signals.length > 0) {
       setTimeout(() => {
@@ -136,7 +148,7 @@ function EPGGrid({ epg, signals, selectedKeyLive, onSelectSignal, onEnterSignal 
   const innerWidthPct = `${scrollRatio * 100}%`;
 
   return (
-    <div onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} className={styles.epgContainer}>
+    <div onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onWheel={handleWheel} className={styles.epgContainer}>
       <div className={styles.epgHeaderWrapper}>
         <div className={styles.epgHeaderBackground} />
         <div className={styles.epgHeaderBar}>

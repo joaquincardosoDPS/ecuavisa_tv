@@ -58,7 +58,7 @@ function LoginView() {
               ) : qrUrl ? (
                 <QRCodeSVG
                   value={qrUrl}
-                  size={160}
+                  size={170}
                   bgColor="#ffffff"
                   fgColor="#000000"
                   level="M"

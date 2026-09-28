@@ -13,14 +13,6 @@ interface VastPlayerProps {
     onAdsFinished?: () => void;
 }
 
-interface AdEventDetail {
-    errorCode?: number;
-    message?: string;
-    vastErrorCode?: string;
-    ad?: { getAdPodInfo?: () => unknown };
-    error?: { message?: string; vastErrorCode?: string };
-}
-
 /**
  * Reproductor de publicidad VAST con IMA SDK.
  * Soporta waterfall de URLs VAST y montaje inline (portalTarget) para previews.
@@ -43,7 +35,6 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
         const initAds = async () => {
             try {
                 if (!videoRef.current || !containerRef.current) {
-                    console.warn('[VAST] Refs no disponibles');
                     return;
                 }
 
@@ -58,7 +49,6 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                 }
 
                 if (rawUrls.length === 0) {
-                    console.log('[VAST] Sin URLs de ads, finalizando');
                     onAdsFinished?.();
                     return;
                 }
@@ -74,12 +64,9 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                     return appendAdParamsToVastUrl(decodedUrl, adInfo);
                 });
 
-                console.log(`[VAST] ${enrichedUrls.length} URL(s) de ads para intentar`);
-
                 if (isStale()) return;
 
                 const ima = await loadImaSdk();
-                console.log('[VAST] IMA SDK cargado');
 
                 if (isStale()) return;
 
@@ -136,13 +123,11 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                 const tryNextUrl = () => {
                     if (isStale()) return;
                     if (urlIndex >= enrichedUrls.length) {
-                        console.log('[VAST] Todas las URLs de ads fallaron, continuando sin ad');
                         onAdsFinished?.();
                         return;
                     }
 
                     const currentUrl = enrichedUrls[urlIndex];
-                    console.log(`[VAST] Intentando URL ${urlIndex + 1}/${enrichedUrls.length}`);
 
                     if (imaPlayerRef.current) {
                         try { imaPlayerRef.current.destroy(); } catch { /* ignore */ }
@@ -165,14 +150,11 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
 
                     if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
                     adTimeoutRef.current = setTimeout(() => {
-                        console.warn(`[VAST] Timeout URL ${urlIndex + 1}, probando siguiente`);
                         urlIndex++;
                         tryNextUrl();
                     }, 15000);
 
-                    imaPlayer.addEventListener('AdStarted', (event: CustomEvent<AdEventDetail>) => {
-                        const podInfo = event.detail?.ad?.getAdPodInfo?.();
-                        console.log('[VAST] Ad started', podInfo);
+                    imaPlayer.addEventListener('AdStarted', () => {
                         setIsLoading(false);
                         if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
                         forceContainerSize();
@@ -184,22 +166,15 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                     });
 
                     imaPlayer.addEventListener('AdPaused', () => {
-                        console.log('[VAST] Ad pausado, reanudando automáticamente');
                         try { videoRef.current?.play(); } catch { /* ignore */ }
                     });
 
                     imaPlayer.addEventListener('AdAllAdsCompleted', () => {
-                        console.log('[VAST] Todos los ads completados');
                         if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
                         onAdsFinished?.();
                     });
 
-                    imaPlayer.addEventListener('AdError', (event: CustomEvent<AdEventDetail>) => {
-                        const detail = event?.detail;
-                        const code = detail?.errorCode || 'unknown';
-                        const vastCode = detail?.vastErrorCode || detail?.error?.vastErrorCode || 'N/A';
-                        console.warn(`[VAST] AdError URL ${urlIndex + 1}:`, { code, vastCode });
-
+                    imaPlayer.addEventListener('AdError', () => {
                         if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
 
                         urlIndex++;
@@ -207,7 +182,6 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                     });
 
                     imaPlayer.addEventListener('AdContentResumeRequested', () => {
-                        console.log('[VAST] Resume content');
                         if (adTimeoutRef.current) clearTimeout(adTimeoutRef.current);
                         onAdsFinished?.();
                     });
@@ -224,8 +198,7 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
 
                 tryNextUrl();
 
-            } catch (error) {
-                console.error('[VAST] Error cargando ads:', error);
+            } catch {
                 onAdsFinished?.();
             }
         };
@@ -254,7 +227,6 @@ const VastPlayerComponent = ({ url, vastUrls, portalTarget, onAdsPlaying, onAdsF
                 resizeObserverRef.current.disconnect();
                 resizeObserverRef.current = null;
             }
-            console.log('[VAST] Cleanup completo');
         };
     }, [adsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 

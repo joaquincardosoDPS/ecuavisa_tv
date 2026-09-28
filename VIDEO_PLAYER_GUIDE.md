@@ -36,6 +36,7 @@ El componente se encuentra en `src/components/VideoPlayer` y tiene la siguiente 
 | `episodes` | `Chapter[]` | Lista de capítulos para el panel "Capítulos" (se abre con el botón de grilla del seekbar). |
 | `currentEpisodeKey` | `string` | Identificador del capítulo actual. |
 | `onEpisodeSelect` | `function` | Callback cuando el usuario selecciona otro capítulo. |
+| `lockedEpisodes` | `string[]` | Keys de capítulos sin acceso (contenido de pago no comprado). Se pintan con candado y, al seleccionarlos, se abre el modal de compra en vez de navegar. El player no conoce suscripciones: la lista la decide quien lo consume. |
 | `onTimeUpdate` | `function` | Callback en cada `timeupdate` con `(currentTime, duration)`. |
 | `onEnded` | `function` | Callback cuando el video termina naturalmente (después del postroll si existe). |
 | `pipMode` | `boolean` | Encoje el video a la esquina inferior derecha (transición de fin de episodio). |

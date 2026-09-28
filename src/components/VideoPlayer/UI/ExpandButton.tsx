@@ -22,7 +22,7 @@ function ExpandButton({ isExpanded, onClick }: ExpandButtonProps) {
       className={`absolute bottom-4 right-4 z-10000 w-10 h-10 flex items-center justify-center rounded-full cursor-pointer ${styles.button}`}
       style={{
         backgroundColor: hovered ? "var(--foc-primary)" : "rgba(0, 0, 0, 0.6)",
-        color: hovered ? "#fff" : "var(--clr-text-primary-button)",
+        color: "var(--clr-icon)",
       }}
       title={isExpanded ? "Contraer" : "Expandir"}
     >

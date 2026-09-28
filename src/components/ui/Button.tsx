@@ -9,6 +9,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
     showArrow?: boolean;
     focused?: boolean;
+    /** Forma de píldora (bordes totalmente redondeados). */
+    pill?: boolean;
 }
 
 const variantStyleMap: Record<ButtonVariant, string> = {
@@ -26,13 +28,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     className,
     style,
     focused = false,
+    pill = false,
     ...props
 }, ref) => {
     return (
         <button
             ref={ref}
             type="button"
-            className={cn(styles.btn, variantStyleMap[variant], focused && styles.focused, className)}
+            className={cn(styles.btn, variantStyleMap[variant], pill && styles.pill, focused && styles.focused, className)}
             onClick={onClick}
             disabled={disabled}
             style={style}

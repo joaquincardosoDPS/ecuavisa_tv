@@ -64,7 +64,7 @@ const LiveButton = ({
       onMouseLeave={() => setHovered(false)}
       className={styles.iconButton}
       style={{
-        color: hovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+        color: hovered ? "var(--foc-primary)" : "var(--clr-icon)",
       }}
       title={title}
     >
@@ -147,7 +147,7 @@ const VolumePopover = ({
         onClick={onMuteToggle}
         className={styles.iconButton}
         style={{
-          color: isHovered ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+          color: isHovered ? "var(--foc-primary)" : "var(--clr-icon)",
           opacity: muted ? 0.5 : 1,
           transition: "color 0.15s ease, opacity 0.15s ease",
         }}

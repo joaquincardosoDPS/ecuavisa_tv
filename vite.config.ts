@@ -20,6 +20,8 @@ export default defineConfig(() => {
         compress: {
           drop_console: false,
           drop_debugger: true,
+          // Los console.log/info/debug cuestan caro en las CPUs de TV: eliminar siempre en build
+          pure_funcs: ["console.log", "console.info", "console.debug"],
         },
       },
     },

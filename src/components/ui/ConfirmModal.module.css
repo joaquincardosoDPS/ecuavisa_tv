@@ -25,4 +25,9 @@
     margin-left: 1rem;
 }
 
+.btnWrap {
+    flex: 1;
+    display: flex;
+}
+
 .btnFlex { flex: 1; text-transform: uppercase; }

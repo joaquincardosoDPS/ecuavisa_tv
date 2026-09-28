@@ -101,6 +101,29 @@ function LogoutButton({ onLogout }: { onLogout: () => void }) {
   );
 }
 
+// Tarjeta para crear un perfil nuevo (visible mientras no se llegue al máximo de 4 perfiles)
+function AddProfileCard({ onAdd }: { onAdd: () => void }) {
+  const { ref, focused } = useSpatialFocus({
+    focusKey: "account-add-profile",
+    onEnterPress: onAdd,
+  });
+
+  return (
+    <div className={styles.addProfileCard}>
+      <button
+        type="button"
+        ref={ref}
+        className={[styles.addProfileBtn, focused ? styles.addProfileFocused : ""].join(" ")}
+        onClick={onAdd}
+        aria-label="Agregar Perfil"
+      >
+        <span className={styles.addProfilePlus}>+</span>
+      </button>
+      <span className={styles.addProfileLabel}>Agregar Perfil</span>
+    </div>
+  );
+}
+
 function ProfilesView() {
   const navigate = useNavigate();
   const { profiles, isLoading, error, getAvatarUrl } = useProfilesList();
@@ -202,6 +225,9 @@ function ProfilesView() {
                     onEdit={() => navigate(`/mi-ecuavisa/perfiles/${profile.id}`)}
                   />
                 ))}
+                {profiles.length < 4 && (
+                  <AddProfileCard onAdd={() => navigate("/mi-ecuavisa/perfiles/nuevo")} />
+                )}
               </div>
             )}
           </section>

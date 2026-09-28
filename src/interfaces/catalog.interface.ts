@@ -161,7 +161,8 @@ export interface Chapter {
     duration: string;
     duration_seg: number;
     image: string;
-    image_land: ImageSet;
+    /** El API puede no devolverla (ej. capítulos antiguos): usar siempre respaldo. */
+    image_land?: ImageSet;
     key: string;
     key_program: string;
     key_segment: string;

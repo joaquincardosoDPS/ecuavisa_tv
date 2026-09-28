@@ -57,7 +57,7 @@ export function NavbarItem({ item }: NavbarItemProps) {
         >
             {item.icon && (
                 <span className={styles.icon}>
-                    <SidebarIcon name={item.icon} size={22} />
+                    <SidebarIcon name={item.icon} size={24} />
                 </span>
             )}
             <span>{item.title}</span>

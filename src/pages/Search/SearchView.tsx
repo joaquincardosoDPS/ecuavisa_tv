@@ -1,17 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import ProgramGrid from "@/components/ProgramCard/ProgramGrid";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { useSearchData } from "@/hooks/search/useSearchData";
 import { VirtualKeyboard } from "./components/VirtualKeyboard";
 import { setFocus, useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
-import { TVScrollProvider, useTVScroll } from "@/hooks/tv/useTVScroll";
+import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
 import styles from "./SearchView.module.css";
+
+function SearchResultsScrollWrapper({ children }: { children: ReactNode }) {
+	const scrollY = useTVScrollY();
+	const { containerRef } = useTVScroll();
+	return (
+		<div ref={containerRef} className={styles.resultsPanel} style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
+			{children}
+		</div>
+	);
+}
 
 function SearchViewContent() {
 	useDocumentTitle("Buscador");
 	const { query, setQuery, programs, totalRecords, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useSearchData();
 	const [localQuery, setLocalQuery] = useState(query);
-	const { scrollY } = useTVScroll();
 
 	const { ref: pageRef, focusKey: pageFocusKey } = useFocusable({
 		focusKey: "zone-search-page",
@@ -66,7 +75,7 @@ function SearchViewContent() {
 						/>
 					</div>
 
-					<div className={styles.resultsPanel} style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
+					<SearchResultsScrollWrapper>
 						{localQuery.trim() ? (
 							<div className={styles.activeQueryHeader}>
 								<h1 className={styles.resultsTitle}>
@@ -92,7 +101,7 @@ function SearchViewContent() {
 						)}
 
 						<ProgramGrid programs={programs} isLoading={isLoading} isError={isError} loadingText="Buscando..." errorText="Error al buscar contenidos" fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} />
-					</div>
+					</SearchResultsScrollWrapper>
 				</div>
 			</div>
 		</FocusContext.Provider>

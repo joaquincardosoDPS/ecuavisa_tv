@@ -1,0 +1,1 @@
+function n(n){return null!=n&&"1"===String(n)}export{n as t};

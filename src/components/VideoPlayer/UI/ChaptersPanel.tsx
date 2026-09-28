@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { isInputAction } from "@/utils/keyCodes";
 import { formatDuration } from "@/utils/formatDuration";
+import RestrictionOverlay from "@/components/ui/RestrictionOverlay";
 import type { ProgramChapter } from "../types";
 import styles from "./ChaptersPanel.module.css";
 
@@ -54,12 +55,13 @@ function ChapterItem({ episode, isCurrent, focusKey, leftKey, rightKey, onSelect
     <div
       ref={ref}
       onClick={() => onSelect(episode)}
-      className={`${styles.card} ${isCurrent ? styles.current : ""} ${focused ? styles.focused : ""}`}
+      className={`${styles.card} ${isCurrent ? styles.current : ""} ${focused ? styles.focused : ""} ${episode.locked ? styles.locked : ""}`}
     >
       <div className={styles.imageWrap}>
         {episode.image && (
           <img src={episode.image} alt={episode.title} loading="lazy" className={styles.thumbnail} />
         )}
+        <RestrictionOverlay show={Boolean(episode.locked)} size={26} />
         {isCurrent && (
           <span className={styles.playingBadge}>
             <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true">

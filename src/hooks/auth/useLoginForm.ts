@@ -164,7 +164,6 @@ export function useLoginForm(): UseLoginFormReturn {
         return;
       }
 
-      // console.log("[Login] Success:", response);
       const token = response.user!.token;
       useAuthStore.getState().login(token, response.user);
 
@@ -175,7 +174,6 @@ export function useLoginForm(): UseLoginFormReturn {
       const msg =
         axiosError?.response?.data?.msj || "Error de conexión. Intenta de nuevo.";
       setSubmitError(msg);
-      console.error("[Login] Error:", error);
     } finally {
       setIsSubmitting(false);
     }

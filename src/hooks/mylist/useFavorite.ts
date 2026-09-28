@@ -26,6 +26,9 @@ export function useFavorite(programSlug: string) {
             return response.status === 'ok' && response.data.length > 0;
         },
         enabled: isEnabled,
+        // El botón "Mi Lista" no debe mostrar un estado cacheado al volver al programa.
+        staleTime: 0,
+        refetchOnMount: 'always',
     });
 
     const toggleFavorite = async () => {
@@ -41,8 +44,8 @@ export function useFavorite(programSlug: string) {
                 queryKey: ['favorite-validate', token, activeProfile.id, programSlug],
             });
             queryClient.invalidateQueries({ queryKey: ['favorites'] });
-        } catch (err) {
-            console.error('[useFavorite] Toggle error:', err);
+        } catch {
+            /* noop: el error de la mutación ya se refleja en la UI */
         } finally {
             setIsToggling(false);
         }

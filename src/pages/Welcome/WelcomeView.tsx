@@ -54,7 +54,7 @@ function WelcomeView() {
                     <div className={styles.qr}>
                         <QRCodeSVG
                             value={REGISTER_URL}
-                            size={150}
+                            size={180}
                             bgColor="fff"
                             fgColor="#ffffff"
                             level="M"

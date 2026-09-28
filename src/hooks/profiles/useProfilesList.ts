@@ -57,7 +57,6 @@ export function useProfilesList(): UseProfilesListReturn {
     if (isEditing) {
       navigate(`/mi-ecuavisa/perfiles/${profile.id}`);
     } else {
-      console.log("[Profiles] Selected:", profile.name_perfil, profile.id);
       useAuthStore.getState().setActiveProfile(profile);
       navigate("/");
     }

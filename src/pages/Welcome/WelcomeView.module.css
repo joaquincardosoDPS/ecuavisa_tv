@@ -15,12 +15,12 @@
 }
 
 .logo {
-    height: 4rem;
+    height: 5rem;
     margin-bottom: 1.75rem;
 }
 
 .subtitle {
-    font-size: 2em;
+    font-size: var(--font-size-title);
     font-weight: 700;
     color: var(--clr-secondary-subtitle);
     text-align: start;
@@ -31,15 +31,15 @@
 }
 
 .button {
-    margin-bottom: 2.5rem;
-    font-size: 1rem;
-    padding: 0.5rem 2rem;
+    margin-bottom: 2.2rem;
+    font-size: 2.2rem;
+    padding: 1.2rem 2rem;
 }
 
 .text {
     font-family: var(--font-family-text);
     font-weight: 400;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     color: var(--clr-secondary-text);
     margin: 0;
     text-align: center;

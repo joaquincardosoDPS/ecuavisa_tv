@@ -23,7 +23,7 @@ function Banner({ program, firstChapter }: { program: Program; firstChapter?: Ch
       <div className={styles.bannerFixed}>
         <div className={styles.bannerBg} style={{ backgroundImage: `url(${bgImg})`, backgroundSize: "cover", backgroundPosition: "top right", backgroundRepeat: "no-repeat" }} />
         <div className={styles.bannerGradLeft} />
-        <div className={styles.bannerGradBottom} />
+        <div className={styles.bannerGradBottom} />|
         <div className={styles.bannerScrollFade} style={{ opacity: scrollOpacity * 0.9 }} />
       </div>
       <InfoBanner program={program} firstChapter={firstChapter} />

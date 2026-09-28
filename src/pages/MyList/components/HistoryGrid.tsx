@@ -41,7 +41,7 @@ function HistoryCard({ item, index, onPress }: HistoryCardProps) {
   const remainingText = remaining > 0 ? `${formatDuration(remaining)} restantes` : "";
 
   const { ref, focused } = useCarouselFocus({
-    focusKey: `mylist-history-item-${index}`,
+    focusKey: `mylist-history-item-${item.slug}`,
     index,
     onEnterPress: onPress,
   });

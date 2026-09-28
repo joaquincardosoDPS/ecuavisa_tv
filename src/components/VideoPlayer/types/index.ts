@@ -24,7 +24,8 @@ export interface Chapter {
     description: string;
     duration: string;
     image: string;
-    image_land: ImageSet;
+    /** El API puede no devolverla (ej. capítulos antiguos): usar siempre respaldo. */
+    image_land?: ImageSet;
     key: string;
     key_segment: string;
     m3u8: string;
@@ -48,6 +49,8 @@ export interface ProgramChapter {
     link: string;
     duration?: string;
     restriction: string;
+    /** Sin acceso (contenido de pago no comprado): se pinta el candado y no se puede seleccionar. */
+    locked?: boolean;
     packs?: string[];
     description?: string;
     initialSeconds?: number;
@@ -71,6 +74,13 @@ export interface VideoPlayerProps {
     episodes?: Chapter[];
     currentEpisodeKey?: string;
     onEpisodeSelect?: (episode: Chapter) => void;
+    /**
+     * Keys de capítulos sin acceso (contenido de pago no comprado por el usuario).
+     * El player los muestra con candado en el panel y, al seleccionarlos, abre el
+     * modal de compra en vez de navegar. El dueño del módulo decide la regla:
+     * el player no conoce suscripciones.
+     */
+    lockedEpisodes?: string[];
     hideUI?: boolean;
     onQualitiesChange?: (qualities: { value: string; label: string }[]) => void;
     onQualityChange?: (quality: string) => void;

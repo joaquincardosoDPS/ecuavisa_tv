@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaOptionsType, EmblaCarouselType } from "embla-carousel";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import { useNavigate } from "react-router-dom";
-import type { EPGChannel, EPGEvent } from "@/interfaces/catalog.interface";
+import type { EPGChannel, EPGEvent, LiveSignal } from "@/interfaces/catalog.interface";
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
+import { useNearViewport } from "@/hooks/tv/useNearViewport";
 import logoSvg from "@/assets/img/logo.svg";
 import styles from "./HomeLiveGrid.module.css";
 
@@ -32,7 +33,7 @@ function getProgress(event: EPGEvent): number {
   return ((now.getTime() - begin.getTime()) / (end.getTime() - begin.getTime())) * 100;
 }
 
-function EPGCard({ channel, event, index, totalItems, emblaApi, onPress }: { channel: EPGChannel; event: EPGEvent; index: number; totalItems?: number; emblaApi?: EmblaCarouselType; onPress?: () => void }) {
+function EPGCard({ channel, event, index, totalItems, emblaApi, onPress, showImage = true }: { channel: EPGChannel; event: EPGEvent; index: number; totalItems?: number; emblaApi?: EmblaCarouselType; onPress?: () => void; showImage?: boolean }) {
   const progress = getProgress(event);
   const coverImage = event.pictures?.poster || event.pictures?.photo || event.pictures?.cover || event.pictures?.background || "";
 
@@ -54,13 +55,13 @@ function EPGCard({ channel, event, index, totalItems, emblaApi, onPress }: { cha
   return (
     <div ref={ref} className={[styles.cardWrapper, focused ? styles.focused : ''].join(" ")} onClick={onPress}>
       <div className={styles.cardImageContainer}>
-        {coverImage ? (
-          <img src={coverImage} alt={event.title} className={styles.cardImage} />
+        {showImage && (coverImage ? (
+          <img src={coverImage} alt={event.title} className={styles.cardImage} loading="lazy" decoding="async" />
         ) : (
           <div className={styles.titleWrapper}>
             <span className={styles.fallbackTitle}>{event.title}</span>
           </div>
-        )}
+        ))}
         <img src={logoSvg} alt="Logo" className={styles.logo} />
         {progress > 0 && progress < 100 && (
           <span className={styles.badge}>
@@ -80,18 +81,25 @@ function EPGCard({ channel, event, index, totalItems, emblaApi, onPress }: { cha
   );
 }
 
-function HomeLiveGrid() {
+interface HomeLiveGridProps {
+  playlistPremium?: LiveSignal[];
+  onSelectSignal?: (signal: LiveSignal, event: EPGEvent) => void;
+}
+
+function HomeLiveGrid({ playlistPremium = [], onSelectSignal }: HomeLiveGridProps) {
   const navigate = useNavigate();
   const { data: channels, isLoading } = useQuery<EPGChannel[]>({
     queryKey: ["global-epg"],
     queryFn: async () => (await axios.get<EPGChannel[]>(EPG_URL)).data,
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: 1000 * 60,
+    // En TV no conviene re-descargar y re-renderizar la grilla cada minuto
+    staleTime: 1000 * 60 * 10,
+    refetchInterval: 1000 * 60 * 10,
   });
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const { ref: setGridRef, isNear: showImages } = useNearViewport(true);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -122,7 +130,7 @@ function HomeLiveGrid() {
 
   return (
     <FocusContext.Provider value={generatedFocusKey}>
-      <div data-section="live-epg" className={styles.liveGridContainer}>
+      <div ref={setGridRef} data-section="live-epg" className={styles.liveGridContainer}>
         <h2 className={styles.gridTitle}>Noticias</h2>
         <div ref={ref} className={styles.carouselWrapper}>
           <button
@@ -144,7 +152,24 @@ function HomeLiveGrid() {
           <div ref={emblaRef} className={styles.emblaViewport}>
             <div className={styles.emblaContainer}>
               {liveItems.map(({ ch, event }, index) => (
-                <EPGCard key={ch.key_live} channel={ch} event={event} index={index} totalItems={liveItems.length} emblaApi={emblaApi} onPress={() => navigate(`/live?signal=${ch.key_live}`)} />
+                <EPGCard
+                  key={ch.key_live}
+                  channel={ch}
+                  event={event}
+                  index={index}
+                  totalItems={liveItems.length}
+                  emblaApi={emblaApi}
+                  showImage={showImages}
+                  onPress={() => {
+                    const signal = playlistPremium.find((s) => s.key_live === ch.key_live || s.key === ch.key_live);
+                    if (signal) {
+                      onSelectSignal?.(signal, event);
+                      return;
+                    }
+                    // Fallback: si la señal no trae metadata de reproducción, ir a la página de directo
+                    navigate(`/live?signal=${ch.key_live}`);
+                  }}
+                />
               ))}
               <div className={styles.carouselSpacer} />
             </div>
@@ -155,4 +180,4 @@ function HomeLiveGrid() {
   );
 }
 
-export default HomeLiveGrid;
+export default memo(HomeLiveGrid);

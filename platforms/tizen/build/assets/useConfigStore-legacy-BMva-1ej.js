@@ -1,1 +1,0 @@
-System.register(["./api-legacy-D5pB5rE7.js"],function(e,n){var t;return{setters:[function(e){t=e.I}],execute:function(){e("t",t(e=>({config:null,setConfig:n=>e({config:n})})))}}});

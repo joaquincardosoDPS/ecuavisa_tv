@@ -1,15 +1,27 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalogService";
 import { useAuthStore } from "@/features/auth/authStore";
 import { historyService } from "@/services/historyService";
 import { adsService, type AdBreakCuepoint } from "@/services/adsService";
 import { setSignedParams, unlockTokenService, type ProtectedToken } from "@/services/unlockTokenService";
-import { isContentRestricted } from "@/utils/restriction";
+import { isContentRestricted, isSubscriptionActive } from "@/utils/restriction";
+import { fetchPurchasedPrograms, purchasedProgramsQueryKey } from "@/hooks/program/usePurchasedPrograms";
+import { getPlatformAnalytics } from "@/utils/platform";
 import type { Chapter } from "@/interfaces/catalog.interface";
 
 /** Segundos antes de terminar en los que el player se achica */
 const SHRINK_THRESHOLD_SECONDS = 30;
+
+/**
+ * El redirector DPS usa `platform` para las métricas de reproducción;
+ * se agrega a la URL del m3u8 junto a los params firmados existentes.
+ */
+function appendPlatformParam(url: string): string {
+  if (!url) return url;
+  return `${url}${url.includes("?") ? "&" : "?"}platform=${encodeURIComponent(getPlatformAnalytics())}`;
+}
 
 export function usePlayerEpisode() {
   const { program, segment, season, chapter } = useParams<{
@@ -20,10 +32,11 @@ export function usePlayerEpisode() {
   }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
   const activeProfile = useAuthStore((s) => s.activeProfile);
   // subscription_active viene en la sesión (payload del user).
-  const subscriptionActive = Boolean(useAuthStore((s) => s.user)?.subscription_active);
+  const subscriptionActive = isSubscriptionActive(useAuthStore((s) => s.user)?.subscription_active);
 
   // resumeTime y protectedToken pasados desde HistoryView / ContinueWatchingCarousel / ChapterCard
   const locationState = location.state as { resumeTime?: number; protectedToken?: ProtectedToken } | null;
@@ -41,6 +54,8 @@ export function usePlayerEpisode() {
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterNumber, setChapterNumber] = useState<number | null>(null);
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null);
+  /** Restricción del programa: la heredan todos sus capítulos. */
+  const [programRestriction, setProgramRestriction] = useState<string | number | null>(null);
   const [initialSeconds, setInitialSeconds] = useState<number | undefined>(
     undefined,
   );
@@ -184,48 +199,68 @@ export function usePlayerEpisode() {
 
         // Capítulo protegido (PPV): obtener el unlock token y firmar el m3u8,
         // equivalente al flujo legacy de getProtectedVideoUrl.
-        let finalM3u8 = chapterData.m3u8;
+        let finalM3u8 = appendPlatformParam(chapterData.m3u8);
         let locked = false;
         const isProtected =
           isContentRestricted(chapterData.restriction) ||
           isContentRestricted(programDetail?.restriction);
 
+        // Capítulo protegido (PPV): además de la suscripción, el programa debe
+        // estar comprado. Lo decide el endpoint ppv; si el slug no está, no se
+        // firma el m3u8 ni se pide unlock_token (se reproduciría sin pagar).
+        let hasPurchased = false;
+        if (isProtected && subscriptionActive && token && program) {
+          try {
+            const purchased = await queryClient.ensureQueryData({
+              queryKey: purchasedProgramsQueryKey(token),
+              queryFn: () => fetchPurchasedPrograms(token),
+            });
+            hasPurchased = (purchased.programs ?? []).includes(program);
+          } catch {
+            hasPurchased = false;
+          }
+        }
+
         if (isProtected) {
-          const signedParams = setSignedParams(stateProtectedToken);
-          if (signedParams) {
-            finalM3u8 =
-              chapterData.m3u8 +
-              (chapterData.m3u8.includes("?") ? "&" : "?") +
-              signedParams;
-          } else if (subscriptionActive && token) {
-            try {
-              const unlockRes = await unlockTokenService.get({
-                token,
-                keyVideo: chapterData.key,
-              });
-              const tok = unlockRes?.data;
-              if (
-                tok &&
-                typeof tok.st === "string" &&
-                typeof tok.ts === "number" &&
-                typeof tok.e === "number"
-              ) {
-                const params = setSignedParams({ st: tok.st, ts: tok.ts, e: tok.e });
-                if (params) {
-                  finalM3u8 =
-                    chapterData.m3u8 +
-                    (chapterData.m3u8.includes("?") ? "&" : "?") +
-                    params;
+          if (!hasPurchased) {
+            // Sin suscripción activa, sin sesión o sin la compra: paywall, no reproducir.
+            locked = true;
+          } else {
+            const signedParams = setSignedParams(stateProtectedToken);
+            if (signedParams) {
+              finalM3u8 = appendPlatformParam(
+                chapterData.m3u8 +
+                (chapterData.m3u8.includes("?") ? "&" : "?") +
+                signedParams,
+              );
+            } else {
+              try {
+                const unlockRes = await unlockTokenService.get({
+                  token: token!,
+                  keyVideo: chapterData.key,
+                });
+                const tok = unlockRes?.data;
+                if (
+                  tok &&
+                  typeof tok.st === "string" &&
+                  typeof tok.ts === "number" &&
+                  typeof tok.e === "number"
+                ) {
+                  const params = setSignedParams({ st: tok.st, ts: tok.ts, e: tok.e });
+                  if (params) {
+                    finalM3u8 = appendPlatformParam(
+                      chapterData.m3u8 +
+                      (chapterData.m3u8.includes("?") ? "&" : "?") +
+                      params,
+                    );
+                  }
+                } else {
+                  locked = true;
                 }
-              } else {
+              } catch {
                 locked = true;
               }
-            } catch {
-              locked = true;
             }
-          } else {
-            // Sin suscripción activa (o sin sesión): paywall, no reproducir.
-            locked = true;
           }
         }
 
@@ -236,6 +271,7 @@ export function usePlayerEpisode() {
           setVodSlug(chapterData.slug);
           setChapterImage(chapterData.image_land?.big || "");
           setProgramKey(chapterData.key_program || "");
+          setProgramRestriction(programDetail?.restriction ?? null);
           setChapterTitle(chapterData.title || "");
           setChapterNumber(chapterData.chapter ?? null);
           setSeasonNumber(chapterData.season ?? null);
@@ -348,7 +384,7 @@ export function usePlayerEpisode() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-fetch when route params or auth change, not on navigate/program/stateResumeTime reference changes
-  }, [segment, season, chapter, token, activeProfile, subscriptionActive]);
+  }, [segment, season, chapter, program, token, activeProfile, subscriptionActive, queryClient]);
 
   // Resetear estado al cambiar de episodio
   useEffect(() => {
@@ -410,6 +446,7 @@ export function usePlayerEpisode() {
 
     // Paywall de contenido protegido
     restricted,
+    programRestriction,
 
     // Navegación
     playNext,

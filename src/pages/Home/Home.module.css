@@ -96,7 +96,7 @@
     height: 0.625rem;
     border-radius: 9999px;
     background-color: rgba(var(--clr-primary-title-rgb, 255, 255, 255), 0.35);
-    transition: all 0.3s;
+    transition: width 0.3s, background-color 0.3s;
 }
 
 .bannerDotActive {
@@ -149,7 +149,7 @@
 .bannerArrow {
     flex-shrink: 0;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s;
     background: none;
     border: none;
     color: rgba(var(--clr-primary-title-rgb), 0.8);
@@ -184,7 +184,7 @@
     left: 0;
     right: 0;
     padding: 0 3.125rem;
-    transition: all 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
 
 /* ── BannerInfo ── */
@@ -268,9 +268,9 @@
     margin-top: 1.25rem;
 }
 
-/* .homeCarouselWithBg {
-    padding: 2rem;
-} */
+.homeCarouselWithBg {
+    padding: 2rem 6.25rem;
+}
 
 .homeCarouselTitle {
     position: relative;

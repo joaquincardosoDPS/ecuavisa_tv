@@ -55,6 +55,8 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
     }
   });
 
+  
+
   return (
     <div className={styles.infoRoot}>
       {!isEvent && (
@@ -79,7 +81,14 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
         <p className={styles.infoDesc}>{program.description_short}</p>
       </div>
       <div className={styles.infoBtns}>
-        <Button ref={playRef} variant="primary" onClick={handleClick} tabIndex={isBannerFocused ? 0 : -1} focused={playFocused}>
+        <Button
+          ref={playRef}
+          variant="primary"
+          pill
+          onClick={handleClick}
+          tabIndex={isBannerFocused ? 0 : -1}
+          focused={playFocused}
+        >
           <PlayButton width={30} height={30} className={styles.playbuttonStyle1} /> Ver Ahora
         </Button>
       </div>

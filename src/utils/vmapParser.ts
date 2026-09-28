@@ -82,8 +82,7 @@ export class VmapParser {
                 postrollAds,
             };
 
-        } catch (error) {
-            console.warn('[VmapParser] Error parseando VMAP:', error);
+        } catch {
             return {
                 hasAds: false,
                 totalAdBreaks: 0,

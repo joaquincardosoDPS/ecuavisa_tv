@@ -77,7 +77,7 @@ function HeaderContent() {
 				<ul className={styles.navList}>
 					<li ref={searchRef} className={[styles.searchTrigger, searchFocused ? styles.focused : ""].join(" ")} onClick={openSearch}>
 						<span className={styles.searchIconWrap}>
-							<SidebarIcon name="search" size={22} />
+							<SidebarIcon name="search" size={24} />
 						</span>
 					</li>
 					{NAVBAR_ITEMS.map((item) => (

@@ -75,7 +75,7 @@
 
 	/* Cards */
 	--card-w-vertical: 15vw;
-	--card-w-horizontal: 15vw;
+	--card-w-horizontal: 20vw;
 
 	/* Avatar */
 	--avatar-size: 200px;
@@ -83,6 +83,7 @@
 
 	/* Variables de fallback para evitar errores antes de la carga de API */
 	--clr-primary: #001a28;
+	--clr-primary-rgb: 0, 26, 40;
 	--foc-primary: #ff1376;
 	--grad-sidebar: #054668;
 
@@ -215,11 +216,12 @@ body {
 }
 
 .banner-overlay {
-	background: linear-gradient(to bottom,
+	background: linear-gradient(to top,
 			var(--clr-primary) 0%,
-			transparent 20%,
-			transparent 40%,
-			transparent 60%,
-			var(--clr-primary) 80%,
-			var(--clr-primary) 100%);
+			rgba(var(--clr-primary-rgb), 0.85) 28%,
+			rgba(var(--clr-primary-rgb), 0.45) 55%,
+			transparent 78%),
+		linear-gradient(to bottom,
+			rgba(var(--clr-primary-rgb), 0.55) 0%,
+			transparent 16%);
 }

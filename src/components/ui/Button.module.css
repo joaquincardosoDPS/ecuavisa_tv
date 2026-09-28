@@ -16,6 +16,11 @@
     transition: all 0.2s ease-out;
 }
 
+.pill {
+    border-radius: 9999px;
+    padding: 0.85rem 2.25rem;
+}
+
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;

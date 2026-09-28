@@ -3,7 +3,7 @@ import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { useCategoryPrograms } from "@/hooks/category/useCategoryPrograms";
 import ProgramGrid from "@/components/ProgramCard/ProgramGrid";
 import Button from "@/components/ui/Button";
-import { TVScrollProvider, useTVScroll } from "@/hooks/tv/useTVScroll";
+import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
 import { useEffect } from "react";
 import { getCurrentFocusKey, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
@@ -15,7 +15,7 @@ function SetInitialFocus() {
     const t = setTimeout(() => {
       try {
         setFocus('program-grid-item-0');
-      } catch (e) {
+      } catch {
         // ignore
       }
     }, 60);
@@ -39,6 +39,16 @@ function LoadMoreButton({ onClick, isFetching }: { onClick: () => void; isFetchi
   );
 }
 
+function CategoryScrollWrapper({ children }: { children: React.ReactNode }) {
+  const scrollY = useTVScrollY();
+  const { containerRef } = useTVScroll();
+  return (
+    <div ref={containerRef} style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
+      {children}
+    </div>
+  );
+}
+
 function CategoryView() {
   const { slug, categoryTitle, programs, totalRecords, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useCategoryPrograms();
   useDocumentTitle(categoryTitle || slug);
@@ -52,15 +62,6 @@ function CategoryView() {
     if (lastIndex < 0) return;
     setFocus(`program-grid-item-${lastIndex}`);
   }, [hasNextPage, isFetchingNextPage, programs.length]);
-
-  function CategoryScrollWrapper({ children }: { children: React.ReactNode }) {
-    const { scrollY } = useTVScroll();
-    return (
-      <div style={{ transform: `translateY(${scrollY}px)`, transition: 'transform 0.3s ease-out' }}>
-        {children}
-      </div>
-    );
-  }
 
   return (
     <TVScrollProvider>

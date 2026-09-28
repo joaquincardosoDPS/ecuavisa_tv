@@ -5,11 +5,16 @@ import './index.css'
 import App from './App.tsx'
 
 import { init } from '@noriginmedia/norigin-spatial-navigation';
+import { exposePlatformInfo, registerTVKeys } from './utils/platform';
 
 init({
+  // El modo debug de la librería imprime un log por cada pulsación del D-Pad: silenciado siempre
   debug: true,
   visualDebug: false
 });
+
+registerTVKeys();
+exposePlatformInfo();
 
 const queryClient = new QueryClient({
   defaultOptions: {

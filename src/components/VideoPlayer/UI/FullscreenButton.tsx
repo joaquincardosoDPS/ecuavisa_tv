@@ -43,7 +43,7 @@ const FullscreenButtonComponent = ({ onClick }: FullscreenButtonProps) => {
       onMouseLeave={() => setHovered(false)}
       className={styles.button}
       style={{
-        color: isActive ? "var(--foc-primary)" : "var(--clr-text-primary-button)",
+        color: isActive ? "var(--foc-primary)" : "var(--clr-icon)",
       }}
       title="Pantalla completa"
     >
