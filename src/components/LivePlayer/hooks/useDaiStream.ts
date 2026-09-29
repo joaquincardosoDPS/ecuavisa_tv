@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { MetadataSample } from "hls.js";
 import { getHlsSessionParams } from "@/services/hlsSessionService";
 import type { HlsSessionParams } from "@/services/hlsSessionService";
 
@@ -17,7 +16,7 @@ interface DaiStreamManager {
     destroy?: () => void;
     reset?: () => void;
     addEventListener: (type: string, handler: (event: DaiStreamEvent) => void, useCapture?: boolean) => void;
-    processMetadata: (kind: string, data: Uint8Array, timestamp: number) => void;
+    onTimedMetadata: (metadata: Record<string, string>) => void;
     requestStream: (request: { assetKey: string }) => void;
 }
 
@@ -38,6 +37,59 @@ declare const google: {
         };
     };
 };
+
+// Si Google no entrega el stream de DAI en este tiempo, se sigue con el de respaldo.
+const DAI_TIMEOUT_MS = 10000;
+
+// Sesión de DAI activa a nivel de módulo (persiste entre HMR y remontajes): una
+// sola viva a la vez, así una que quedó huérfana se cierra antes de abrir otra y
+// no queda consultando id3-events.json de fondo.
+let activeDaiManager: DaiStreamManager | null = null;
+
+function resetDaiManager(manager: DaiStreamManager | null) {
+    if (!manager) return;
+    try {
+        if (typeof manager.reset === 'function') manager.reset();
+        else if (typeof manager.destroy === 'function') manager.destroy();
+    } catch {
+        /* noop */
+    }
+    if (activeDaiManager === manager) activeDaiManager = null;
+}
+
+// DAI: las marcas ID3 del stream se le pasan al SDK como cues de la pista de
+// metadata del <video> (las crea hls.js, o el navegador en HLS nativo) con
+// onTimedMetadata al momento de reproducirse, igual que el plugin videojs-ima del
+// reproductor de Rudo (no con processMetadata al descargar cada segmento).
+// Devuelve la función que deja de escuchar.
+function listenDaiMetadataCues(video: HTMLVideoElement, getManager: () => DaiStreamManager | null): () => void {
+    const handlers = new Map<TextTrack, () => void>();
+    const watch = (track: TextTrack) => {
+        if (track.kind !== 'metadata' || handlers.has(track)) return;
+        track.mode = 'hidden';
+        const onCueChange = () => {
+            const cues = track.activeCues;
+            if (!cues) return;
+            for (let i = 0; i < cues.length; i++) {
+                const value = (cues[i] as unknown as { value?: { key?: string; data?: string } }).value;
+                if (value?.key && value?.data) {
+                    getManager()?.onTimedMetadata({ [value.key]: value.data });
+                }
+            }
+        };
+        track.addEventListener('cuechange', onCueChange);
+        handlers.set(track, onCueChange);
+    };
+    for (let i = 0; i < video.textTracks.length; i++) watch(video.textTracks[i]);
+    const onAddTrack = (event: TrackEvent) => {
+        if (event.track) watch(event.track as TextTrack);
+    };
+    video.textTracks.addEventListener('addtrack', onAddTrack);
+    return () => {
+        video.textTracks.removeEventListener('addtrack', onAddTrack);
+        handlers.forEach((handler, track) => track.removeEventListener('cuechange', handler));
+    };
+}
 
 interface UseDaiStreamOptions {
     streamSrc: string;
@@ -80,22 +132,30 @@ export function useDaiStream({
 
     const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // DAI: generación para la que ya se inició el stream (una sola sesión por
+    // señal: VastPlayer puede avisar el fin varias veces, ej. AdContentResumeRequested
+    // + AdAllAdsCompleted, y cada aviso abría un StreamManager nuevo)
+    const startedGenerationRef = useRef(-1);
+    const daiTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const removeMetadataListenerRef = useRef<(() => void) | null>(null);
+
     const hasVast = !!(vastUrl && vastUrl.trim() !== '' && vastUrl !== 'none');
 
     const showVastPreroll = adPhase === 'vast';
 
     const cleanupStreamManager = useCallback(() => {
         if (streamManagerRef.current) {
-            try {
-                if (typeof streamManagerRef.current.destroy === 'function') {
-                    streamManagerRef.current.destroy();
-                } else if (typeof streamManagerRef.current.reset === 'function') {
-                    streamManagerRef.current.reset();
-                }
-            } catch {
-                /* noop */
-            }
+            // reset corta la consulta periódica de id3-events.json
+            resetDaiManager(streamManagerRef.current);
             streamManagerRef.current = null;
+        }
+        if (daiTimeoutRef.current !== null) {
+            clearTimeout(daiTimeoutRef.current);
+            daiTimeoutRef.current = null;
+        }
+        if (removeMetadataListenerRef.current) {
+            removeMetadataListenerRef.current();
+            removeMetadataListenerRef.current = null;
         }
     }, []);
 
@@ -111,6 +171,12 @@ export function useDaiStream({
         if (!video) return;
 
         const myGeneration = generationRef.current;
+
+        // Una sola vez por señal: si ya se inició para esta generación (aviso de fin
+        // de VAST repetido), no se abre otra sesión de DAI.
+        if (startedGenerationRef.current === myGeneration) return;
+        startedGenerationRef.current = myGeneration;
+
         const currentAssetKey = assetKeyRef.current;
         const currentStreamSrc = streamSrcRef.current;
 
@@ -144,19 +210,53 @@ export function useDaiStream({
 
         const daiApi = google?.ima?.dai?.api;
         if (currentAssetKey && adUiRef && adUiRef.current && daiApi) {
+            // Sin DAI (error del SDK o sin respuesta a tiempo): se cierra la sesión y
+            // se reproduce el stream de respaldo. Una sola vez por sesión.
+            let settled = false;
+            const fallbackToBackup = () => {
+                if (settled || generationRef.current !== myGeneration) return;
+                settled = true;
+                if (daiTimeoutRef.current !== null) {
+                    clearTimeout(daiTimeoutRef.current);
+                    daiTimeoutRef.current = null;
+                }
+                resetDaiManager(streamManagerRef.current);
+                streamManagerRef.current = null;
+                setAdPhase('content');
+                loadUrl(currentStreamSrc);
+            };
+
             try {
+                // Una sola sesión a la vez: se cierra cualquiera que haya quedado viva.
+                resetDaiManager(activeDaiManager);
                 const streamManager = new daiApi.StreamManager(video, adUiRef.current);
                 streamManagerRef.current = streamManager;
+                activeDaiManager = streamManager;
+
+                daiTimeoutRef.current = setTimeout(() => {
+                    daiTimeoutRef.current = null;
+                    fallbackToBackup();
+                }, DAI_TIMEOUT_MS);
 
                 streamManager.addEventListener(
                     daiApi.StreamEvent.Type.LOADED,
                     (e: DaiStreamEvent) => {
-                        if (generationRef.current !== myGeneration) return;
+                        if (generationRef.current !== myGeneration || settled) return;
                         const streamUrl = e.getStreamData().url;
-                        if (streamUrl) {
-                            setAdPhase('content');
-                            loadUrl(streamUrl);
+                        if (!streamUrl) {
+                            fallbackToBackup();
+                            return;
                         }
+                        settled = true;
+                        if (daiTimeoutRef.current !== null) {
+                            clearTimeout(daiTimeoutRef.current);
+                            daiTimeoutRef.current = null;
+                        }
+                        // Marcas ID3 al SDK por cues de metadata (ver listenDaiMetadataCues)
+                        if (removeMetadataListenerRef.current) removeMetadataListenerRef.current();
+                        removeMetadataListenerRef.current = listenDaiMetadataCues(video, () => streamManagerRef.current);
+                        setAdPhase('content');
+                        loadUrl(streamUrl);
                     },
                     false
                 );
@@ -165,8 +265,7 @@ export function useDaiStream({
                     daiApi.StreamEvent.Type.ERROR,
                     () => {
                         if (generationRef.current !== myGeneration) return;
-                        setAdPhase('content');
-                        loadUrl(currentStreamSrc);
+                        fallbackToBackup();
                     },
                     false
                 );
@@ -211,8 +310,7 @@ export function useDaiStream({
                 streamManager.requestStream(streamRequest);
 
             } catch {
-                setAdPhase('content');
-                loadUrl(currentStreamSrc);
+                fallbackToBackup();
             }
 
         } else {
@@ -231,19 +329,6 @@ export function useDaiStream({
         startDaiOrHls();
     }, [videoRef, startDaiOrHls]);
 
-    const lastProcessedPtsRef = useRef<number>(-1);
-
-    const processMetadata = useCallback((samples: MetadataSample[]) => {
-        if (!streamManagerRef.current) return;
-
-        for (let i = 0; i < samples.length; i++) {
-            const sample = samples[i];
-            if (sample.pts === lastProcessedPtsRef.current) continue;
-            lastProcessedPtsRef.current = sample.pts;
-            streamManagerRef.current.processMetadata('ID3', sample.data, sample.pts);
-        }
-    }, []);
-
     useEffect(() => {
         const video = videoRef.current;
         if (!video || !streamSrc) return;
@@ -256,7 +341,6 @@ export function useDaiStream({
         cleanupStreamManager();
         setResolvedStreamUrl('');
         setIsAdPlaying(false);
-        lastProcessedPtsRef.current = -1;
 
         if (hasVast) {
             setAdPhase('vast');
@@ -286,7 +370,6 @@ export function useDaiStream({
         showVastPreroll,
         vastAdUrl: hasVast ? vastUrl! : null,
         onVastFinished,
-        processMetadata,
         adPhase,
         resolvedStreamUrl,
     };
