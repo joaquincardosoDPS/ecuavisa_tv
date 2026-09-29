@@ -21,8 +21,6 @@ interface ChapterCardProps {
   badge?: string;
   /** Si es la primera fila de la grilla: al enfocarla, la vista se alinea con la posición del tab. */
   isFirstRow?: boolean;
-  /** Restricción del programa: si el programa está restringido, todos sus capítulos se bloquean. */
-  programRestriction?: string | number | null;
   /** Si el usuario ya compró el programa (PPV), el contenido se desbloquea. */
   isPurchased?: boolean;
 }
@@ -32,16 +30,16 @@ function getProgress(playbackTime: number, durationSeg: number): number {
   return Math.min(100, (playbackTime / durationSeg) * 100);
 }
 
-function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false, isFirstRow = false, badge, programRestriction, isPurchased = false }: ChapterCardProps) {
+function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0, isFinished = false, isFirstRow = false, badge, isPurchased = false }: ChapterCardProps) {
   const navigate = useNavigate();
   const authToken = useAuthStore((s) => s.token);
   const imageSrc = chapter.image_land?.small || chapter.image || "";
   const [showRestrictionModal, setShowRestrictionModal] = useState(false);
 
   const chapterFocusKey = `chapter-${programKey}-${chapter.key_segment}-${chapter.season}-${chapter.chapter}`;
-  const isRestricted =
-    !isPurchased &&
-    (isContentRestricted(chapter.restriction) || isContentRestricted(programRestriction));
+  // La restricción del programa (etiqueta de "programa de pago") no bloquea
+  // capítulos: el bloqueo se decide únicamente por la restricción del capítulo.
+  const isRestricted = !isPurchased && isContentRestricted(chapter.restriction);
 
   const playUrl = `/play/${programKey}/${chapter.key_segment}/${chapter.season}/${chapter.chapter}`;
 
@@ -134,7 +132,7 @@ function ChapterCard({ chapter, programKey, showChapter = true, playbackTime = 0
           </div>
         )}
       </div>
-      <RestrictionModal isOpen={showRestrictionModal} onClose={closeRestrictionModal} />
+      <RestrictionModal isOpen={showRestrictionModal} onClose={closeRestrictionModal} programKey={programKey} />
     </div>
   );
 }

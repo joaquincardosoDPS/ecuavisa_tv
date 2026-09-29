@@ -41,9 +41,8 @@ El componente se encuentra en `src/components/VideoPlayer` y tiene la siguiente 
 | `onEnded` | `function` | Callback cuando el video termina naturalmente (después del postroll si existe). |
 | `pipMode` | `boolean` | Encoje el video a la esquina inferior derecha (transición de fin de episodio). |
 | `forceControlsVisible` | `boolean` | Mantiene visibles los controles (TopBar + Controls). |
-| `onRestartChapter` | `function` | Callback para reiniciar el capítulo actual. |
-| `onNextChapter` | `function` | Callback para pasar al siguiente capítulo. |
-| `hasNextChapter` | `boolean` | Si hay un capítulo siguiente disponible. |
+| `onNextChapter` | `function` | Callback del botón "Siguiente capítulo" del seekbar (si el capítulo destino es de pago, el consumidor decide abrir el pago en vez de navegar). |
+| `hasNextChapter` | `boolean` | Habilita el botón "Siguiente capítulo". Si es `false` el botón se pinta deshabilitado. |
 | `midrollCuepoints` | `AdBreakCuepoint[]` | Cuepoints de midroll con timestamps y URLs VAST. |
 | `postrollVastUrls` | `string[]` | URLs VAST de postroll. |
 | `programBackgroundImage` | `string` | Imagen de fondo para la transición de "Siguiente capítulo". |

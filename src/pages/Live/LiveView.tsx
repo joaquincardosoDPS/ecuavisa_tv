@@ -1,9 +1,8 @@
-import { useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import { useLiveSignal } from "@/hooks/live/useLiveSignal";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
-import { isInputAction } from "@/utils/keyCodes";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import EPGGrid from "./components/EPGGrid";
 import LivePlayerSection from "./components/LivePlayerSection";
@@ -13,7 +12,6 @@ import styles from "./Live.module.css";
 
 function LiveView() {
   useDocumentTitle("En Vivo");
-  const navigate = useNavigate();
   const { selectedSignal, epg, playlistPremium, isLoading, expanded, handleSelectSignal, toggleExpand, expandPlayer } = useLiveSignal();
 
   const { focusKey, ref } = useFocusable({
@@ -22,17 +20,7 @@ function LiveView() {
     autoRestoreFocus: true
   });
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (!isInputAction(e, 'Back')) return;
-      if (expanded) return;
-      e.preventDefault();
-      e.stopPropagation();
-      navigate('/', { replace: true });
-    };
-    window.addEventListener('keydown', handleKey, true);
-    return () => window.removeEventListener('keydown', handleKey, true);
-  }, [expanded, navigate]);
+  const { modal: exitModal } = useExitOnBack({ disabled: expanded });
 
   const currentEvent = useMemo(() => {
     if (!selectedSignal || !epg) return null;
@@ -69,6 +57,7 @@ function LiveView() {
         <EPGGrid epg={epg} signals={playlistPremium} selectedKeyLive={selectedSignal?.key_live} onSelectSignal={handleSelectSignal} onEnterSignal={expandPlayer} />
       </div>
       </div>
+      {exitModal}
     </FocusContext.Provider>
   );
 }

@@ -34,7 +34,9 @@ const SkipButtonComponent = ({ seconds, onClick, hasNextChapter = false }: SkipB
         return false;
       }
       if (direction === "left") {
-        setFocus(isForward ? "PLAYER-BTN-PLAYPAUSE" : "PLAYER-BTN-CHAPTER-RESTART");
+        // Retroceder es el primer control del seekbar: no hay destino a la izquierda.
+        if (!isForward) return false;
+        setFocus("PLAYER-BTN-PLAYPAUSE");
         return false;
       }
       if (direction === "right") {

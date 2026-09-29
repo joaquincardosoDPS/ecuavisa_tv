@@ -15,7 +15,7 @@ interface ProgramViewProps {
 function ProgramView({ program: programDetail, slug, setIsLoading }: ProgramViewProps) {
   const { activeSegment, setActiveSegment, activeSeason, setActiveSeason, showDetails, setShowDetails, firstChapter, setFirstChapter, tabsRef, scrollToTabs, requestScroll, handleChaptersLoaded } = useProgramViewData(programDetail, slug, setIsLoading);
 
-  const programBadge = programDetail.genders?.map((gender) => gender.name).join(", ") || programDetail.name_category || "";
+  const programBadge = programDetail.genders?.map((gender) => gender.name).join(", ") || programDetail.name_category || programDetail.category?.name || "";
 
   return (
     <div className={styles.viewContainer}>
@@ -45,7 +45,6 @@ function ProgramView({ program: programDetail, slug, setIsLoading }: ProgramView
               onFirstChapter={setFirstChapter}
               showChapter={programDetail.active_number}
               badge={programBadge}
-              programRestriction={programDetail.restriction}
             />
           )}
         </div>

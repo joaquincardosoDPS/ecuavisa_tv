@@ -27,6 +27,8 @@ export interface Chapter {
     /** El API puede no devolverla (ej. capítulos antiguos): usar siempre respaldo. */
     image_land?: ImageSet;
     key: string;
+    /** Key del programa dueño del capítulo (key_program del API): se usa para el link de pago. */
+    key_program?: string;
     key_segment: string;
     m3u8: string;
     name_program: string;
@@ -102,8 +104,6 @@ export interface VideoPlayerProps {
     userToken?: string;
     /** ID del perfil activo */
     userProfile?: string;
-    /** Callback para reiniciar el capítulo actual */
-    onRestartChapter?: () => void;
     /** Callback para pasar al siguiente capítulo */
     onNextChapter?: () => void;
     /** Si hay un capítulo siguiente disponible */

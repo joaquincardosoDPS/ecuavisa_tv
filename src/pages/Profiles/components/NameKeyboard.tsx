@@ -15,7 +15,6 @@ const KEY_ROWS: string[][] = [
 interface NameKeyboardProps {
   onKey: (char: string) => void;
   onBackspace: () => void;
-  onClear: () => void;
 }
 
 const NameKey = memo(({ char, onPress }: { char: string; onPress: (c: string) => void }) => {
@@ -65,7 +64,7 @@ function NameAction({
   );
 }
 
-export function NameKeyboard({ onKey, onBackspace, onClear }: NameKeyboardProps) {
+export function NameKeyboard({ onKey, onBackspace }: NameKeyboardProps) {
   const { focusKey, ref } = useFocusable({
     focusKey: "zone-name-keyboard",
     saveLastFocusedChild: true,
@@ -97,7 +96,6 @@ export function NameKeyboard({ onKey, onBackspace, onClear }: NameKeyboardProps)
             }
           />
         </div>
-        <NameAction label="BORRAR" focusKey="namekey-clear" onPress={onClear} className={styles.clearBtn} />
       </div>
     </FocusContext.Provider>
   );

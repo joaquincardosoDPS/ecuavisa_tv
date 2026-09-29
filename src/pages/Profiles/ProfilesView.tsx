@@ -4,6 +4,7 @@ import { FocusContext, setFocus, useFocusable } from "@noriginmedia/norigin-spat
 import { useProfilesList } from "@/hooks/profiles/useProfilesList";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import iconEdit from "@/assets/img/icons/iconos-edit.svg";
 import Button from "@/components/ui/Button";
@@ -139,6 +140,8 @@ function ProfilesView() {
     autoRestoreFocus: true,
   });
 
+  const { modal: exitModal } = useExitOnBack({ disabled: isLoading });
+
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -235,6 +238,7 @@ function ProfilesView() {
 
         <LogoutButton onLogout={handleLogout} />
       </div>
+      {exitModal}
     </FocusContext.Provider>
   );
 }

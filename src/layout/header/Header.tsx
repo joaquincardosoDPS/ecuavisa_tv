@@ -87,18 +87,25 @@ function HeaderContent() {
 			</div>
 
 			<div className={styles.rightSlot}>
-				<button ref={avatarRef} className={[styles.avatarBtn, avatarFocused ? styles.focused : ""].join(" ")} onClick={goToProfile}>
-					{avatarUrl ? (
-						<img
-							src={avatarUrl}
-							alt={activeProfile?.name_perfil || "Avatar"}
-							className={styles.avatarImg}
-							draggable={false}
-							decoding="async"
-						/>
-					) : (
-						<span className={styles.avatarInitial}>{avatarInitial}</span>
-					)}
+				<button
+					ref={avatarRef}
+					className={[styles.profileBtn, avatarFocused ? styles.focused : ""].join(" ")}
+					onClick={goToProfile}
+				>
+					<span className={styles.profileLabel}>Mi perfil</span>
+					<span className={styles.avatarBox}>
+						{avatarUrl ? (
+							<img
+								src={avatarUrl}
+								alt={activeProfile?.name_perfil || "Avatar"}
+								className={styles.avatarImg}
+								draggable={false}
+								decoding="async"
+							/>
+						) : (
+							<span className={styles.avatarInitial}>{avatarInitial}</span>
+						)}
+					</span>
 				</button>
 			</div>
 		</nav>

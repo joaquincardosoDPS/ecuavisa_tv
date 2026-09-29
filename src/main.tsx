@@ -9,7 +9,7 @@ import { exposePlatformInfo, registerTVKeys } from './utils/platform';
 
 init({
   // El modo debug de la librería imprime un log por cada pulsación del D-Pad: silenciado siempre
-  debug: true,
+  debug: false,
   visualDebug: false
 });
 

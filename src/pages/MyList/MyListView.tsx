@@ -10,6 +10,7 @@ import { TabSelector } from "./components/TabSelector";
 import { HistoryGrid } from "./components/HistoryGrid";
 import EmptyList from "./components/EmptyList";
 import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import { getCurrentFocusKey, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./MyListView.module.css";
@@ -86,6 +87,8 @@ function MyListView() {
 		setFocus(`program-grid-item-${lastItem.id}`);
 	}, [favHasNext, favFetching, favorites]);
 
+	const { modal: exitModal } = useExitOnBack({ disabled: !isAuthenticated });
+
 	return (
 		<TVScrollProvider>
 			<div className={styles.pageContainer}>
@@ -121,6 +124,7 @@ function MyListView() {
 						<SetInitialFocus tab={activeTab} favoritesEmpty={activeTab === "favorites" && (!favorites || favorites.length === 0)} historyEmpty={activeTab === "history" && (!historyItems || historyItems.length === 0)} favoritesFirstKey={favoritesFirstKey} historyFirstKey={historyFirstKey} />
 					)}
 				</MyListScrollWrapper>
+				{exitModal}
 			</div>
 		</TVScrollProvider>
 	);

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
-import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { FocusContext, useFocusable, setFocus, doesFocusableExist } from "@noriginmedia/norigin-spatial-navigation";
 import { useHlsStream } from "@/hooks/player/useHlsStream";
 import { usePlayerKeyboard } from "@/hooks/player/usePlayerKeyboard";
 import { useUIVisibility } from "@/hooks/player/useUIVisibility";
@@ -62,7 +62,6 @@ const VideoPlayerComponent = ({
     vodSlug,
     userToken,
     userProfile,
-    onRestartChapter,
     onNextChapter,
     hasNextChapter = false,
     midrollCuepoints = [],
@@ -106,9 +105,17 @@ const VideoPlayerComponent = ({
         preventHide: isSidebarOpen || forceControlsVisible || lockedEpisodeKey !== null,
     });
 
+    // `setFocus` aborta en silencio si la llave ya no existe (p. ej. el item del
+    // panel se desmontó al cerrarse), dejando el foco huérfano en el nodo del
+    // modal que acaba de desaparecer. Se valida antes y se cae al botón de episodios.
     const closeLockedEpisodeModal = useCallback(() => {
         setLockedEpisodeKey((key) => {
-            if (key) setTimeout(() => setFocus(`PLAYER-EPISODE-${key}`), 120);
+            if (key) {
+                setTimeout(() => {
+                    const episodeKey = `PLAYER-EPISODE-${key}`;
+                    setFocus(doesFocusableExist(episodeKey) ? episodeKey : "PLAYER-BTN-EPISODES");
+                }, 120);
+            }
             return null;
         });
     }, []);
@@ -420,21 +427,11 @@ const VideoPlayerComponent = ({
         [duration],
     );
 
-    const handleFullscreen = useCallback(() => {
-        const container = videoRef.current?.closest(
-            ".video-player-container",
-        ) as HTMLElement | null;
-        if (!container) return;
-
-        if (document.fullscreenElement) {
-            document.exitFullscreen();
-        } else {
-            container.requestFullscreen().catch(() => { /* noop */ });
-        }
-    }, []);
-
     // Episodios para el sidebar (ProgramChapter[])
     const lockedKeys = useMemo(() => new Set(lockedEpisodes), [lockedEpisodes]);
+
+    // La key del programa solo viaja en el payload de los capítulos.
+    const programKey = episodes.find((ep) => ep.key_program)?.key_program ?? null;
 
     const programChapters = useMemo(
         () => episodes.map((ch) => toProgramChapter(ch, lockedKeys)),
@@ -518,11 +515,9 @@ const VideoPlayerComponent = ({
                             onSkip={handleSkip}
                             onVolumeChange={handleVolumeChange}
                             onMuteToggle={handleMuteToggle}
-                            onFullscreen={handleFullscreen}
                             onEpisodeSelect={handleEpisodeSelect}
                             onHideControls={() => setIsUIVisible(false)}
                             onSidebarVisibilityChange={setIsSidebarOpen}
-                            onRestartChapter={onRestartChapter}
                             onNextChapter={onNextChapter}
                             hasNextChapter={hasNextChapter}
                             chaptersPanelOpen={isSidebarOpen}
@@ -539,7 +534,7 @@ const VideoPlayerComponent = ({
                     </div>
                 )}
 
-                <RestrictionModal isOpen={lockedEpisodeKey !== null} onClose={closeLockedEpisodeModal} />
+                <RestrictionModal isOpen={lockedEpisodeKey !== null} onClose={closeLockedEpisodeModal} programKey={programKey} />
             </div>
         </FocusContext.Provider>
     );

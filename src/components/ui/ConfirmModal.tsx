@@ -1,7 +1,6 @@
 ﻿import { useEffect } from "react";
 import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import Modal from "./Modal";
-import Button from "./Button";
 import { isInputAction } from "@/utils/keyCodes";
 import styles from "./ConfirmModal.module.css";
 
@@ -82,27 +81,26 @@ function ConfirmModal({
   }, [isOpen, onClose]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className={styles.body}>
-        <p className={styles.message}>{message}</p>
-        <div className={styles.actions}>
-          <div ref={cancelRef} className={styles.btnWrap}>
-            <Button variant="tertiary" onClick={onClose} className={styles.btnFlex} focused={cancelFocused}>
-              {cancelLabel}
-            </Button>
-          </div>
-          <div ref={confirmRef} className={styles.btnWrap}>
-            <Button
-              variant="secondary"
-              onClick={onConfirm}
-              disabled={isLoading}
-              className={styles.btnFlex}
-              focused={confirmFocused}
-            >
-              {isLoading ? loadingLabel : confirmLabel}
-            </Button>
-          </div>
-        </div>
+    <Modal isOpen={isOpen} onClose={onClose} panelClassName={styles.panel}>
+      <p className={styles.message}>{message}</p>
+      <div className={styles.actions}>
+        <button
+          ref={cancelRef}
+          type="button"
+          onClick={onClose}
+          className={[styles.actionBtn, styles.cancelBtn, cancelFocused ? styles.focused : ""].join(" ")}
+        >
+          {cancelLabel}
+        </button>
+        <button
+          ref={confirmRef}
+          type="button"
+          onClick={onConfirm}
+          disabled={isLoading}
+          className={[styles.actionBtn, styles.confirmBtn, confirmFocused ? styles.focused : ""].join(" ")}
+        >
+          {isLoading ? loadingLabel : confirmLabel}
+        </button>
       </div>
     </Modal>
   );

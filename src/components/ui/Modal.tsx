@@ -5,9 +5,11 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  /** Clase extra para el panel: permite diseños propios sin duplicar el overlay. */
+  panelClassName?: string;
 }
 
-function Modal({ isOpen, onClose, children }: ModalProps) {
+function Modal({ isOpen, onClose, children, panelClassName }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ function Modal({ isOpen, onClose, children }: ModalProps) {
         if (e.target === overlayRef.current) onClose();
       }}
     >
-      <div className={styles.panel}>{children}</div>
+      <div className={[styles.panel, panelClassName].filter(Boolean).join(" ")}>{children}</div>
     </div>
   );
 }

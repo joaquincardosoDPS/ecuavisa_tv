@@ -128,11 +128,6 @@ function EditProfileView() {
     setName(name.slice(0, -1));
   };
 
-  const clearName = () => {
-    if (isSubmitting) return;
-    setName("");
-  };
-
   const canDelete = !isCreateMode && !isDefaultProfile;
   const title = isCreateMode ? "Crear perfil" : "Editar mi perfil";
 
@@ -176,7 +171,6 @@ function EditProfileView() {
             <NameKeyboard
               onKey={typeChar}
               onBackspace={removeChar}
-              onClear={clearName}
             />
             {submitError && <p className={styles.errorText}>{submitError}</p>}
             {submitSuccess && (

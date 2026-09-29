@@ -1,6 +1,6 @@
-import { useMemo, useEffect, useCallback } from "react";
+import { useMemo, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
+import { FocusContext, useFocusable, setFocus, doesFocusableExist } from "@noriginmedia/norigin-spatial-navigation";
 import { VideoPlayer, type Chapter as VideoPlayerChapter } from "@/components/VideoPlayer";
 import { usePlayerEpisode } from "@/hooks/player/usePlayerEpisode";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
@@ -19,19 +19,53 @@ function toSlug(text: string): string {
 
 function PlayerView() {
   const navigate = useNavigate();
-  const { loading, error, restricted, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes, programRestriction } = usePlayerEpisode();
+  const { loading, error, restricted, currentKey, episodeTitle, programTitle, vodSlug, chapterImage, initialSeconds, nextChapter, isShrunk, remainingSeconds, expandPlayer, handleTimeUpdate, token, activeProfile, playNext, goBack, goToEpisodes, program, programKey, segment, chapterTitle, chapterNumber, seasonNumber, m3u8, vastUrl, vastUrls, midrollCuepoints, postrollVastUrls, episodes } = usePlayerEpisode();
   useDocumentTitle(episodeTitle);
   const { trackPage } = useAnalytics();
   const { hasPurchased } = usePurchasedPrograms();
 
-  // Capítulos del panel sin acceso: heredan la restricción del programa y hace
-  // falta la compra (PPV). Misma regla que el gate de reproducción.
+  // Capítulos del panel sin acceso: la restricción del capítulo manda (la del
+  // programa solo etiqueta el programa de pago) y hace falta la compra (PPV).
   const lockedEpisodes = useMemo(() => {
     if (hasPurchased(program || programKey)) return [];
     return episodes
-      .filter((ep) => isContentRestricted(ep.restriction) || isContentRestricted(programRestriction))
+      .filter((ep) => isContentRestricted(ep.restriction))
       .map((ep) => ep.key);
-  }, [hasPurchased, program, programKey, episodes, programRestriction]);
+  }, [hasPurchased, program, programKey, episodes]);
+
+  // El capítulo siguiente puede no estar en la lista cargada: se evalúa su
+  // propia restricción para no ofrecerlo sin acceso.
+  const nextChapterLocked = useMemo(() => {
+    if (!nextChapter) return false;
+    return !hasPurchased(program || programKey) && isContentRestricted(nextChapter.restriction);
+  }, [nextChapter, hasPurchased, program, programKey]);
+
+  const [showNextChapterPaywall, setShowNextChapterPaywall] = useState(false);
+
+  const handleNextChapter = useCallback(() => {
+    if (nextChapterLocked) {
+      setShowNextChapterPaywall(true);
+      return;
+    }
+    playNext();
+  }, [nextChapterLocked, playNext]);
+
+  const closeNextChapterPaywall = useCallback(() => {
+    setShowNextChapterPaywall(false);
+    setTimeout(() => {
+      if (doesFocusableExist("PLAYER-BTN-CHAPTER-NEXT")) setFocus("PLAYER-BTN-CHAPTER-NEXT");
+    }, 150);
+  }, []);
+
+  // El reproductor captura Back a nivel window: con el modal de pago abierto
+  // debe cerrarlo en vez de salir del player.
+  const handleBack = useCallback(() => {
+    if (showNextChapterPaywall) {
+      closeNextChapterPaywall();
+      return;
+    }
+    goBack();
+  }, [showNextChapterPaywall, closeNextChapterPaywall, goBack]);
 
   const analyticsPath = useMemo(() => {
     if (!programKey || !chapterTitle) return null;
@@ -100,7 +134,7 @@ function PlayerView() {
   if (restricted) {
     return (
       <div className={styles.playerContainer}>
-        <RestrictionModal isOpen onClose={goBack} />
+        <RestrictionModal isOpen onClose={goBack} programKey={programKey || program} />
       </div>
     );
   }
@@ -117,7 +151,7 @@ function PlayerView() {
           vastUrl={vastUrl}
           vastUrls={vastUrls}
           autoplay
-          onBack={goBack}
+          onBack={handleBack}
           pipMode={isShrunk}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}
@@ -131,6 +165,15 @@ function PlayerView() {
           lockedEpisodes={lockedEpisodes}
           midrollCuepoints={midrollCuepoints}
           postrollVastUrls={postrollVastUrls}
+          hasNextChapter={Boolean(nextChapter)}
+          onNextChapter={handleNextChapter}
+          forceControlsVisible={showNextChapterPaywall}
+        />
+
+        <RestrictionModal
+          isOpen={showNextChapterPaywall}
+          onClose={closeNextChapterPaywall}
+          programKey={programKey || program}
         />
 
         {/* Pantalla de fin de episodio (background + info) — se renderiza

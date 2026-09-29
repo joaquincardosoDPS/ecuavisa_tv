@@ -110,7 +110,6 @@ interface PlayerControlsProps {
   onSkip?: (seconds: number) => void;
   onVolumeChange?: (volume: number) => void;
   onMuteToggle?: () => void;
-  onFullscreen?: () => void;
 
   onEpisodeSelect?: (episode: ProgramChapter) => void;
   onHideControls?: () => void;
@@ -118,7 +117,6 @@ interface PlayerControlsProps {
   /** Estado controlado del panel de capítulos (lo controla VideoPlayer para poder cerrarlo con Back) */
   chaptersPanelOpen?: boolean;
 
-  onRestartChapter?: () => void;
   onNextChapter?: () => void;
   hasNextChapter?: boolean;
   adCuepoints?: { timeSeconds: number; vastUrls: string[] }[];
@@ -142,12 +140,10 @@ const PlayerControlsComponent = ({
   onSkip,
   onVolumeChange,
   onMuteToggle,
-  onFullscreen,
   onEpisodeSelect,
   onHideControls,
   onSidebarVisibilityChange,
   chaptersPanelOpen = false,
-  onRestartChapter,
   onNextChapter,
   hasNextChapter = false,
   adCuepoints,
@@ -203,8 +199,6 @@ const PlayerControlsComponent = ({
             onSkip={onSkip}
             onVolumeChange={onVolumeChange}
             onMuteToggle={onMuteToggle}
-            onFullscreen={onFullscreen}
-            onRestartChapter={onRestartChapter}
             onNextChapter={onNextChapter}
             onSeeAllChapters={() => onSidebarVisibilityChange?.(true)}
             hasNextChapter={hasNextChapter}
@@ -262,6 +256,12 @@ const PlayerControlsComponent = ({
           visible={chaptersPanelOpen}
           onClose={closeChaptersPanel}
           onEpisodeSelect={(episode) => {
+            // Un capítulo bloqueado no navega: se abre el modal de compra y el
+            // panel debe seguir montado para poder devolverle el foco al cerrarlo.
+            if (episode.locked) {
+              onEpisodeSelect?.(episode);
+              return;
+            }
             onSidebarVisibilityChange?.(false);
             if (episode.key === currentEpisodeKey) {
               if (onHideControls) onHideControls();

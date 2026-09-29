@@ -1,0 +1,1 @@
+function t(t){return null!=t&&"1"===String(t)}function n(t){return"boolean"==typeof t?t:"number"==typeof t?1===t:"string"==typeof t&&("1"===t||"true"===t.toLowerCase())}export{n,t};

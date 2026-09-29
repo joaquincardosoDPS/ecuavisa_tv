@@ -26,7 +26,7 @@ const VolumeControlComponent = ({
         return false;
       }
       if (direction === "right") {
-        setFocus("PLAYER-BTN-FULLSCREEN");
+        // El volumen es el último control del seekbar: no hay destino a la derecha.
         return false;
       }
       if (direction === "up") {

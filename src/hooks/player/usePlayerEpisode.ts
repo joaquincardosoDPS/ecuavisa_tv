@@ -54,8 +54,6 @@ export function usePlayerEpisode() {
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterNumber, setChapterNumber] = useState<number | null>(null);
   const [seasonNumber, setSeasonNumber] = useState<number | null>(null);
-  /** Restricción del programa: la heredan todos sus capítulos. */
-  const [programRestriction, setProgramRestriction] = useState<string | number | null>(null);
   const [initialSeconds, setInitialSeconds] = useState<number | undefined>(
     undefined,
   );
@@ -201,9 +199,7 @@ export function usePlayerEpisode() {
         // equivalente al flujo legacy de getProtectedVideoUrl.
         let finalM3u8 = appendPlatformParam(chapterData.m3u8);
         let locked = false;
-        const isProtected =
-          isContentRestricted(chapterData.restriction) ||
-          isContentRestricted(programDetail?.restriction);
+        const isProtected = isContentRestricted(chapterData.restriction);
 
         // Capítulo protegido (PPV): además de la suscripción, el programa debe
         // estar comprado. Lo decide el endpoint ppv; si el slug no está, no se
@@ -271,7 +267,6 @@ export function usePlayerEpisode() {
           setVodSlug(chapterData.slug);
           setChapterImage(chapterData.image_land?.big || "");
           setProgramKey(chapterData.key_program || "");
-          setProgramRestriction(programDetail?.restriction ?? null);
           setChapterTitle(chapterData.title || "");
           setChapterNumber(chapterData.chapter ?? null);
           setSeasonNumber(chapterData.season ?? null);
@@ -446,7 +441,6 @@ export function usePlayerEpisode() {
 
     // Paywall de contenido protegido
     restricted,
-    programRestriction,
 
     // Navegación
     playNext,

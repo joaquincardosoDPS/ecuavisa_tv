@@ -5,10 +5,14 @@ import { useQuery } from '@tanstack/react-query';
 import { profileService } from '@/services/profileService';
 import { FullScreenSpinner } from '@/components/ui/FullScreenSpinner';
 
+/** Código del API para "Sesión no encontrada". */
+const SESSION_NOT_FOUND_CODE = 202;
+
 function ProtectedRoute({ children }: { children?: React.ReactNode }) {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const activeProfile = useAuthStore((state) => state.activeProfile);
     const setActiveProfile = useAuthStore((state) => state.setActiveProfile);
+    const logout = useAuthStore((state) => state.logout);
     const token = useAuthStore((state) => state.token);
     const location = useLocation();
 
@@ -19,6 +23,12 @@ function ProtectedRoute({ children }: { children?: React.ReactNode }) {
         queryKey: ['profiles', token],
         queryFn: async () => {
             const response = await profileService.getAll(token!);
+            // Único cierre automático de sesión: un endpoint autenticado confirma
+            // que el token ya no sirve. Un fallo de red no desconecta al usuario.
+            if (response.status === 'error' && response.code === SESSION_NOT_FOUND_CODE) {
+                logout();
+                return [];
+            }
             return response.data || [];
         },
         enabled: !!shouldFetchProfiles,

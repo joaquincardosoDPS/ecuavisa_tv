@@ -1,13 +1,9 @@
 import React, { useEffect } from "react";
 import { useFocusable, setFocus, getCurrentFocusKey } from "@noriginmedia/norigin-spatial-navigation";
-import iconoRewindRaw from "@/assets/img/icons/iconos-rewind.svg?raw";
 import iconoNextRaw from "@/assets/img/icons/iconos-next.svg?raw";
 import styles from "./ChapterButton.module.css";
 
-type ChapterAction = "restart" | "next";
-
 interface ChapterButtonProps {
-  action: ChapterAction;
   onClick?: () => void;
   disabled?: boolean;
 }
@@ -18,14 +14,13 @@ const prepareSvg = (raw: string, size: number) =>
     .replace(/height="[^"]*"/, `height="${size}"`)
     .replace(/fill="white"/g, 'fill="currentColor"');
 
+/** Botón "Siguiente capítulo" del seekbar. */
 const ChapterButtonComponent = ({
-  action,
   onClick,
   disabled = false,
 }: ChapterButtonProps) => {
-  const isNext = action === "next";
-  const label = isNext ? "Siguiente capítulo" : "Reiniciar capítulo";
-  const focusKey = `PLAYER-BTN-CHAPTER-${isNext ? "NEXT" : "RESTART"}`;
+  const label = "Siguiente capítulo";
+  const focusKey = "PLAYER-BTN-CHAPTER-NEXT";
 
   const { ref, focused } = useFocusable({
     focusKey,
@@ -43,17 +38,11 @@ const ChapterButtonComponent = ({
         return false;
       }
       if (direction === "left") {
-        if (isNext) {
-          setFocus("PLAYER-BTN-SKIP-FWD");
-        }
+        setFocus("PLAYER-BTN-SKIP-FWD");
         return false;
       }
       if (direction === "right") {
-        if (isNext) {
-          setFocus("PLAYER-BTN-EPISODES");
-        } else {
-          setFocus("PLAYER-BTN-SKIP-REW");
-        }
+        setFocus("PLAYER-BTN-EPISODES");
         return false;
       }
       return true;
@@ -64,9 +53,9 @@ const ChapterButtonComponent = ({
   // el nodo queda como foco "muerto" (focusable: false sin foco visual).
   useEffect(() => {
     if (disabled && getCurrentFocusKey() === focusKey) {
-      setFocus(isNext ? "PLAYER-BTN-EPISODES" : "PLAYER-BTN-SKIP-REW");
+      setFocus("PLAYER-BTN-EPISODES");
     }
-  }, [disabled, focusKey, isNext]);
+  }, [disabled, focusKey]);
 
   return (
     <button
@@ -89,7 +78,7 @@ const ChapterButtonComponent = ({
       <span
         className={styles.iconSpan}
         dangerouslySetInnerHTML={{
-          __html: prepareSvg(isNext ? iconoNextRaw : iconoRewindRaw, 28),
+          __html: prepareSvg(iconoNextRaw, 28),
         }}
       />
     </button>

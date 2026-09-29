@@ -13,7 +13,7 @@ interface ExitModalProps {
   onCancel: () => void;
 }
 
-function ExitModal({ isOpen, onCancel }: ExitModalProps) {
+function ExitModalContent({ onCancel }: { onCancel: () => void }) {
   const { ref: cancelRef, focused: cancelFocused } = useFocusable({
     focusKey: CANCEL_KEY,
     isFocusBoundary: true,
@@ -42,8 +42,6 @@ function ExitModal({ isOpen, onCancel }: ExitModalProps) {
   });
 
   useEffect(() => {
-    if (!isOpen) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isInputAction(e, "Back")) {
         e.preventDefault();
@@ -68,9 +66,7 @@ function ExitModal({ isOpen, onCancel }: ExitModalProps) {
       document.body.style.overflow = "";
       clearTimeout(t);
     };
-  }, [isOpen, onCancel]);
-
-  if (!isOpen) return null;
+  }, [onCancel]);
 
   return (
     <div
@@ -99,6 +95,16 @@ function ExitModal({ isOpen, onCancel }: ExitModalProps) {
       </div>
     </div>
   );
+}
+
+/**
+ * Cartel de confirmación al salir de la app. El contenido se monta solo cuando
+ * está abierto: si los focusables existieran cerrados, quedarían registrados en
+ * Norigin sin nodo y robarían el foco en la navegación geométrica.
+ */
+function ExitModal({ isOpen, onCancel }: ExitModalProps) {
+  if (!isOpen) return null;
+  return <ExitModalContent onCancel={onCancel} />;
 }
 
 export default ExitModal;

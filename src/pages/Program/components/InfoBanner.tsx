@@ -3,7 +3,6 @@ import type { Chapter, Program } from "@/interfaces/catalog.interface";
 import { useFavorite } from "@/hooks/mylist/useFavorite";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { useContinueWatching } from "@/hooks/program/useContinueWatching";
-import { usePurchasedPrograms } from "@/hooks/program/usePurchasedPrograms";
 import { useNavigate } from "react-router-dom";
 //import { BackButton } from "@/components/ui/BackButton";
 import HeartIcon from "@/components/icons/HeartIcon";
@@ -11,7 +10,6 @@ import { PlayButton } from "@/components/icons/play-button";
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useSpatialFocus } from "@/hooks/tv/useSpatialFocus";
 import { useEffect } from "react";
-import { isContentRestricted } from "@/utils/restriction";
 import styles from "../Program.module.css";
 
 interface InfoBannerProps {
@@ -57,11 +55,7 @@ function InfoBanner({ program, firstChapter, badge, schedule }: InfoBannerProps)
   const navigate = useNavigate();
   const { isFavorited, isEnabled, toggleFavorite } = useFavorite(program.key);
   const { item: continueWatchingItem } = useContinueWatching(program.key);
-  const { hasPurchased } = usePurchasedPrograms();
   const firstSegment = program.segments?.[0];
-  // Un programa de pago (restriction=1) solo muestra el botón si hay suscripción
-  // activa Y el programa está comprado (PPV); hasPurchased ya exige la suscripción.
-  const showPlayButton = !isContentRestricted(program.restriction) || hasPurchased(program.key);
 
   const playFocusKey = `program-play-${program.key}`;
   const favFocusKey = `program-fav-${program.key}`;
@@ -87,13 +81,13 @@ function InfoBanner({ program, firstChapter, badge, schedule }: InfoBannerProps)
     onEnterPress: handleFavorite,
   });
 
-  // Foco inicial: si el botón de reproducir está oculto, apunta al favorito.
+  // Foco inicial en "Ver ahora".
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setFocus(showPlayButton ? playFocusKey : favFocusKey);
+      setFocus(playFocusKey);
     }, 150);
     return () => clearTimeout(timeout);
-  }, [playFocusKey, favFocusKey, showPlayButton]);
+  }, [playFocusKey]);
 
   const logoImg = program?.image_logo?.big;
 
@@ -116,13 +110,11 @@ function InfoBanner({ program, firstChapter, badge, schedule }: InfoBannerProps)
         <p className={styles.programDesc}>{program.description_short}</p>
         {schedule && <p className={styles.programSchedule}>{schedule}</p>}
         <div className={styles.actionsRow}>
-          {showPlayButton && (
-            <PlayActionButton
-              focusKey={playFocusKey}
-              onPress={handlePlay}
-              label={continueWatchingItem ? "Reanudar" : "Ver ahora"}
-            />
-          )}
+          <PlayActionButton
+            focusKey={playFocusKey}
+            onPress={handlePlay}
+            label={continueWatchingItem ? "Reanudar" : "Ver ahora"}
+          />
           <div ref={favRef} tabIndex={0} className={favFocused ? styles.focused : undefined}>
             <Button
               variant="primary"

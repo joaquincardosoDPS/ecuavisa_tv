@@ -8,6 +8,7 @@ import { useImagePreloader } from "@/hooks/shared/useImagePreloader";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
 import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import { useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
 import styles from "./ProgramsView.module.css";
 
@@ -69,6 +70,8 @@ function ProgramsView() {
     }
   }, [activeProgram, defaultCategories, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const { modal: exitModal } = useExitOnBack({ disabled: isLoading || !imagesReady });
+
   if (isLoading || !imagesReady) return <FullScreenSpinner />;
 
   return (
@@ -90,6 +93,7 @@ function ProgramsView() {
               )}
             </div>
           </ProgramsScrollWrapper>
+          {exitModal}
         </div>
       </TVScrollProvider>
     </FocusContext.Provider>

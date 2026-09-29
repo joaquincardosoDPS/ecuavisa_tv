@@ -1,33 +1,62 @@
-﻿.body {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 21.875rem;
-}
-
-.body > p {
-    margin-bottom: 1.25rem;
+﻿/* Doble clase para ganarle al `.panel` base de Modal.module.css sin depender
+   del orden en que se inyectan las hojas. */
+.panel.panel {
+    background-color: rgba(var(--clr-secondary-button-rgb), 0.45);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(var(--clr-primary-title-rgb), 0.12);
+    border-radius: 2rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45);
+    padding: 2.5rem 2rem 2rem;
 }
 
 .message {
     color: var(--clr-primary-title);
+    font-size: 1.5rem;
+    font-weight: bold;
     text-align: center;
+    margin: 0 0 2rem;
 }
 
 .actions {
     display: flex;
-    width: 100%;
-    margin-top: 0.5rem;
+    gap: 1rem;
 }
 
-.actions > * + * {
-    margin-left: 1rem;
-}
-
-.btnWrap {
+.actionBtn {
     flex: 1;
-    display: flex;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 9999px;
+    font-family: var(--font-family-button);
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
 }
 
-.btnFlex { flex: 1; text-transform: uppercase; }
+.actionBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cancelBtn {
+    background-color: var(--clr-primary);
+    color: var(--clr-primary-title);
+}
+
+.confirmBtn {
+    /* Translúcido para que quede más claro que el panel, sobre el que se apoya. */
+    background-color: rgba(var(--clr-secondary-button-rgb), 0.7);
+    color: var(--clr-primary-title);
+}
+
+.cancelBtn:hover:not(:disabled),
+.cancelBtn.focused:not(:disabled),
+.confirmBtn:hover:not(:disabled),
+.confirmBtn.focused:not(:disabled) {
+    transform: scale(1.03);
+    box-shadow: 0 0 24px 0 var(--foc-primary);
+}

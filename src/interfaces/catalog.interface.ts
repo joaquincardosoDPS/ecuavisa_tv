@@ -54,6 +54,11 @@ export interface Program {
     actors?: string;
     skip_view?: boolean;
     name_category: string;
+    /**
+     * El detalle (`programs/get`) devuelve la categoría como objeto (`name_category`
+     * solo viene en las listas) y `programs/all` filtra por su `slug`, no por nombre.
+     */
+    category?: { slug: string; name: string } | null;
     restriction?: string | number;
 
 }

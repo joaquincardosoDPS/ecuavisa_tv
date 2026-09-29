@@ -2,7 +2,6 @@ import React from "react";
 import iconoPlayRaw from "@/assets/img/icons/iconos-play.svg?raw";
 import iconoPauseRaw from "@/assets/img/icons/iconos-pause.svg?raw";
 import iconoVolumenRaw from "@/assets/img/icons/iconos-volumen.svg?raw";
-import iconoFullscreenRaw from "@/assets/img/icons/iconos-fullscreen.svg?raw";
 import styles from "./LiveControls.module.css";
 
 interface LiveControlsProps {
@@ -12,7 +11,6 @@ interface LiveControlsProps {
   onPlayPause?: () => void;
   onVolumeChange?: (volume: number) => void;
   onMuteToggle?: () => void;
-  onFullscreen?: () => void;
 }
 
 const ICON_SIZE = 30;
@@ -91,7 +89,6 @@ const LiveControlsComponent = ({
   onPlayPause,
   onVolumeChange,
   onMuteToggle,
-  onFullscreen,
 }: LiveControlsProps) => {
   return (
     <div className={styles.controlsContainer}
@@ -106,18 +103,13 @@ const LiveControlsComponent = ({
         <LiveBadge />
       </div>
 
-      {/* Derecha: Volumen + Fullscreen */}
+      {/* Derecha: Volumen */}
       <div className={styles.rightControls}>
         <VolumePopover
           volume={volume}
           muted={muted}
           onVolumeChange={onVolumeChange}
           onMuteToggle={onMuteToggle}
-        />
-        <LiveButton
-          onClick={onFullscreen}
-          title="Pantalla completa"
-          icon={iconoFullscreenRaw}
         />
       </div>
     </div>

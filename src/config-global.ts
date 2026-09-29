@@ -31,6 +31,9 @@ export const RUDO_DEVICE_VERIFY_URL = `${RUDO_BASE_USER}/device_verify`
 export const RUDO_DEVICE_PAIR_URL = `${RUDO_BASE_USER}/device_pair`
 // PPV - Programas comprados por el usuario
 export const RUDO_PPV_URL = `${RUDO_BASE_USER}/ppv`
+// PPV - Link de pago del programa (QR del modal de contenido de pago)
+export const RUDO_PPV_LINK_URL = `${RUDO_BASE_USER}/ppv_link`
+export const RUDO_PPV_LINK_CLIENT = 'ecuavisa'
 
 //export const RUDO_PLAYLIST_URL = `${RUDO_CDN_URL}/assets/${CLIENT}/playlists/static/playlist.json`;
 

@@ -69,6 +69,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
             set({ activeProfile: profile });
         },
 
+        /**
+         * Refresca los datos del usuario con la sesión guardada. NO cierra la
+         * sesión: `users/session` rechaza tokens de sesiones de TV que sí son
+         * válidos para el resto de la API, y un fallo de red al arrancar tampoco
+         * debe desconectar al usuario. La sesión solo se borra con `logout()`.
+         */
         validateSession: async () => {
             const { token } = get();
             if (!token) {
@@ -81,17 +87,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
             try {
                 const response = await authService.validateSession(token);
 
-                if (response.status === 'error') {
-                    get().logout();
-                    return;
-                }
+                if (response.status === 'error' || !response.user) return;
 
                 // Sesión válida: actualizar datos del usuario (puede haber cambios)
-                const user = { ...response.user, token: response.user?.token || token } as AuthUser;
+                const user = { ...response.user, token: response.user.token || token } as AuthUser;
                 localStorage.setItem('auth_user', JSON.stringify(user));
                 set({ user, token: user.token, isAuthenticated: true });
             } catch {
-                get().logout();
+                // Sin conexión: se conserva la sesión guardada
             } finally {
                 set({ isValidating: false });
             }

@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/authStore";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import styles from "./MyAccountView.module.css";
 
 function MyAccountView() {
   useDocumentTitle('Mi Cuenta');
   const navigate = useNavigate();
+  const { modal: exitModal } = useExitOnBack();
   const user = useAuthStore((s) => s.user);
   const activeProfile = useAuthStore((s) => s.activeProfile);
   const logout = useAuthStore((s) => s.logout);
@@ -40,6 +42,7 @@ function MyAccountView() {
           Cerrar sesión
         </button>
       </div>
+      {exitModal}
     </div>
   );
 }

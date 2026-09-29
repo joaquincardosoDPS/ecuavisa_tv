@@ -2,7 +2,10 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 2.5rem 6.25rem 3.5rem;
+  /* Contenido centrado verticalmente: antes quedaba pegado arriba. El padding
+     superior deja libre el header fijo (0.75rem + 5rem de alto). */
+  justify-content: center;
+  padding: 6rem 6.25rem 3.5rem;
   box-sizing: border-box;
 }
 
@@ -23,7 +26,6 @@
   line-height: 1.2;
   color: var(--clr-primary-title);
   margin: 0;
-  margin-top: 5rem;
 }
 
 .contentLayout {
@@ -128,6 +130,9 @@
 .profilesSection {
   display: flex;
   flex-direction: column;
+  /* Centrado dentro de su columna: los perfiles quedaban pegados al borde
+     izquierdo dejando medio lado derecho vacío. */
+  align-items: center;
   flex: 1;
 }
 

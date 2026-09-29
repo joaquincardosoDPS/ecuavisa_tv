@@ -3,7 +3,7 @@ import { SpatialNavigation, setFocus } from "@noriginmedia/norigin-spatial-navig
 import CardCarrousel from "@/components/ProgramCard/CardCarrousel";
 import CarrouselContainerHome from "@/pages/Home/components/CarrouselContainerHome";
 import { FullScreenSpinner } from "@/components/ui/FullScreenSpinner";
-import ExitModal from "@/components/ui/ExitModal";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import { useHomeData } from "@/hooks/home/useHomeData";
 import { useDocumentTitle } from "@/hooks/shared/useDocumentTitle";
 import Banner from "./components/Banner";
@@ -15,7 +15,6 @@ import { LivePlayer } from "@/components/LivePlayer/LivePlayer";
 import type { LiveSignal, EPGEvent } from "@/interfaces/catalog.interface";
 import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
 import { useNearViewport } from "@/hooks/tv/useNearViewport";
-import { isInputAction } from "@/utils/keyCodes";
 import styles from "./Home.module.css";
 
 function HomeScrollWrapper({ children }: { children: React.ReactNode }) {
@@ -51,35 +50,9 @@ function HomeView() {
 		setLiveSelection({ signal, event });
 	}, []);
 
-	const [showExitModal, setShowExitModal] = useState(false);
-	const lastFocusKeyRef = useRef<string | null>(null);
-
-	const closeExitModal = useCallback(() => {
-		setShowExitModal(false);
-		const lastKey = lastFocusKeyRef.current;
-		// El modal desmonta su propio foco al cerrar; restaurar el foco previo
-		// después del desmontaje para no competir con la limpieza de norigin.
-		setTimeout(() => {
-			if (lastKey && SpatialNavigation.doesFocusableExist(lastKey)) {
-				setFocus(lastKey);
-			} else {
-				setFocus("navbar-home");
-			}
-		}, 120);
-	}, []);
-
-	useEffect(() => {
-		const handleKey = (e: KeyboardEvent) => {
-			if (!isInputAction(e, "Back")) return;
-			if (isLoading || isError || showExitModal || liveSelection) return;
-			e.preventDefault();
-			e.stopPropagation();
-			lastFocusKeyRef.current = SpatialNavigation.getCurrentFocusKey();
-			setShowExitModal(true);
-		};
-		window.addEventListener("keydown", handleKey, true);
-		return () => window.removeEventListener("keydown", handleKey, true);
-	}, [isLoading, isError, showExitModal, liveSelection]);
+	const { modal: exitModal } = useExitOnBack({
+		disabled: isLoading || isError || Boolean(liveSelection),
+	});
 
 	useEffect(() => {
 		const el = sentinelRef.current;
@@ -155,7 +128,7 @@ function HomeView() {
 					/>
 				</div>
 			)}
-			<ExitModal isOpen={showExitModal} onCancel={closeExitModal} />
+			{exitModal}
 		</>
 	);
 }

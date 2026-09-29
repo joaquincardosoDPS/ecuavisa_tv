@@ -16,6 +16,8 @@ export interface AppConfig {
     background: string | null;
     color: string | null;
     "url-tv-vincular"?: string;
+    /** Página de pago mostrada en el modal de contenido de pago (el QR lleva el link del API). */
+    url_pago?: string;
     logo: string | null;
     base_ads: string;
     "android-version": string;

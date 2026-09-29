@@ -5,7 +5,6 @@ import { PlayPauseButton } from "./PlayPauseButton";
 import { ChapterButton } from "./ChapterButton";
 import { EpisodesButton } from "./EpisodesButton";
 import { VolumeControl } from "./VolumeControl";
-import { FullscreenButton } from "./FullscreenButton";
 import { LiveControls } from "./LiveControls";
 import styles from "./Seekbar.module.css";
 
@@ -24,8 +23,6 @@ interface SeekbarProps {
   onSkip?: (seconds: number) => void;
   onVolumeChange?: (volume: number) => void;
   onMuteToggle?: () => void;
-  onFullscreen?: () => void;
-  onRestartChapter?: () => void;
   onNextChapter?: () => void;
   onSeeAllChapters?: () => void;
   hasNextChapter?: boolean;
@@ -60,8 +57,6 @@ const SeekbarComponent = ({
   onSkip,
   onVolumeChange,
   onMuteToggle,
-  onFullscreen,
-  onRestartChapter,
   onNextChapter,
   onSeeAllChapters,
   hasNextChapter = false,
@@ -308,7 +303,6 @@ const SeekbarComponent = ({
           onPlayPause={onPlayPause}
           onVolumeChange={onVolumeChange}
           onMuteToggle={onMuteToggle}
-          onFullscreen={onFullscreen}
         />
       )}
 
@@ -323,11 +317,10 @@ const SeekbarComponent = ({
             </div>
 
             <div className={styles.centerControls}>
-              <ChapterButton action="restart" onClick={onRestartChapter} />
               <SkipButton seconds={-10} onClick={() => onSkip && onSkip(-10)} />
               <PlayPauseButton playing={playing} onClick={onPlayPause} />
               <SkipButton seconds={10} onClick={() => onSkip && onSkip(10)} hasNextChapter={hasNextChapter} />
-              <ChapterButton action="next" onClick={onNextChapter} disabled={!hasNextChapter} />
+              <ChapterButton onClick={onNextChapter} disabled={!hasNextChapter} />
               <EpisodesButton onClick={onSeeAllChapters} hasNextChapter={hasNextChapter} />
             </div>
 
@@ -336,7 +329,6 @@ const SeekbarComponent = ({
                 muted={muted}
                 onMuteToggle={onMuteToggle}
               />
-              <FullscreenButton onClick={onFullscreen} />
             </div>
           </div>
 

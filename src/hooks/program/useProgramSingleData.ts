@@ -46,7 +46,8 @@ export function useProgramSingleData(
       queryFn: () =>
         catalogService.searchPrograms({
           slug_exclude: program.key,
-          category: program.name_category,
+          // El filtro del API es el slug de la categoría; sin él devuelve todos los programas.
+          category: program.category?.slug,
         }),
       enabled: !!program.key,
     });

@@ -9,9 +9,34 @@ interface TVScrollActions {
   containerRef: RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * Respaldo para páginas sin TVScrollProvider (ej. detalle de programa, que
+ * scrollea de forma nativa): centra el nodo con el scroll del documento para
+ * que el D-Pad no deje el foco fuera de pantalla.
+ */
+function scrollNodeIntoView(node: HTMLElement, isBanner = false) {
+  if (isBanner) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const margin = 96;
+  const rect = node.getBoundingClientRect();
+  const isAbove = rect.top < margin;
+  const isBelow = rect.bottom > window.innerHeight - margin;
+  if (!isAbove && !isBelow) return;
+
+  const target = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+  window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+}
+
 // Acciones y valor separados: si `scrollY` viajara en el mismo contexto, cada
 // tarjeta suscrita (useCarouselFocus) se re-renderizaría en cada paso de scroll.
-const TVScrollActionsContext = createContext<TVScrollActions | undefined>(undefined);
+const TVScrollActionsContext = createContext<TVScrollActions>({
+  scrollToNode: scrollNodeIntoView,
+  resetScroll: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+  containerRef: { current: null },
+});
 const TVScrollYContext = createContext(0);
 
 /**
@@ -118,11 +143,7 @@ export function TVScrollProvider({ children, wheelEnabled = true }: { children: 
 
 /** Acciones estables: los consumidores no se re-renderizan al hacer scroll. */
 export function useTVScroll() {
-  const context = useContext(TVScrollActionsContext);
-  if (!context) {
-    throw new Error('useTVScroll must be used within a TVScrollProvider');
-  }
-  return context;
+  return useContext(TVScrollActionsContext);
 }
 
 /** Solo para el contenedor que aplica el transform de scroll. */

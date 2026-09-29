@@ -222,7 +222,14 @@
 }
 
 .logoImg {
-    height: 100%;
+    display: block;
+    width: auto;
+    height: auto;
+    /* El wrapper solo tiene max-* (altura indefinida): el límite real tiene que
+       estar en la imagen, o se pinta a su tamaño natural (ej. 1280x720) y tapa
+       todo el banner. */
+    max-width: 100%;
+    max-height: 15vw;
     object-fit: contain;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
 }

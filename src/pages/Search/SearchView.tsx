@@ -5,6 +5,7 @@ import { useSearchData } from "@/hooks/search/useSearchData";
 import { VirtualKeyboard } from "./components/VirtualKeyboard";
 import { setFocus, useFocusable, FocusContext } from "@noriginmedia/norigin-spatial-navigation";
 import { TVScrollProvider, useTVScroll, useTVScrollY } from "@/hooks/tv/useTVScroll";
+import { useExitOnBack } from "@/hooks/tv/useExitOnBack";
 import styles from "./SearchView.module.css";
 
 function SearchResultsScrollWrapper({ children }: { children: ReactNode }) {
@@ -26,6 +27,8 @@ function SearchViewContent() {
 		focusKey: "zone-search-page",
 		saveLastFocusedChild: true
 	});
+
+	const { modal: exitModal } = useExitOnBack({ disabled: isLoading });
 
 	useEffect(() => {
 		const handler = setTimeout(() => {
@@ -103,6 +106,7 @@ function SearchViewContent() {
 						<ProgramGrid programs={programs} isLoading={isLoading} isError={isError} loadingText="Buscando..." errorText="Error al buscar contenidos" fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} />
 					</SearchResultsScrollWrapper>
 				</div>
+				{exitModal}
 			</div>
 		</FocusContext.Provider>
 	);

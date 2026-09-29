@@ -2,9 +2,14 @@ import { useEffect } from "react";
 import { useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { QRCodeSVG } from "qrcode.react";
 import Button from "./Button";
+import { usePpvLink } from "@/hooks/program/usePpvLink";
+import { useConfigStore } from "@/features/config/useConfigStore";
 import styles from "./RestrictionModal.module.css";
 
 const CLOSE_KEY = "restriction-modal-close";
+
+/** Respaldo del QR y del texto cuando el API o la config no responden. */
+const DEFAULT_PAYMENT_URL = "https://www.ecuavisa.com";
 
 interface RestrictionModalContentProps {
   onClose: () => void;
@@ -89,28 +94,37 @@ interface RestrictionModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  /** Texto resaltado del panel (por defecto la página de pago de la config). */
   price?: string;
   message?: string;
-  /** URL que codifica el QR (página de pago). */
+  /** URL que codifica el QR (link de compra del API). */
   qrValue?: string;
+  /** Key del programa (key_program) con la que se pide la URL de pago al API. */
+  programKey?: string | null;
 }
 
 function RestrictionModal({
   isOpen,
   onClose,
   title = "Contenido de pago",
-  price = "https://www.ecuavisa.com",
+  price,
   message = "Entra a nuestra página de pago para acceder a este contenido",
-  qrValue = "https://www.ecuavisa.com",
+  qrValue,
+  programKey,
 }: RestrictionModalProps) {
+  // El QR apunta al link de compra del programa; el texto muestra la página de
+  // pago configurada por el cliente (`url_pago`), que es la misma para todos.
+  const { ppvLink } = usePpvLink(programKey, isOpen);
+  const configPaymentUrl = useConfigStore((s) => s.config?.url_pago);
+
   if (!isOpen) return null;
   return (
     <RestrictionModalContent
       onClose={onClose}
       title={title}
-      price={price}
+      price={price ?? configPaymentUrl ?? DEFAULT_PAYMENT_URL}
       message={message}
-      qrValue={qrValue}
+      qrValue={qrValue ?? ppvLink ?? DEFAULT_PAYMENT_URL}
     />
   );
 }

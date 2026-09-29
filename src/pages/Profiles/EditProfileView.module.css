@@ -10,10 +10,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
 }
 
 .headerText {
-  margin-left: 1.25rem;
+  text-align: center;
 }
 
 .pageTitle {
@@ -35,6 +36,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  /* Grupo avatar + teclado centrado en la página (antes: avatar al 30% y
+     teclado ocupando el resto, lo que dejaba todo pegado a la izquierda). */
+  justify-content: center;
+  gap: 7rem;
   width: 100%;
   margin-top: 2.5rem;
 }
@@ -44,7 +49,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 30%;
   flex-shrink: 0;
 }
 
@@ -80,7 +84,7 @@
   height: 2.75rem;
   margin-top: 1.25rem;
   border-radius: 0.75rem;
-  border: 2px solid rgba(var(--clr-secondary), 0.8);
+  border: 2px solid rgba(var(--clr-secondary-rgb), 0.8);
   background-color: var(--clr-primary-title);
   color: var(--clr-primary);
   cursor: pointer;
@@ -103,7 +107,8 @@
 .editorColumn {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: center;
+  flex-shrink: 0;
   min-width: 0;
 }
 

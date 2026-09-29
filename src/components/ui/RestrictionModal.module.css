@@ -1,7 +1,9 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  /* Por encima del chrome del player (panel de capítulos y top bar usan 2001),
+     que de otro modo tapa el modal al abrirse desde el panel de episodios. */
+  z-index: 3000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,6 +69,9 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: bold;
+  /* El link de pago llega con query params largos: debe partirse dentro del panel. */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .message {
