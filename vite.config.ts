@@ -3,9 +3,16 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import legacy from "@vitejs/plugin-legacy";
 
-export default defineConfig(() => {
+// Subcarpeta donde se publica la versión web en el servidor (url_base/ecuavisa-tv/).
+const WEB_BASE = "/ecuavisa-tv/";
+
+export default defineConfig(({ mode }) => {
   return {
-    base: "./",
+    // - mode "web" (npm run build:web): build para el servidor, servido desde
+    //   url_base/ecuavisa-tv/. BrowserRouter toma el basename de acá (BASE_URL).
+    // - resto (dev, build, build:webos/tizen/hisense): rutas relativas, necesarias
+    //   para las apps de TV que corren desde file://.
+    base: mode === "web" ? WEB_BASE : "./",
     plugins: [
       react(),
       legacy({
