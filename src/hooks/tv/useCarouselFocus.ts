@@ -1,6 +1,7 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { useTVScroll } from './useTVScroll';
 import type { EmblaCarouselType } from 'embla-carousel';
+import type { RefObject } from 'react';
 
 interface UseCarouselFocusProps {
   focusKey?: string;
@@ -11,6 +12,9 @@ interface UseCarouselFocusProps {
    *  para no saltar a otra sección. */
   totalItems?: number;
   emblaApi?: EmblaCarouselType;
+  /** Bloque que se centra al recibir foco, si el elemento enfocable es solo un
+   *  botón dentro de un bloque grande (ej. un evento de 50vh). */
+  scrollAnchor?: RefObject<HTMLElement | null>;
   onEnterPress?: () => void;
   onArrowPress?: (direction: string) => boolean;
   onFocus?: () => void;
@@ -22,6 +26,7 @@ export function useCarouselFocus({
   index,
   totalItems,
   emblaApi,
+  scrollAnchor,
   onEnterPress,
   onArrowPress,
   onFocus
@@ -32,8 +37,9 @@ export function useCarouselFocus({
     focusKey,
     onFocus: () => {
       // 1. Center vertically on the screen using our context
-      if (ref.current) {
-        scrollToNode(ref.current, isBanner);
+      const node = scrollAnchor?.current ?? ref.current;
+      if (node) {
+        scrollToNode(node, isBanner);
       }
       
       // 2. If it's a carousel item, scroll horizontally using embla

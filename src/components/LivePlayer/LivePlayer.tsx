@@ -35,6 +35,8 @@ const LIVE_HLS_CONFIG = {
   backBufferLength: 30,
   maxBufferLength: 30,
   maxMaxBufferLength: 60,
+  // Cues de metadata con las marcas ID3 (las usa el SDK de DAI)
+  enableID3MetadataCues: true,
 };
 
 /**
@@ -129,7 +131,6 @@ export function LivePlayer({
     isLive: true,
     hlsConfig: LIVE_HLS_CONFIG,
     xhrSetup,
-    onMetadata: daiStream.processMetadata,
   });
 
   const { isUIVisible, resetUIVisibility } = useUIVisibility({

@@ -47,7 +47,8 @@
 
 .cardImgVertical {
     height: 0;
-    padding-top: 177.78%;
+    /* 2:3 (ancho/alto), no 9:16 */
+    padding-top: 150%;
     border-radius: 0.75rem;
 }
 
@@ -396,7 +397,7 @@
 
 .viewMoreCardVertical {
     width: var(--card-w-vertical);
-    height: calc(var(--card-w-vertical) * 16 / 9);
+    height: calc(var(--card-w-vertical) * 3 / 2);
 }
 
 .viewMoreCardHorizontal {

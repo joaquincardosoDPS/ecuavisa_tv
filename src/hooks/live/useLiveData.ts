@@ -1,5 +1,6 @@
 import { catalogService } from '@/services/catalogService';
 import { useQuery } from '@tanstack/react-query';
+import { useGlobalEpg } from './useGlobalEpg';
 
 
 export const useLiveData = () => {
@@ -10,13 +11,7 @@ export const useLiveData = () => {
         staleTime: 1000 * 60 * 5,
     });
 
-    const epgQuery = useQuery({
-        queryKey: ['live', 'epg'],
-        queryFn: () => catalogService.getChannelList(),
-        staleTime: 1000 * 60 * 5,
-        refetchInterval: 1000 * 60 * 5,
-        refetchIntervalInBackground: false,
-    });
+    const epgQuery = useGlobalEpg();
 
     return {
         playlistPremium: playlistPremiumQuery.data?.data || [],

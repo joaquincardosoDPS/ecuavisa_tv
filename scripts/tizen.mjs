@@ -77,6 +77,11 @@ function requireTvIp(ip) {
     return ip.includes(':') ? ip : `${ip}:${SDB_PORT}`;
 }
 
+/** Separa "la TV no está en la red" (ningún servicio responde) de "sdb no conecta" (modo dev). */
+function respondsToPing(ip) {
+    return spawnSync('ping', ['-c', '1', '-W', '1', ip], { stdio: 'ignore' }).status === 0;
+}
+
 function capture(bin, args) {
     const result = spawnSync(bin, args, { encoding: 'utf8' });
     if (result.error) {
@@ -195,19 +200,31 @@ function resolvePassword(certPath, label, candidates) {
 const commands = {
     connect(args) {
         const target = requireTvIp(args[0] || process.env.TV_IP);
+        const [ip] = target.split(':');
         console.log(`\nℹ Conectando con la TV en ${target}…`);
+
+        const reachable = respondsToPing(ip);
         const output = capture(SDB, ['connect', target]);
         const devices = sdbDevices();
 
         if (!devices.some((device) => device.serial === target && device.state === 'device')) {
             showDevices(devices);
+            if (!reachable) {
+                die(
+                    `La TV no responde en la red (${ip} no contesta a ping).\n\n` +
+                        '  No es el script ni sdb: el equipo no está alcanzable desde este PC. Revisa:\n' +
+                        '   • que la TV esté ENCENDIDA (en standby profundo suele soltar la red),\n' +
+                        '   • su IP actual: Ajustes → General → Red → Estado de red (si cambió por DHCP, usa esa),\n' +
+                        `   • que esté en la misma red/VLAN que este PC (Wi-Fi con aislamiento de clientes la bloquea),\n` +
+                        '   • un `arp -a` o el listado DHCP del router para confirmar que la TV está conectada.',
+                );
+            }
             die(
                 `No se pudo conectar con la TV en ${target}.\n\n` +
                     `  Respuesta de sdb: ${output}\n\n` +
-                    '  Revisa que:\n' +
-                    '   • la TV y este PC estén en la misma red,\n' +
-                    '   • la TV esté encendida y con el modo desarrollador activo (Apps → 12345 → Developer mode ON → Host PC IP),\n' +
-                    '   • la TV se haya reiniciado después de activar el modo desarrollador.',
+                    '  La TV responde en la red, así que falta el lado del televisor:\n' +
+                    '   • modo desarrollador activo (Apps → 12345 → Developer mode ON → Host PC IP = IP de este PC),\n' +
+                    '   • la TV se haya reiniciado después de activarlo (el modo dev se aplica al reiniciar).',
             );
         }
 

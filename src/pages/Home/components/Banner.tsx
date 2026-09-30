@@ -87,12 +87,15 @@ function Banner({ slider }: BannerProps) {
 				    todas las portadas del banner al entrar al Home */}
 				{slider.map((program, i) => {
 					const shouldLoadImage = i === currentIndex || i === prevIndex || i === nextIndex;
+					const cover = program.image_slider?.big || program.image_land?.big || program.image_land?.default;
 					return (
 					<div
 						key={program.id}
 						className={styles.bannerSlide}
 						style={{
-							backgroundImage: shouldLoadImage ? `url(${program.image_slider?.big || program.image_land?.big || program.image_land?.default})` : undefined,
+							// Sin portada no se pinta `url(undefined)`: la TV gasta una petición
+							// condenada a 404 por cada slide sin imagen.
+							backgroundImage: shouldLoadImage && cover ? `url(${cover})` : undefined,
 							opacity: i === currentIndex ? 1 : 0,
 							zIndex: i === currentIndex ? 1 : 0,
 						}}

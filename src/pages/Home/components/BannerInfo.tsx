@@ -21,6 +21,11 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
   const eventData = isEvent ? (program as Event) : null;
   const eventStatus = isEvent && eventData ? getEventStatus(eventData) : null;
 
+  // Las variantes `small`/`medium` del CDN recortan a 16:9 y cortan los logos anchos
+  // (el de Cholito Forever es 1656x724): se prefieren las que conservan el arte completo.
+  const logo = program.image_logo?.big || program.image_logo?.default || program.image_logo?.normal
+    || program.image_logo?.medium || program.image_logo?.small;
+
   const handleClick = () => {
     if (isEvent && eventData) {
       if (eventData.skip_view && eventData.program_associated?.key) navigate(`/programas/${eventData.program_associated.key}`);
@@ -71,9 +76,9 @@ export function BannerInfo({ program, isBannerFocused }: BannerInfoProps) {
         </span>
       )}
       <div className={styles.infoMeta}>
-        {program.image_logo?.medium ? (
+        {logo ? (
           <div className={styles.logoWrap}>
-            <img src={program.image_logo.medium} alt={program.title} className={styles.logoImg} />
+            <img src={logo} alt={program.title} className={styles.logoImg} />
           </div>
         ) : (
           <h2 className={styles.infoTitle}>{program.title}</h2>

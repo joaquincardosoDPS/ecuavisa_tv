@@ -8,6 +8,7 @@ import { adsService, type AdBreakCuepoint } from "@/services/adsService";
 import { setSignedParams, unlockTokenService, type ProtectedToken } from "@/services/unlockTokenService";
 import { isContentRestricted, isSubscriptionActive } from "@/utils/restriction";
 import { fetchPurchasedPrograms, purchasedProgramsQueryKey } from "@/hooks/program/usePurchasedPrograms";
+import { fetchProgramDetail, programDetailQueryKey } from "@/hooks/program/useProgramDetail";
 import { getPlatformAnalytics } from "@/utils/platform";
 import type { Chapter } from "@/interfaces/catalog.interface";
 
@@ -161,9 +162,16 @@ export function usePlayerEpisode() {
         const seasonNum = parseInt(season, 10);
         const chapterNum = parseInt(chapter, 10);
 
-        // Obtener detalle del programa para saber si es single_episode
+        // Obtener detalle del programa para saber si es single_episode. Se reusa
+        // la caché de la página de programa (misma key) para no re-pedirlo al
+        // entrar al player ni al saltar entre capítulos del mismo programa.
         const programDetail = program
-          ? (await catalogService.getProgramDetail(program))?.data
+          ? (
+              await queryClient.ensureQueryData({
+                queryKey: programDetailQueryKey(program),
+                queryFn: () => fetchProgramDetail(program),
+              })
+            )?.data
           : null;
         const isNoSegments = programDetail?.single_episode === true;
 
@@ -321,7 +329,9 @@ export function usePlayerEpisode() {
           }
         }
 
-        // Lista de episodios (para el sidebar del player)
+        // Lista de episodios (panel del player). Se guarda también para resolver el
+        // capítulo siguiente sin otra petición.
+        let episodesList: Chapter[] = [];
         if (!cancelled && chapterData && !isNoSegments) {
           try {
             const chaptersRes = await catalogService.getChapters({
@@ -331,6 +341,7 @@ export function usePlayerEpisode() {
               limit: 50,
             });
             if (chaptersRes?.data) {
+              episodesList = chaptersRes.data;
               setEpisodes(chaptersRes.data);
             }
           } catch {
@@ -338,24 +349,32 @@ export function usePlayerEpisode() {
           }
         }
 
-        // Intentar cargar el siguiente capítulo (solo si tiene segmentos y next-cap > 0)
+        // Capítulo siguiente: sale de la lista ya cargada; si no está ahí
+        // (p. ej. salta de temporada) se pide al API.
         if (!cancelled && chapterData) {
           const nextCapNum = chapterData["next-cap"];
           if (!isNoSegments && nextCapNum > 0) {
-            try {
-              const nextRes = await catalogService.getChapterBySlug({
-                program,
-                segment,
-                season: seasonNum,
-                chapter: nextCapNum,
-              });
-              if (!cancelled && nextRes?.data?.key) {
-                setNextChapter(nextRes.data);
-              } else if (!cancelled) {
-                setNextChapter(null);
+            const fromList = episodesList.find(
+              (c) => c.chapter === nextCapNum && c.season === seasonNum,
+            );
+            if (fromList) {
+              setNextChapter(fromList);
+            } else {
+              try {
+                const nextRes = await catalogService.getChapterBySlug({
+                  program,
+                  segment,
+                  season: seasonNum,
+                  chapter: nextCapNum,
+                });
+                if (!cancelled && nextRes?.data?.key) {
+                  setNextChapter(nextRes.data);
+                } else if (!cancelled) {
+                  setNextChapter(null);
+                }
+              } catch {
+                if (!cancelled) setNextChapter(null);
               }
-            } catch {
-              if (!cancelled) setNextChapter(null);
             }
           } else {
             if (!cancelled) setNextChapter(null);

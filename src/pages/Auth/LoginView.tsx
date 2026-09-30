@@ -10,7 +10,13 @@ import styles from './LoginView.module.css';
 function LoginView() {
   const navigate = useNavigate();
   const tvUrl = useConfigStore((s) => s.config?.['url-tv-vincular'] || 'https://www.ecuavisa.com/tv');
-  const bgImage = useConfigStore((s) => s.config?.background) || bgLogin;
+
+  /* Imagen del panel derecho: viene de config ("background_image").
+     Alternativa: el valor anterior ("background") y, si no hay, panel.png. */
+  const configBgImage = useConfigStore(
+    (s) => s.config?.background_image || s.config?.background,
+  );
+  const bgImage = configBgImage || bgLogin;
 
   const { deviceData, isLoading, error } = useLoginData(() =>
     navigate('/seleccionar-perfil', { replace: true })
@@ -88,10 +94,11 @@ function LoginView() {
           </div>
         </div>
 
-        {/* Link alternativo */}
+        {/* Link alternativo 
         <p className={styles.emailLink}>
           O ingresa con tu correo electrónico
         </p>
+        */}
       </div>
 
       {/* Panel derecho — mosaico de programas */}

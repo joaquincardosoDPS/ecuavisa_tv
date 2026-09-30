@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaOptionsType, EmblaCarouselType } from "embla-carousel";
 import { useCallback, useEffect, useState, memo } from "react";
@@ -8,11 +6,9 @@ import type { EPGChannel, EPGEvent, LiveSignal } from "@/interfaces/catalog.inte
 import { FocusContext, useFocusable, setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCarouselFocus } from "@/hooks/tv/useCarouselFocus";
 import { useNearViewport } from "@/hooks/tv/useNearViewport";
+import { useGlobalEpg } from "@/hooks/live/useGlobalEpg";
 import logoSvg from "@/assets/img/logo.svg";
 import styles from "./HomeLiveGrid.module.css";
-
-
-const EPG_URL = 'https://assets.rudo.video/assets/ecuavisa/playlists/global_epg.json';
 
 function getCurrentEvent(events: EPGEvent[]): EPGEvent | null {
   const now = new Date();
@@ -88,13 +84,7 @@ interface HomeLiveGridProps {
 
 function HomeLiveGrid({ playlistPremium = [], onSelectSignal }: HomeLiveGridProps) {
   const navigate = useNavigate();
-  const { data: channels, isLoading } = useQuery<EPGChannel[]>({
-    queryKey: ["global-epg"],
-    queryFn: async () => (await axios.get<EPGChannel[]>(EPG_URL)).data,
-    // En TV no conviene re-descargar y re-renderizar la grilla cada minuto
-    staleTime: 1000 * 60 * 10,
-    refetchInterval: 1000 * 60 * 10,
-  });
+  const { data: channels, isLoading } = useGlobalEpg();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true, containScroll: "trimSnaps" } as EmblaOptionsType);
   const [canScrollPrev, setCanScrollPrev] = useState(false);

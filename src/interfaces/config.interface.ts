@@ -14,6 +14,8 @@ export interface AppConfig {
     ios_redirect_uri: string | null;
     facebook_active: boolean;
     background: string | null;
+    /** Imagen del panel lateral (vista welcome / login). */
+    background_image?: string | null;
     color: string | null;
     "url-tv-vincular"?: string;
     /** Página de pago mostrada en el modal de contenido de pago (el QR lleva el link del API). */

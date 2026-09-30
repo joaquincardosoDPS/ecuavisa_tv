@@ -10,14 +10,20 @@ import logoSrc from '@/assets/img/logo.svg'
 import panelSrc from '@/assets/img/panel.png'
 import styles from './WelcomeView.module.css'
 import { useNavigate } from 'react-router-dom'
+import { useConfigStore } from '@/features/config/useConfigStore'
 
-const REGISTER_URL = 'https://www.ecuavisa.com'
+const REGISTER_URL = 'https://front-dev-factory.digitalproserver.com/ecuavisa/auth/registro'
 
 function WelcomeView() {
     const { ref: pageRef, focusKey: pageFocusKey } = useFocusable({
         focusKey: 'zone-welcome',
     })
     const navigate = useNavigate();
+
+    /* Imagen del panel derecho: viene de config ("background_image").
+       Si no hay valor, se usa la imagen actual (panel.png). */
+    const configPanelImage = useConfigStore((s) => s.config?.background_image)
+    const panelImage = configPanelImage || panelSrc
 
     const { ref: buttonRef, focused } = useFocusable<HTMLButtonElement>({
         focusKey: 'welcome-btn-login',
@@ -62,7 +68,7 @@ function WelcomeView() {
                     </div>
                 </div>
                 <div className={styles.panel}>
-                    <img src={panelSrc} alt="" className={styles.panelImg} />
+                    <img src={panelImage} alt="" className={styles.panelImg} />
                     <div className={styles.panelOverlay} />
                 </div>
             </div>

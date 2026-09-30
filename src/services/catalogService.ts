@@ -40,12 +40,13 @@ export const catalogService = {
     },
 
     getPlaylistPremium: async (): Promise<PlaylistPremiumResponse> => {
-        const { data } = await api.get(`${RUDO_PLAYLIST_PREMIUM_URL}?random=${Math.random()}`);
+        // Sin cache-buster: el CDN manda max-age=300 y el cacheo lo controla react-query.
+        const { data } = await api.get(`${RUDO_PLAYLIST_PREMIUM_URL}`);
         return data;
     },
 
     getChannelList: async (): Promise<EPGChannel[]> => {
-        const { data } = await api.get<EPGChannel[]>(`${RUDO_PLAYLIST_GLOBAL_EPG_URL}?random=${Math.random()}`);
+        const { data } = await api.get<EPGChannel[]>(RUDO_PLAYLIST_GLOBAL_EPG_URL);
         return data;
     },
 

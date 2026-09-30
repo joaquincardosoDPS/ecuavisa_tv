@@ -1,4 +1,5 @@
 import { memo } from "react";
+import type { RefObject } from "react";
 import type { Category, Event } from "@/interfaces/catalog.interface";
 import { getEventStatus } from "@/utils/eventStatus";
 import Button from "@/components/ui/Button";
@@ -11,10 +12,11 @@ import styles from "./SingleEvent.module.css";
 
 interface SingleEventProps { category: Category; }
 
-const SingleEventButton = ({ event, category, handleClick }: { event: Event | null, category: Category, handleClick: () => void }) => {
+const SingleEventButton = ({ event, category, handleClick, scrollAnchor }: { event: Event | null, category: Category, handleClick: () => void, scrollAnchor: RefObject<HTMLElement | null> }) => {
   const { ref: buttonRef, focused: buttonFocused } = useCarouselFocus({
     focusKey: `single-event-btn-${event?.id || category.key}`,
     isBanner: false, // Changed from true to false to prevent scrolling to top
+    scrollAnchor,
     onEnterPress: handleClick,
   });
 
@@ -70,7 +72,7 @@ function SingleEvent({ category }: SingleEventProps) {
             </p>
           )}
           <div className={styles.eventActions}>
-            <SingleEventButton event={event} category={category} handleClick={handleClick} />
+            <SingleEventButton event={event} category={category} handleClick={handleClick} scrollAnchor={zoneRef} />
           </div>
         </div>
       </div>
